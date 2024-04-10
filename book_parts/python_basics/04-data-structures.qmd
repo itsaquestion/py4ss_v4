@@ -1,0 +1,850 @@
+# 基本数据结构
+
+存放和处理数据的一些特殊结构。
+
+## 列表List
+
+一个列表List，就是把几个元素(items)，用一个**固定的顺序**连在一起的数据结构。列表List是一个重点，超级常用，内容比较多。
+
+### 列表的创建
+创建一个列表，可以用中括号`[]`，其中每一个元素用逗号分开。
+
+为了好看，建议每个逗号后加一个空格。
+
+```{python}
+#%% 列表List
+numbers = [1, 2, 3, 4, 5, 6]
+letters = ["a", "b", "c", "d"]
+print(numbers)
+print(letters)
+```
+
+列表中的元素，可以混合多种类型。`r red("但一般不建议这么做")`。
+```{python}
+a_list = [1, 2, 3, "a", "b", "c"]
+print(a_list)
+```
+
+
+也可以`+`拼接两个List来创建新的List
+```{python}
+a_new_list = [1,2,3] + [7,8,9]
+print(a_new_list)
+```
+
+
+我们还可以创建空List。比如，当列表的第一个元素还没确定，而你要先行创建列表，然后再生成元素添加进去。
+```{python}
+#%% 空列表
+empty_list = []
+empty_list = list()
+print(empty_list)
+```
+
+对一个字符串String 使用list()函数，可以把字符串分解成字母组成的List。这本质上就是类型转换：用类型的名字做转换函数的名字。
+
+如果把函数名`list`看成是一个动词，或者可以解释成：list a string。
+
+```{python}
+#%% 
+print(list('apple'))
+```
+`r red("注意")`：实际上，list()可以用于所有类型的序列（有序列结构的其他数据），以后我们遇到回说。
+
+
+特别地，如果我们转换一个多行的字符串，会发现什么？
+
+```{python}
+a = '''hello
+python
+'''
+print(list(a))
+```
+注意，换行符`\n`也出现在其中。实际上，应该把换行符之类的不可见字符也看成一个真正的字符，实际上**存在**，但部分情况**不可见**而已
+
+
+
+
+### 列表的元素
+
+要引用一个列表的元素，也使用`[]`，其中包括元素的索引(index)，注意第一个元素的索引是0（Python和c语言一样，从0开始计数）
+
+
+
+```{python}
+print(numbers)
+print(numbers[0])
+print(numbers[3])
+```
+可以反向引用元素，例如`-1`指向最后一个元素，`-2`指向倒数第二个，如此类推
+
+```{python}
+print(numbers)
+print(numbers[-1])
+print(numbers[-2])
+```
+
+
+列表中的元素是可变的。同样，用等号`=`对某个元素赋值即可
+
+
+```{python}
+print(numbers)
+numbers[0] = 999 # 修改第一个元素的值为999
+print(numbers)
+```
+添加元素
+
+在List的最后添加元素可以用`.append()`。添加多个元素，可以用`.extend()`，注意`extend`使用一个list作为参数。插入元素到指定索引号`.insert()`
+
+```{python}
+letters = list("abcd")
+print(letters)
+
+
+letters.append('e')# 添加一个元素
+print(letters)
+
+
+letters.extend(['f','g']) #添加多个元素：把要添加的元素放进一个list里
+print(letters)
+
+
+letters.insert(3,"apple") #元素插入到指定索引的位置
+print(letters)
+```
+
+移除：移除某个元素，使用`.remove()`；按照索引移除`del`
+
+```{python}
+
+print(letters)
+letters.remove('apple') # 如果'apple'不存在，会抛出错误：ValueError: list.remove(x): x not in list
+print(letters)
+
+del letters[0]
+print(letters)
+```
+
+### 其他常用操作
+
+1. 获取的List的长度
+
+题外话：从长度可以知道，最后一个元素的索引号是长度-1
+
+```{python}
+a = list("apple")
+print(a)
+print(len(a))
+```
+
+2. 获得最大值、最小值和求和
+```{python}
+a = [1,2,3,4,5]
+print(max(a)) # 如果包含不可比较大小类型，如str，会出错！
+print(min(a))
+print(sum(a))
+```
+
+
+3. 原地排序`.sort()`,默认的排序方式是“从小到大”
+
+`r red("注意：")`这个方法会改变原List的顺序
+
+```{python}
+a = [5,3,4,2,1]
+a.sort()
+print(a)
+```
+
+也可以逆序：从大到小
+```{python}
+a.sort(reverse=True)
+print(a)
+```
+
+4. 排序`sorted()`，
+
+`r red("注意：")``sorted()`回返回一个新的、排序后的List，不会改变原List的顺序。
+
+```{python}
+a = [5,3,4,2,1]
+print(a)
+print(sorted(a)) # 打印排序的结果
+print(a) # 原list的顺序并未改变
+
+```
+也可以逆序排序（从大到小）
+```{python}
+b = [3,4,5,1,2]
+print(sorted(b, reverse=True))
+```
+
+
+5. 统计某个元素的数量
+
+`.count()`
+
+```{python}
+a = [1,2,2,2,3,3,5,5,5,5,5]
+
+print(a.count(3)) # a中的3有多少个？
+```
+
+6. 查找某个元素第一次出现的索引
+
+```{python}
+a = list('an apple')
+print(a)
+print(a.index('p'))
+```
+
+7. all和any
+
+可以用来回答“是否全班同学都及格？”之类的问题。这部分我们在后面列表推导式会进一步展开。
+
+```{python}
+# 是否全部为真
+a = [True, True]
+all(a) 
+
+# 是否有任何一个元素为真
+b = [False, True]
+any(b)
+```
+
+8. 判断in 某个元素是否在一个列表中
+```{python}
+a = [1,2,3,5,6]
+print(3 in a)
+print(4 in a)
+```
+
+小思考：如何判断一个元素是否“不在一个列表中”呢？
+
+### List 练习（元素和常用操作）
+
+1. 创建一个名为my_list的列表，包含以下元素：1, 3, 5, 7, 9。然后创建一个变量element，将其设置为列表中的第四个元素。
+
+2. 创建一个名为my_list的列表，包含以下元素：2, 4, 6, 8。使用append方法将10添加到列表的末尾，然后创建一个变量length，将其设置为列表的长度。
+
+3. 创建一个名为my_list的列表，包含以下元素：1, 9, 3, 7。使用insert方法在9和3之间插入一个值为5的元素，然后创建一个变量max_value，将其设置为列表中的最大值。
+
+4. 创建一个名为my_list的列表，包含以下元素：2.2, 3.3, 1.1, 4.4。使用remove方法删除元素1.1，然后创建一个变量min_value，将其设置为列表中的最小值。
+   
+提交范例：
+
+注：
+1. 不用写你的个人信息。
+2. 不用把题目抄一遍
+
+```{python}
+# List 练习1
+# 练习题1
+# <这里写第1题的代码> 
+
+# 练习题2
+# <这里写第2题的代码> 
+
+# 练习题n
+# ...
+
+```
+
+
+### List的切片
+
+如何获取（或者修改）一个List中的某一段？
+
+```{python}
+a = list('abcdef')
+print(a)
+```
+
+截取：从第2个元素开始到第4个元素：（证券答案应该是`['b', 'c', 'd']`
+
+`a[起点的索引 : 终点的索引-1]`
+
+如：
+`a[1:4]`：切片起止点：包含起点（1号，即`b`），不包含终点（不含4号，即`e`）
+
+
+```{python}
+print(a[1:4])
+```
+
+可以不写起点或者终点，默认是到一边的尽头
+
+```{python}
+print(a[:4]) # 4号元素之前（0，1，2，3）（不包含终点）
+```
+
+```{python}
+print(a[3:]) # 3号元素以及之后（3，4，5）（包含起点）
+```
+
+可以倒数切片：
+
+如从倒数第二个元素开始到最后
+```{python}
+print(a[-2:]) # 倒数第二个元素开始到最后（包含起点）
+```
+从头切到倒数第二个元素（不含终点）
+```{python}
+print(a[:-2]) # 从头切到倒数第二个元素（不含终点）
+```
+
+
+切片赋值 ： 直接覆盖原理位置的值，可以不等长
+
+```{python}
+a = list('abcdef')
+print(a[2:4])
+
+```
+
+注意：`a[2:4]`只有2个值，但我们替换成不等长的其他List，如替换3个值进去
+
+```{python}
+a[2:4] = ['x','y','z']
+print(a)
+```
+
+这使得`['c', 'd'] -> ['x', 'y', 'z']`
+
+赋予空列表，可以达到删除的效果。
+
+```{python}
+a[2:5] = [] # x,y,z是2，3，4号
+print(a)
+```
+
+还可以按步长切片
+
+`a[起点:终点:步长]`
+
+步长默认为1（每个元素都取值），如果设置为2，每2个元素取一个值
+
+```{python}
+a = list('abcdefgh')
+print(f'''a        is {a}
+a[1:6]   is {a[1:6]}
+a[1:6:2] is {a[1:6:2]}
+''')
+
+```
+
+一个简单小技巧：步长也可以取负数，等于逆序取值。因此有一个简单的把列表逆序的方法: `[::-1]`
+
+```{python}
+a = list('apple')
+b = a[::-1] # 第一个冒号前后都没有值，表示取整个列表
+print(a)
+print(b)
+```
+
+### List 练习（切片和其他）
+1. 创建一个名为my_list的列表，包含以下元素：1, 2, 3, 4, 5。使用切片获取前三个元素，并存储在新列表first_three中。
+
+2. 创建一个名为my_list的列表，包含以下元素：1, 2, 3, 4, 5, 6, 7, 8, 9, 10。使用切片和步长来创建一个新列表even_numbers，其中包含my_list中的所有偶数。
+
+3. 创建一个名为my_list的列表，包含以下元素：'a', 'b', 'c', 'd', 'e'。使用切片创建一个新列表reversed_list，它是my_list的一个反转版本。
+
+4. 创建两个列表，名为list1和list2，分别包含以下元素：
+
+* list1: [1, 2, 3, 4]
+* list2: [5, 6, 7, 8]
+
+使用切片和+操作符创建一个新列表merged_list，它包含list1的前两个元素和list2的后两个元素。
+
+5. 创建一个名为my_list的列表，包含以下元素：'apple', 'banana', 'cherry', 'date', 'elderberry'。使用切片和列表连接来替换中间的三个元素为一个新的子列表['fig', 'grape', 'honeydew']。
+
+### 注意：List的拷贝
+
+这部分可能有点抽象。
+
+1. 变量名是个标签
+2. 变量赋值，给内存中的一个数据“贴标签”
+3. 那用一个变量，给另一个变量赋值会如何？
+
+
+以一个数字来举例
+
+```{python}
+a = 123
+print(a)
+
+b = a 
+print(b)
+
+a = 321
+print(f'a is {a}\nb is {b}')
+
+```
+
+中间发生了什么
+
+1. `a = 123`
+
+创建了一个整型对象，里面存放了`123`，把`a`这个名字绑定到这个对象上。
+
+2. `b = a`
+
+把`a`这个标签，所指代的对象，再贴一个标签`b`。这个时候,`a`和`b`都指向这个整型对象，里面存放了`123`。
+
+3. `a = 321`
+创建了一个新的整型对象，里面存放了`321`，把`a`这个名字，重新绑定到这个对象上。
+
+现在 `a -> 321`，`b -> 123`
+
+
+但List比较特殊
+
+以letters来举例：
+```{python}
+a = ["a", "b", "c", "d"]
+print('a is ', a)
+
+```
+
+1. 变量`a` 指向 `["a", "b", "c", "d"]`
+
+<img src="images/set_a.png" width="400" />
+
+```{python}
+b = a 
+```
+
+<img src="images/set_b.png" width="400" />
+
+2. 变量`b` 指向`a`相同的数据`["a", "b", "c", "d"]`
+
+```{python}
+a[0] = 'apple'
+print('b is ', b)
+
+```
+
+
+
+3. 你修改了列表`a`的值，`b`的值也改变了！因为`a`和`b`一直指向同一个对象。 
+
+<img src="images/change_a.png" width="400" />
+
+
+4. 如果要避免这种情况，要明确地把`a`**复制**一次，
+
+```{python}
+a = ["a", "b", "c", "d"]
+b = a.copy()
+print(f'a is {a}\nb is {b}')
+```
+
+<img src="images/copy_a.png" width="400" />
+
+```{python}
+a[0] = 'apple'
+```
+<img src="images/set_b2.png" width="400" />
+
+```{python}
+print(f'a is {a}\nb is {b}')
+```
+
+
+
+这样就不会互相干扰了。
+
+总结：
+
+1. Number ,String,Tuple等，是“不可变类型”：修改这个变量，会创建一个对象，然后重绑定（转贴标签）
+2. List等，是“可变类型”：修改里面的值，其实是“**原地修改**”，导致所有指向这个数据的变量都发生改变。
+3. 要避免上述情况，请明确地复制原List一次。
+
+
+
+## 元组Tuple
+
+元组：同样是序列结构，可以视为“**不可修改**的列表”，其中的数据，一旦创建，就不可修改。
+
+
+### 元组的创建
+
+和List类似，但使用小括号创建。
+
+注意，从打印的结果也可以看出，`()`表示元组，中括号`[]`表示列表。
+
+```{python}
+a = (1,2,3,4,5) 
+print(a) # 元组
+
+b = [1,2,3,4,5]
+print(b)
+```
+如果元组只有1个元素，必须加一个逗号`,`，以避免python认为这是个运算。
+```{python}
+a = (1,) # 正确的做法，识别成元组
+print(a)
+
+b = (1)
+print(b) # 会被识别成一个数字
+```
+
+
+也可以不用小括号，只使用逗号创建（为了维持代码的清晰和可识别，`r red("不建议这么做")`）
+```{python}
+a = 1,2,3,4,5
+print(a)
+```
+### 访问元组的元素
+
+访问元组的方法和List完全一样，可以照搬。
+
+但是“可读不可写”,**不能做任何修改或删除**。
+
+
+
+```{python}
+a = (1,2,3,4,5) # 读取元素和获得切片等，和List完全一样
+print(a[3])
+print(a[2:4]) 
+```
+
+```{python} 
+#|eval: false
+a = (1,2,3,4,5) 
+a[3] = 999 # 要对元组的值进行修改，会报错
+```
+```
+TypeError: 'tuple' object does not support item assignment
+```
+
+
+### 元组和列表的互转
+
+
+
+List和Tuple用非常接近的结构，互相转换只要用前述的“简单类型转换”方法即可
+
+```{python}
+
+a_list = list('apple') # str转为list
+a_tuple = tuple(a_list) # list转为tup;e
+print(a_tuple) # 注意，打印的结果是()小括号
+
+```
+
+```{python}
+a_tuple = (1,2,3,4,5) # 创建一个tuple
+a_list = list(a_tuple)
+print(a_list)
+```
+
+### 为什么要用tuple，不用list？
+
+Tuple只有List的一半能力（只能读，不能改），只用List也可以完成Tuple的所有功能，那用Tuple有何意义？
+
+
+1. List可能被**意外修改**，但Tuple不会
+
+如前述，List是一个可变类型，可以有不止一个变量名指向同一个List数据。所以，使用List保存的数据，可能会在传递的过程中，在不经意间被你的某些代码所修改，比如忘记`.copy()`。
+
+如果一个列表结构的数据，原则上不应该被改变，则可以采用Tuple。如果被代码意外修改，则会报错通知你。
+
+2. Tuple一般会比List节约内存，但我们一般不必考虑这一点。
+
+3. Tuple可以用作Dict的Key（后面回说）
+
+因此一般而言，大部分情况下用来作为“数据不应被修改的序列结构”即可。
+
+
+## 集合Set
+
+一个无顺的、元素不重复的数据结构。用`{}`创建。
+
+
+```{python}
+a = {1,1,2,3,4,4,5} # 创建一个集合
+print(a)
+```
+
+注意：集合中的元素不会重复。
+
+### 简单集合运算
+
+这里只简单介绍，后续用到再深入。
+
+1. 并集，用`.union`或者`|`
+```{python}
+A = {1,2,3}
+B = {3,4,5}
+
+# 并集
+print(A.union(B)) 
+print(A|B)
+```
+
+2. 交集：`.intersection()`或者`&`
+```{python}
+print(A.intersection(B))
+print(A & B) 
+```
+
+3. 差集： `.difference()`或者`-`
+```{python}
+print(A.difference(B))
+print(A - B) 
+```
+
+###  其他
+一个小技巧：如何去除list中的重复元素？转为set再转回list。注意：转换后元素的顺序就不保证了。
+
+```{python}
+a = list('apple')
+print(a)
+
+b = list(set(a))
+print(b) # 顺序不保证和a相同
+
+```
+
+
+## 字典Dict
+
+1. 和List或者Tuple类似，dict是很多数据的集合体
+2. Python 3.6之前，dict中的数据不保证顺序。3.6之后，dict中元素的顺序就和加入时候保持一致。现在大家的版本肯定满足了。 
+3. dict中的元素访问，是通过"键key"访问，一个key会对应一个value。
+4. key的必须是不可变类型，如string，int，或者tuple。（tuple也可以做key）
+5. 和List一样，dict可以存放不同类型的数据
+6. key是唯一的，如果对一个key赋予不同的值，那么新的value会替换旧的value.
+
+
+这和新华字典类似：
+
+1. 通过这个字的拼音(即key)，找一个字的含义(value)
+2. 你一般不会通过这个字在字典中的第几个(index)来访问，虽然也不是不可以
+
+### 创建dict
+
+
+
+使用大括号，`key:value`的方式，key-value之间使用逗号分隔
+
+`{key1:value1, key2:value2, ... }`
+
+例如班级人数,一班50人，二班49人，三班30人。
+
+这里使用`class_x`的字符串来做key，储存班级的人数。这个dict的作用是，可以通过班级的名称来获取班级的人数。
+
+```{python}
+
+class_size = {'class_1':50, 'class_2':49,'class_3':39}
+print(class_size)
+
+```
+
+我们建立了一系列的映射，从字符串（本例中就是班级名称），到键值（本例中是班级人数的整型）
+
+`"class_1" -> 50`
+
+`"class_2" -> 49`
+
+`"class_3" -> 39`
+
+也可以用`dict()`函数，同上述例子，但整个写法变成了变量赋值的形式。
+
+```{python}
+class_size = dict(class_1=50,class_2=49,class_3=39)
+print(class_size)
+```
+
+ 
+### 访问字典数据
+
+
+字典数据的访问，和List或者Tuple一样，都是用中括号`[]`，但提供的数据的索引index，而是key（键名）
+
+```{python}
+# 获取一班的人数：
+# 一班的key是"class_1"
+print(class_size['class_1'])
+
+# 当然3班也一样
+print(class_size['class_3'])
+```
+
+修改其值也一样，直接赋值即可
+
+```{python}
+class_size['class_3'] = 40
+print(class_size)
+
+```
+
+实际上，添加键值的方法就是**直接赋值**
+
+例如，四班，key为class_4，人数为45，则：
+
+```{python}
+class_size['class_4'] = 45
+print(class_size)
+```
+
+同样，删除键值的函数是`del`，和删除一个变量一样。
+
+删除`'class_4'`。
+```{python}
+del class_size['class_4'] 
+print(class_size)
+```
+
+### 获得所有键值
+
+获得全部的key，使用`.keys()`方法。注意是复数，有个s。
+
+```{python}
+print(class_size.keys())
+```
+
+注意，`.keys()`方法返回的不是一个List，所以我们一般还是转为List，便于进行其他操作。转换也是直接采用`list()`函数即可。
+
+```{python}
+keys = list(class_size.keys())
+print(keys)
+```
+
+### 所有的value
+
+获得全部的value，使用`.values()`方法。
+
+```{python}
+print(class_size.values()) #同样是复数，有个s。
+```
+
+同样，我们可以转换为List。
+```{python}
+values = list(class_size.values())
+print(values)
+```
+
+### 其他操作
+
+和List一样，dict也可以用`len()`函数获得数据的长度
+
+```{python}
+print(len(class_size))
+```
+
+### 别名与拷贝
+
+和List一样，如果用一个dict为另一个dict赋值，那么2个变量和指向同一个数据，对其中一个数据的修改，会使得另一个变量中的数据也改变（毕竟只是同一个数据的2个名字）
+
+要避免这一点，同样使用`.copy()`函数，拷贝一个dict。具体和List一样，这里不再重复。
+
+
+### 不存在的key
+
+如果我们直接读取一个不存在的key，会报错
+
+```{python} 
+#|eval: false
+class_size['class_9']
+```
+
+key错误：即找不到'class_9'这key
+```
+KeyError: 'class_9'
+```
+
+但是，某些时候，我们想，如果key不存在，则返回一个默认值，而不要因为报错而中断程序。
+
+这个时候可以使用`.get()`方法：如果key存在，则返回对应的value。如果不存在，则返回我们前面说过的`None`。
+
+```{python}
+print(class_size.get('class_1')) # 获取一个存在的key
+print(class_size.get('class_9')) # 获取一个不存在的key
+
+```
+
+对于可能不存在的key，我们也可以使用自己指定的值。具体到本例，班级人数不可能是0，所以我们可以考虑用`0`来表示这个key（班级名称）不存在，或者你打错字了。
+
+`.get()`这个方法的第二个参数，则是找不到key的时候的默认值。
+
+```{python}
+print(class_size.get('class_9', 0)) 
+```
+
+### key是否存在
+
+判断一个key是否存在， 也是用`in`。
+
+```{python}
+print('class_1' in class_size) # class_1是存在的
+print('class_9' in class_size) # class_9是不存在的
+```
+
+
+### （键-值元组）
+
+dict也可以视为一个类List的数据结构：其中每一个元素，是一个（键-值）对，即`(key, value)`的元组。
+
+```{python}
+class_size = {'class_1':50, 'class_2':49,'class_3':39}
+print(class_size)
+```
+
+可以使用`.items()`这个方法，获取一个dict的所有`(key, value)`对。
+
+```{python}
+print(class_size.items())
+```
+
+当然，我们也可以转为一个真正的List用`list()`函数
+
+```{python}
+all_items = list(class_size.items())
+print(all_items)
+```
+
+显然，这是3个`(key, value)`元组构成的List。
+
+注意
+
+1.最外层的中括号`[]`：这是一个List
+2.每一个元素的小括号`()`：每一个元素是一个Tuple
+
+看看第一个元素是什么？
+```{python}
+print(all_items[0])
+```
+
+易见，这就是一个（一班的名称, 一班的人数）组成的元组。
+
+
+### Dict小练习
+
+1. 题目1：创建字典
+创建一个名为 person_info 的字典，其中包含以下键值对：
+
+```
+'name': 'Alice'
+'age': 25
+'city': 'New York'
+```
+
+2. 题目2：访问字典中的值
+使用刚刚创建的 person_info 字典。编写一个Python语句来访问键 'age' 对应的值，并将其存储在一个名为 age_value 的变量中。
+
+3. 题目3：添加键值对
+在 person_info 字典中添加一个新的键值对，其中键为 'occupation'，值为 'Engineer'。
+
+4. 题目4：修改字典中的值
+修改 person_info 字典中键 'city' 对应的值为 'San Francisco'。
+
+5. 题目5：删除键值对和获取所有键
+首先，删除 person_info 字典中键 'age' 及其对应的值。然后获取该字典中所有的键，并将它们存储在一个名为 keys_list 的列表中。
+
+
+
+
+

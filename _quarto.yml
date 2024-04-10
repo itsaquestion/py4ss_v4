@@ -1,0 +1,61 @@
+project:
+  type: book
+
+book:
+  title: "写给文科生的Python教程"
+  subtitle: "Python for Social Scientists v2.1"
+  author: "Weicheng Li"
+  date: today
+
+  chapters:
+    - index.qmd
+    - part: "第1部分 Python基础"
+      chapters:
+        - book_parts/python_basics/00-install.qmd
+        - book_parts/python_basics/0.5-computer-basic.qmd
+        - book_parts/python_basics/01-run-python.qmd
+        - book_parts/python_basics/02-use-vscode.qmd
+        - book_parts/python_basics/03-var-and-datatype.qmd
+        - book_parts/python_basics/04-data-structures.qmd
+        - book_parts/python_basics/05-control-and-loops.qmd
+        - book_parts/python_basics/06-function.qmd
+        - book_parts/python_basics/06.5-data-structure-2.ipynb
+        - book_parts/python_basics/08-useage.qmd
+        - book_parts/python_basics/07-module.qmd
+        - book_parts/python_basics/09-OO.qmd
+    - part: "第2部分 统计学"
+      chapters:
+        - book_parts/stats/01.ipynb
+    - part: "parts/data_processing/index.qmd"
+      chapters:
+        - book_parts/data_processing/10-numpy.qmd
+        - book_parts/data_processing/11-pandas.ipynb
+        - book_parts/data_processing/12-plot.ipynb
+#        - 13-big-game.qmd
+    - part: "第3部分 工具"
+      chapters:
+        - book_parts/tools/20-ml.ipynb
+        - book_parts/tools/21-math.ipynb
+    - part: "第4部分 案例"
+      chapters:
+        - book_parts/case_study/31-data_source.ipynb
+        - book_parts/case_study/32-basic_examples.ipynb
+        - book_parts/case_study/34-portfolio.ipynb
+        - book_parts/case_study/33-technical_analysis.ipynb
+        - book_parts/case_study/rolling_test.ipynb
+        - book_parts/case_study/35-association_rule.ipynb
+#bibliography: references.bib
+
+format:
+  html:
+    theme: Flatly
+    fontsize: 1em
+    linestretch: 1.7
+    # include-in-header: "hypothesis.html"
+    # toc-location: "left"
+      
+  # pdf:
+  #   documentclass: scrreprt
+
+
+

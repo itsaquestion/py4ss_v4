@@ -1,0 +1,269 @@
+# 综合应用
+
+
+## 从数据开始
+
+例如，我们要一个程序来处理班级同学的信息。每个同学起码有这几个信息：
+
+1. 学号
+2. 姓名
+3. 专业
+4. 班级号
+
+用现在所学的信息，我们可以用字典dict来表示任何一个同学。
+
+```{python}
+student_1 = {'student_id':2021001, 'name':'Alex', 'major': 'finance', 'class_id':1}
+
+student_2 = {'student_id':2021002, 'name':'Bob', 'major': 'finance', 'class_id':1}
+
+student_3 = {'student_id':2021003, 'name':'Clare', 'major': 'accounting', 'class_id':2}
+
+
+print(student_1)
+print(student_2)
+print(student_3)
+```
+显然，同类数据，我们可以组成一个List，或者另一个Dict。
+
+
+```{python}
+# List版本
+
+students_info = [
+  student_1,
+  student_2,
+  student_3
+]
+
+print(students_info)
+```
+
+## 添加功能
+
+### 查找
+
+显然按条件查找是必须有的功能
+
+例如：查找Alex的信息
+
+1. 既然students_info是一个列表，那我们就用列表推导。
+
+```{python}
+
+result = [s for s in students_info if s['name'] == "Alex"]
+
+print(result)
+```
+注意：列表推导的结果，也是一个列表，即使其中只有1个元素。看打印的最2边是中括号。
+
+那么有多少个同学叫Alex?
+
+```{python}
+len(result)
+```
+
+那我们可以获得Alex的信息，例如学号和专业
+
+```{python}
+print(result[0]['student_id'])
+print(result[0]['major'])
+```
+
+按人名查找，是一个特别常用的功能，那我们把这个功能写成一个函数：
+
+```{python}
+def find_students_by_name(data, name):
+  '''
+  按名字查找同学
+  '''
+  result = [s for s in data if s['name'] == name]
+  return result
+
+result = find_students_by_name(students_info,"Alex")
+print(result)
+```
+
+### 练习：按学号查找
+
+1. 按学号查找，但学号是唯一的，因此逻辑上只能有一个数据。
+2. 因此，获得的数据之后，不返回列表，只返回代表学生的dict。
+2. 如果学号有重复，打印一个警告信息：“学号有重复！请检查！”
+
+```{python}
+def find_student_by_id(data, student_id):
+  '''
+  按学号查找同学
+  '''
+  pass # 这部分由你完成
+
+result = find_student_by_id(students_info, 2021002)
+print(result)
+```
+
+
+### 简单统计
+
+统计一下，金融专业有多少人？
+
+1. 先筛选（利用上面的知识）
+2. 再算数
+```{python}
+finance_students = [s for s in students_info if s['major'] == 'finance']
+
+len(finance_students)
+
+```
+
+
+当然，也可以写个2函数：同样，先查找，在统计
+
+```{python}
+def find_students_by_major(data, major):
+  '''
+  按专业查找同学
+  '''
+  result = [s for s in data if s['major'] == major]
+  return result
+
+def count_by_major(data, majoy):
+  '''
+  计算专业的同学人数
+  '''
+  class_size = len(find_students_by_major(data,majoy))
+  return class_size
+
+print('金融专业人数:', count_by_major(students_info, 'finance'))
+print('会计专业人数:', count_by_major(students_info, 'accounting'))
+```
+
+小结：
+
+考虑怎么组织数据：
+
+1. “一位同学”的信息可以用字典Dict：可以用`student_id`等标签，来获取该同学信息。
+2. “所有同学”的信息可以用列表List：所有同学，可以看作一个有序的队列，自然可以采用List。大量的列表操作，便于我们进行查找、筛选、统计等等。
+3. 常用的操作，可以写成函数。既便于使用，又可以通过函数名得知操作的意图，一目了然。
+4. 函数名，应该顾名思义。函数体的开头，必须写函数的说明，如作用，算法等。
+
+## 综合练习
+
+本章的内容，本质上是针对一些基础的信息（三个同学的信息），构造出数据结构（List-Dict），并且添加处理数据的功能（各种函数）。
+
+以下练习，要求你**继续**这个过程：在上述内容的基础上，添加新的信息和新的功能。
+
+
+### 添加python课分数
+
+
+问题：按学号`student_id`，添加同学的python课分数`python_score`
+
+知识点：List和Dict的赋值，循环或者列表推导
+
+1. 写一个手动版
+2. 写一个函数版
+
+```{r echo=FALSE}
+knitr::kable(
+  data.frame(student_id = c(2021001:2021003),
+             name = c("Alex","Bob","Clare"),
+             python_score = c(86,59,92)),
+  caption = 'Python课的分数', booktabs = TRUE
+)
+```
+思路：
+
+1. “一个同学”的信息，是以dict的形式保存，因此我们需要给dict添新的key-value。
+2. 回忆：List和Dict都是可变对象，你可以直接对List中的Dict中的key赋值！
+
+```{python}
+def set_python_score(data, student_id, score):
+  '''
+  设置python课的分数
+  '''
+  pass # 这里由你完成
+
+set_python_score(students_info,2021001,90)
+
+```
+### 简单统计
+
+问题：统计python课的所有同学的平均分，以及分班级的平均分。
+
+知识点：循环或者列表推导，累加，简单计算
+
+1. 手动版
+2. 函数版
+
+
+```{python}
+def get_avg_python_score(data):
+  '''
+  统计python课的平均分
+  '''
+  pass # 这里由你完成
+
+def get_avg_python_score_by_class(data,  class_id):
+  '''
+  按班级，统计python课的平均分
+  '''
+  pass # 这里由你完成
+
+```
+
+### 由分数获得评级
+
+问题：按照分数，给同学添加一个`rank`的变量。
+
+知识点：`if`条件判断，List和Dict的赋值
+
+1. 90分+，"A"
+2. 80分+，"B"
+3. 70分+，"C"
+4. 60分+，"D"
+5. 不足60分，"E"
+
+
+
+### 判断是否及格
+
+问题：按照分数，给同学添加一个`pass`的变量。60分以上为及格
+
+知识点：`if`条件判断，List和Dict的赋值，布尔值
+
+1. 手动版
+2. 函数版
+3. 统计及格率
+
+
+### 信息输出
+
+问题：以字符串的形式，输出某一个同学的信息（通过学号）
+
+知识点：循环或列表推导，字符串操作。
+
+1. 输出的结果类似： "学号： ???? ； 姓名：??? ； 班级  ??? ... ..."。其中，班级信息要输出"专业 班级号"的形式，如“金融 5班”
+2. 手动版
+3. 函数版
+4. 写一个函数，输出不及格的同学的信息
+
+```{python}
+def print_by_student_id(data, student_id):
+  '''
+  打印同学信息
+  '''
+  pass # 这里由你完成
+
+def print_failed(data):
+  '''
+  打印不及格的同学的信息
+  '''
+  pass # 这里由你完成
+
+```
+
+
+
+
+
+

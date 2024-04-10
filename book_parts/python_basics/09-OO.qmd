@@ -1,0 +1,715 @@
+# 面向对象初步
+
+:::{.callout-note}
+1. 需要讲基本概念
+2. 时间充足可以讲继承和重载等
+:::
+
+前面我们讲过，应该如何设计你的数据结构，如何把操作数据的方法写成函数。
+
+在前面的课程中，我们的数据是暴露的，我们可以直接操作数据（比如可以直接把考试成绩设成1000分）。但现实中，我们往往希望把数据包装起来，避免直接操作数据，而是希望“使用指定的方法（接口）来操作数据”。
+
+这里介绍“面向对象object oriented（简称OO）”的编程范式/风格。
+
+## 概念
+### 封装
+
+**主要目标**封装性：不要直接操作数据，要通过接口来操作数据。
+
+数据和操作数据的方法（函数）绑定在一起，并且对外只留指定的数据接口。
+
+这意味着，你对数据的操作，只能通过特定的接口来处理，而不能（有时候可以，但不应该），越过接口，直接处理数据。
+
+比如：看电视
+
+1. 要处理的数据是电视的信号，处理的结果是画面和声音。
+2. 操作的接口，是电视的屏幕、喇叭、按钮和遥控等。你不能（最少不应该），把电视拆开，用其他设备直接控制和处理电视的信号。
+3. 把数据和操作的方法绑定，并且把数据同外界隔离开来，称之为“封装”。
+
+
+### 抽象性：类和对象
+
+所谓的类Class：约等于类型。比如在python中，数字`1,2,3,4,5`是“整型”，`'apple'`是一个字符串，你是一个大学生等等。其中，“整形”，“字符串”，“大学生”，都可以视为某些个体的“类型”。我们称之为“类”。
+
+
+所谓对象Object：就是一个具体的“个体”。比如“Alex是一个大学生”，“Bob是一个大学生”。那么“大学生”是一个类（类型），Alex和Bob则是一个具体的大学生的个体。“大学生”这个概念，把Alex和Bob作为大学生所应该具有的特征，给抽象和提取了。
+
+
+一个简单的例子，说明类和对象的关系：
+  
+1. 类Class：月饼的模子，抽象的“学生”概念
+2. 对象Object：一个个具体月饼，一个个具体的同学，如Alex和Bob
+
+## 类
+
+我们用面向对象的范式来演示我们的同学信息系统：
+
+1. 定义人的数据（储存人的信息）
+2. 定义人的方法（访问人的数据的接口）
+3. 定义群体的数据
+4. 定义群体的方法
+
+
+### 数据：“人”类的定义
+
+要完成我们的同学信息系统，我们首先从同学的定义开始。同学首先是个人。
+
+我们定义一个类，`Person`，人。
+
+```{python}
+# 定义一个Person类，首字母大写，暂时什么内容都不添加
+class Person:
+    pass
+```
+
+创建2个同学的实例。作为个同学的人的属性，我们起码要知道他们的姓名、出生日期和性别。
+
+什么是创建实例？用月饼的模子（类），敲出一个个月饼（实例对象）：具体的月饼，就是月饼类的实例。
+
+```{python}
+
+p1 = Person() # 创建一个Person的实例，看起来和调用函数类似
+p1.name = 'Alex'  # 访问属性：直接赋值即可。
+p1.birth_year = '2000'
+p1.gender = 'female'
+
+p2 = Person() 
+p2.name = 'Bob'  
+p2.birth_year = '2001'
+# 刻意遗漏了Bob的gender属性的设定
+
+```
+
+当然，访问数据也很简单,`对象.属性`即可
+```{python}
+print(f"第1位同学的名字是{p1.name}")
+print(f"第2位同学的名字是{p2.name}")
+```
+
+
+### 方法：如何操作数据
+
+前面我们把3个数据，封装在一个类里。这里考虑如何操作这3个数据。
+
+人类可以做"跑"这个动作。我们可以把跑这件事，定义为一个类的“方法”（成员函数）
+
+Python中，实例方法的第一个参数，必须是`self`，特质具体的对象“自己”，如“Alex”或者“这个月饼”。
+
+```{python}
+class Person:
+    def run(self):
+        '''
+        这是定义在一个类里的函数，我们称之为“方法method”
+        '''
+        print(self.name + " is running!")
+
+```
+
+注意: `self.name`就是 “我的name属性”。
+
+我们利用Person类，可以“实例化”（动词）一个具体的人p1：可以类比用月饼的模具，做一个具体的月饼出来。
+
+因为我们在Person里定义了Person类可以做的一个动作run，所以每一个Person的实例，例如p1,就都可以run()了
+
+```{python}
+p1 = Person() # 用Person类，生成一个具体的对象p1
+p1.name = 'Alex'
+p1.run() # 对于p1这个对象，调用run()方法！
+```
+
+类比：某个对象做了某件事。
+
+```{python}
+a = [1,2,3,4,5]
+a.pop() # “拿出”最后一个元素。
+# 注意可以类比 a.pop() 和p1.run()
+```
+
+其中：a是个列表（的实例）
+
+1. a中具有数据：1,2,3,4,5
+2. a中操作数据的方法：.pop()
+3. a.pop()：a使用了方法pop()来操作自己的数据。
+
+
+### 正式的例子
+
+对于任何类，我们可以定义一个“构造方法”`__init__()`，前后是2个下划线。其中放入我们用于初始化这个类的参数。例如，我们要用这个人的基本信息，来构造这个类。
+
+
+实例方法的第一个参数都是`self`，指代的是“这个具体的对象”。你可以透过`self`引用自身的信息。
+
+一个人，应该具有3样信息。
+
+1. 姓名
+2. 出生年份
+3. 性别
+
+```{python}
+class Person:
+    '''
+    ‘人’类
+    '''
+    def __init__(self, name, birth_year, gender):
+        '''
+        构造方法。用外部信息（参数），来初始化这个类。
+        '''
+        self.name = name 
+        # 把参数里的name变量，赋值给本对象(一个个具体的人，比如p1)的name属性
+        self.birth_year = birth_year
+        self.gender = gender
+
+```
+
+
+```{python}
+
+p1 = Person('Alex',2000,'female')
+p2 = Person('Bob',2001,'male')
+
+print(p1.name)
+print(p2.birth_year)
+
+```
+
+可以这么说
+
+1. p1是一个对象，是Person类的一个实例（例如，“你”是“人类”的一个实例）
+2. Person这个类，有3个属性，name，birth_year，gender
+
+
+其中：
+
+1. `self`，指的是这个具体的对象自己。用月饼的例子，即`self`指的是具体的“这个月饼”。用同学的例子，就是`p1`这个人。
+2. `self.name = name`，等号后面是参数中的`name`，即外界传入的name变量，本例中，即`Person('Alex', ...)`中的`'Alex'`。等号左侧，`self.name`，即这个这个具体的对象（具体的人），她的`name`属性。这句话的意思是，我们把这个类初始化的时候，外界传入的`name`变量，赋值给这个类的成员`name`（即`self.name`）。
+3. 其余赋值，也是同样的道理。我们要变量的成员，用外部的信息完成初始化。
+
+
+
+这么做有什么意义？例如，可以做初始数据的验证。
+
+例如：`birth_year`应该是个4位数的整型，而不是其他。
+
+注：这里只是简单地抛出一个错误，并且停止初始化过程。关于“异常处理”的具体内容，这里从略。
+
+抛出一个类型异常
+```{python, eval=FALSE}
+#|eval: false
+raise TypeError('错误：birth_year应该是一个整形')
+```
+
+
+```{python eval=FALSE}
+#|eval: false
+class Person:
+
+    def __init__(self, name, birth_year, gender):
+
+        self.name = name
+        
+        if type(birth_year) != int:
+            raise TypeError('错误：birth_year应该是一个整形')
+        else:
+            self.birth_year = birth_year
+
+        self.gender = gender
+    
+p1 = Person('Alex','2000','female')
+```
+
+```
+TypeError: 错误：birth_year应该是一个整形
+```
+
+
+### 方法
+
+我们把一个类里面定义的函数（不论是操作内部还是外部的数据），称之为方法"method"。
+
+比如，我们要打印同学的信息，我们可以写一个方法`print_info`。
+
+```{python}
+
+class Person:
+    def __init__(self, name, birth_year, gender):
+        self.name = name
+        if type(birth_year) != int:
+            raise TypeError('错误：birth_year应该是一个整形')
+        else:
+            self.birth_year = birth_year
+        self.gender = gender
+
+    def print_info(self):
+        print('姓名:{}，性别：{}，出生年份：{}'.format(self.name,self.gender,
+        self.birth_year))
+    
+p1 = Person('Alex',2000,'female')
+
+p1.print_info()
+
+```
+
+要做一个简单的计算，比如获得年龄。因为年龄每年都变化，我们可以用今年的年份，减去出生日期，那就不会错。
+
+获得今天的日期，和年份
+```{python}
+from datetime import date
+
+today = date.today()
+print(today)
+print(today.year)
+```
+
+
+```{python}
+from datetime import date
+
+class Person:
+
+    def __init__(self, name, birth_year, gender):
+        self.name = name
+        if type(birth_year) != int:
+            raise TypeError('错误：birth_year应该是一个整形')
+        else:
+            self.birth_year = birth_year
+        self.gender = gender
+
+    def print_info(self):
+        print('姓名: {}，性别: {}，出生年份:{}'.format(self.name, self.gender, self.birth_year))
+
+    def get_age(self):
+        this_year = date.today().year
+        return this_year - self.birth_year
+    
+p1 = Person('Alex', 2000, 'female')
+
+print(p1.get_age())
+
+```
+
+既然如此，我们打印个人信息，就可以把年龄替代掉出生日期。
+
+```{python}
+from datetime import date
+
+class Person:
+
+    def __init__(self, name, birth_year, gender):
+        self.name = name
+        
+        if type(birth_year) != int:
+            raise TypeError('错误：birth_year应该是一个整形')
+        else:
+            self.birth_year = birth_year
+
+        self.gender = gender
+
+    def format_info(self):
+        return '姓名: {}，性别: {}，年龄: {}'.format(self.name,self.gender,self.get_age())
+        
+    def print_info(self):
+        print(self.format_info())
+
+    def get_age(self):
+        this_year = date.today().year
+        return this_year - self.birth_year
+```
+
+
+```{python}
+p1 = Person('Alex', 2000, 'female')
+
+p1.print_info()
+```
+### 练习
+
+1. 添加一个属性“出生省份（或直辖市）”`birth_area`，并修改构造方法，以添加这个变量。
+2. 添加一个方法`is_from_gd()`，返回该同学的是否来自广东（注意，这一返回的是一个布尔值）。
+
+
+
+
+## 继承
+
+我们要做一个同学信息系统，我们处理的数据对象，是一个“同学”。
+
+“同学”是“人”。人有的属性，生日，同学都会有。
+
+但“同学”比“人”多了一些属性，例如同学有“学号”这属性。
+
+因此，如何表示“同学”这个类型？我们可以用“继承”：说，“同学”类，继承了“人”类，那么人有的属性和方法，同学都有，并且可以添加先属性等。
+
+
+一个同学应有的信息
+
+1. 姓名
+2. 出生年份
+3. 性别
+4. 学号
+
+前三个在“人”已有，其中学号是“人”类所没有的。
+
+构造方法（初始化），依然和前面一样
+
+定义类的时候，我们声明，Student类，“继承”自Person类，因此即使你什么代码也不写，Student也有Person类的一切功能。
+
+```{python}
+class Student(Person):  # 声明Student类“继承”自Person类
+    pass
+
+x = Student('Alex',2000,'female')
+x.print_info()
+```
+
+我们现在处理Student类比Person类扩展的内容：student_id。
+
+我们重写构造方法，添加一个`student_id`变量
+
+```
+def __init__(self, name, birth_year, gender, student_id)：
+```
+
+我们知道，在父类Person中的构造方法，已经有初始化信息处理的代码，例如检验出生年龄是否是一个整形。
+
+我们可以调用父类的构造方法，把`name, birth_year, gender`传递给Person类来处理，Student类只处理新的部分，即`student_id`。
+
+引用父类是`super()`，引用父类中的方法是`super().方法名`
+
+显然，我们要用父类现成的构造方法，就是`super().__init__(要传递的参数)`
+
+然后，我们只要写新的功能：检验学号，并保存
+
+```{python}
+class Student(Person):
+    def __init__(self, name, birth_year, gender, student_id):
+        super().__init__(name, birth_year, gender)
+        
+        if type(student_id) != int:
+            raise TypeError('错误：student_id应该是一个整形')
+        else:
+            self.student_id = student_id
+    
+
+```
+
+当然，Student类继承自父类Person，那么Person中的方法，比如print_info()，Student类自然也是具备的， 可以直接使用
+
+```{python}
+x = Student("Alex",2000,"female",2021001)
+x.print_info()
+```
+
+
+## 重载
+
+同学类，多了学号的信息，我们想，打印信息`print_info()`的时候，也要打印学号。
+
+这就涉及到，我们要改写`print_info()`。改写一个父类中已有的方法，我们称之为“重载”。
+
+
+一个原始的想法：我们完全重新写一个`print_info()`。
+
+但在我们原始的设计中，`print_info()`，仅仅是打印`format_info()`的结果，所以其实，我们要改造的是`format_info()`
+
+把学号信息，添加到其中。
+
+`print_info()`会自动调用子类中定义的新的`format_info()`
+
+```{python}
+class Student(Person):
+    def __init__(self, name, birth_year, gender, student_id):
+        
+        super().__init__(name, birth_year, gender)
+        
+        if type(student_id) != int:
+            raise TypeError('错误：student_id应该是一个整形')
+        else:
+            self.student_id = student_id
+
+    def format_info(self):
+        info = '学号：{}，姓名: {}，性别: {}，年龄: {}'.format(self.student_id,
+        self.name,self.gender,self.get_age())
+        return info
+
+x = Student("Alex",2000,"female",2021001)
+x.print_info()
+```
+
+
+进一步，父类Person的`format_info()`中做工作，也可以直接利用起来。
+
+因此，我们可以用` super().format_info()`，获得Person版本的字符串信息，“姓名: xxx ...”
+
+然后，把学号信息字符串`'学号：{}，'.format(self.student_id) `,用`+`号拼接到前面即可。
+
+```
+'学号：{}，'.format(self.student_id)  +  super().format_info()
+```
+
+
+```{python}
+class Student(Person):
+    def __init__(self, name, birth_year, gender, student_id):
+        
+        super().__init__(name, birth_year, gender)
+        
+        if type(student_id) != int:
+            raise TypeError('错误：student_id应该是一个整形')
+        else:
+            self.student_id = student_id
+
+    def format_info(self):
+        return '学号：{}，'.format(self.student_id) + super().format_info()
+```
+
+
+```{python}
+p1 = Student("Alex",2000,"female",2021001)
+p1.print_info()
+
+p2 = Student("Bob",2001,"male",2021002)
+p2.print_info()
+```
+
+特别地，我们可以用Python自带的print()函数，来打印我们对象的信息。
+
+我们把要输出的信息，写进一个`__str__(self)`方法中，和构造方法一样，前后2个下划线。
+
+这样，我们调用print(x)的时候，就会打印出x.__str__()这个方法所返回中信息。
+
+```{python}
+class Student(Person):
+    def __init__(self, name, birth_year, gender, student_id):
+        
+        super().__init__(name, birth_year, gender)
+        
+        if type(student_id) != int:
+            raise TypeError('错误：student_id应该是一个整形')
+        else:
+            self.student_id = student_id
+
+    def format_info(self):
+        return '学号：{}，'.format(self.student_id) + super().format_info()
+    
+    def __str__(self):
+        return self.format_info()
+    
+```
+
+我们用print_info()方法，和直接用print()函数，都可以打印出有关信息。
+
+```{python}
+p1 = Student("Alex",2000,"female",2021001)
+p1.print_info()
+
+print(p1)
+```
+
+## 年级：同学的集合
+
+我们要做一个年级类Grade，以表示全年级同学的信息。如何设计？
+
+1. 储存所有同学的信息，依然可以采用列表`List`。
+2. 还可以保存这个年级的其他特征，例如入学年份，以及所在校区等
+
+
+因为同学的数量很多，我们用入学年份和所在校区来初始化Grade对象，然后再添加同学。因此，构造方法中只有year和campus。
+
+注意，虽然构造方法没有从外部获得同学的信息，但是依然可以在构造方法中初始化。
+
+```{python}
+class Grade:
+    '''
+    年级类，用于处理全年级同学的信息
+    '''
+    def __init__(self, year, campus):
+        '''
+        构造方法
+        '''
+        self.student_list = [] #同学信息的List，初始化成空列表
+        self.year = year
+        self.campus = campus
+```
+
+测试一下
+
+```{python}
+grade_2021 = Grade(2021,'白云校区')
+
+print(grade_2021.year)
+print(grade_2021.campus)
+```
+
+
+先用同学的信息，创建几个Student对象。
+
+```{python}
+p1 = Student('Alex',2001,'female',2021001)
+p2 = Student('Bob',2001,'male',2021002)
+p3 = Student('Clare',2001,'female',2021003)
+```
+
+
+添加同学到年级
+
+我们可以直接把数据添加到grade_2021的内部（虽然一般不建议如此）
+
+```{python}
+grade_2021.student_list.append(p1)
+grade_2021.student_list.append(p2)
+grade_2021.student_list.append(p3)
+
+print(grade_2021.student_list[0])
+```
+
+
+同意，直接操作底层数据，可能有数据错误的风险，例如重复添加同学。因此，我们考虑用写一个方法`add_student`来进行添加。以及一个函数，用来返回同学的数量。
+
+
+```{python}
+class Grade:
+    '''
+    年级类，用于处理全年级同学的信息
+    '''
+    def __init__(self, year, campus):
+        '''
+        构造方法
+        '''
+        self.student_list = [] #同学信息的List，初始化成空列表
+        self.year = year
+        self.campus = campus
+    
+    def add_student(self,student):
+        self.student_list.append(student)
+    
+    def get_grade_size(self):
+        return len(self.student_list)
+
+```
+
+
+```{python}
+grade_2021 = Grade(2021, '白云校区')
+
+grade_2021.add_student(p1)
+grade_2021.add_student(p2)
+grade_2021.add_student(p3)
+```
+
+
+```{python}
+print(grade_2021.get_grade_size())
+print(grade_2021.student_list[0])
+
+```
+
+
+
+当然，数据验证是我们目标之一。比如，学号是不能重复的。
+
+
+```{python}
+class Grade:
+    '''
+    年级类，用于处理全年级同学的信息
+    '''
+    def __init__(self, year, campus):
+        '''
+        构造方法
+        '''
+        self.student_list = [] #同学信息的List，初始化成空列表
+        self.year = year
+        self.campus = campus
+    
+    def add_student(self, student):
+        all_student_id = [s.student_id for s in self.student_list ]
+        
+        if student.student_id in all_student_id:
+            raise ValueError("错误！学号重复：" + student.__str__())
+        
+        self.student_list.append(student)
+      
+    def get_grade_size(self):
+        return len(self.student_list)
+  
+```
+
+测试一下重复添加
+
+```{python eval=FALSE, include=TRUE}
+#|eval: false
+grade_2021 = Grade(2021, '白云校区')
+
+grade_2021.add_student(p1)
+grade_2021.add_student(p1)
+
+```
+
+```
+ValueError: 错误！学号重复：学号：2021001，姓名: Alex，性别: female，年龄: 20
+```
+
+添加了同学，得有查找功能
+
+
+```{python}
+class Grade:
+    '''
+    年级类，用于处理全年级同学的信息
+    '''
+    def __init__(self, year, campus):
+        '''
+        构造方法
+        '''
+        self.student_list = [] #同学信息的List，初始化成空列表
+        self.year = year
+        self.campus = campus
+    
+    def add_student(self, student):
+        all_student_id = [s.student_id for s in self.student_list ]
+        
+        if student.student_id in all_student_id:
+            raise ValueError("错误！学号重复：" + student.__str__())
+        
+        self.student_list.append(student)
+
+    def get_grade_size(self):
+        return len(self.student_list)
+    
+    def find_student_by_id(self,student_id):
+        result = [s for s in self.student_list if s.student_id == student_id]
+        if len(result) > 0:
+            return result[0]
+        else:
+            return None
+
+```
+
+
+
+```{python}
+grade_2021 = Grade(2021,'白云校区')
+
+grade_2021.add_student(p1)
+grade_2021.add_student(p2)
+grade_2021.add_student(p3)
+```
+
+找个人看看
+
+```{python}
+x = grade_2021.find_student_by_id(2021001)
+print(x)
+
+```
+
+
+
+```{python}
+x = grade_2021.find_student_by_id(2021009)
+print(x)
+
+```
+
+
+

@@ -1,0 +1,336 @@
+# 分析过程范例
+
+## 数据流：如何组织你的代码
+
+如何设计的一个分析过程？我们继续用前面榨汁机的例子。
+
+把一个苹果变成苹果汁，假定要3个步骤：
+
+1. 削皮
+2. 切块
+3. 榨汁
+
+如果我们把每个过程看成一个函数，大概是这样的：
+
+```
+削了皮的苹果 = 削皮(苹果) 
+苹果块 = 切块(削了皮的苹果) 
+苹果汁 = 榨汁(苹果块) 
+```
+
+我们换一个方式可能看得更清楚一点：
+
+```
+
+苹果 ─┐
+削皮(苹果) ───────┐
+        切块(削了皮的苹果) ─────┐
+                        榨汁(苹果块) ──┐ 
+                                    苹果汁
+
+```
+
+其中每一个过程，比如削皮，可能是一个函数，也可能是无数代码组成的模块。
+我们编写分析流程的整体，以及每一个模块内部，也是呈现同样的结构。
+
+如果有参数呢？比如切块的时候切成5块，用榨汁的时候用3档速度：
+
+可以把数据流（苹果 -> 削了皮的苹果 -> 苹果块）放在第1个参数位，处理数据的参数放在第二个参数位以后：
+
+```
+苹果 ─┐
+削皮(苹果) ───────┐
+      切块(削了皮的苹果, 5块, ... ) ─────┐
+                                  榨汁(苹果块, 3档转速, ...) ──┐ 
+                                                            苹果汁
+```
+
+因此：
+
+1. 分析的流程一般呈现一种数据流的结构：
+每一个步骤，有上游数据的流入（参数），形成新的数据（返回值），成为下游数据流入（参数）。
+2. 如果写成函数，（**推荐但非必须**）第一个参数应该是数据，处理数据的参数可以放在第二位之后。
+如果所有的函数都呈现这种结构，你就会形成一直数据流的直觉。
+3. 每个功能模块（**尽量**）写成纯函数：从参数中接受输入（不读取全局变量，避免被意外改变），
+返回新的数据（尽量但不直接改变函数体外的事物），详见前面的函数式编程。
+
+
+## 从数据开始
+
+例如，我们要一个程序来处理班级同学的信息。每个同学起码有这几个信息：
+
+1. 学号
+2. 姓名
+3. 专业
+4. 班级号
+
+表示1个同学：
+
+用现在所学的信息（人的属性），一般可以表示成key:value结构，所以我们可以用字典dict来表示任何一个同学。
+（当然方法很多，后面会学到）
+
+```{python}
+student_1 = {'student_id':2021001, 'name':'Alex', 'major': 'finance', 'class_id':1}
+student_2 = {'student_id':2021002, 'name':'Bob', 'major': 'finance', 'class_id':1}
+student_3 = {'student_id':2021003, 'name':'Clare', 'major': 'accounting', 'class_id':2}
+
+
+print(student_1['student_id'])
+print(student_2['name'])
+print(student_3['major'])
+```
+
+表示所有同学：
+
+组织一堆同类数据：List（或者另一个Dict，如果需要一个索引如学号，见作业）。
+
+```{python}
+# List版本
+
+students_info = [
+  student_1,
+  student_2,
+  student_3
+]
+
+print(students_info)
+```
+
+
+## 添加功能
+
+### 查找
+
+显然按条件查找是必须有的功能。
+
+例如：在数据中找一位名叫Alex的同学。
+
+1. 既然students_info是一个列表，那我们就用列表推导式。
+
+```{python}
+
+result = [s for s in students_info if s['name'] == "Alex"]
+
+print(result)
+```
+注意：列表推导式的结果，也是一个列表，即使其中只有1个元素。看打印的最2边是中括号。
+
+那么有多少个同学叫Alex?
+
+```{python}
+len(result)
+```
+
+那我们可以获得Alex的信息，例如学号和专业
+
+```{python}
+print(result[0]['student_id'])
+print(result[0]['major'])
+```
+
+按人名查找，是一个特别常用的功能，那我们把这个功能写成一个函数：
+
+```{python}
+def find_students_by_name(data, name):
+    """
+    按姓名查找同学。
+
+    参数:
+        data: 保存所有同学信息的数据List[dict]
+        name: 目标的姓名
+    返回值:
+        return: 返回同名同学的List。如果找不到则返回[]。
+    """
+    result = [s for s in data if s['name'] == name]
+    return result
+
+result = find_students_by_name(students_info,"Alex")
+print(result)
+```
+
+为什么要把一个过程写成一个函数？
+
+1. 常用：don't repeat yourself。常用的代码推荐包装起来，起一个顾名思义的名字。
+2. 复杂的代码：编写良好的函数，可以让你关注于接口和功能（函数名、参数、返回值）：你按一下遥控，电视机就会开，中间的过程你完全不想知道。
+
+### 练习：按学号查找
+
+1. 按学号查找，但学号是唯一的，因此逻辑上只能有一个数据。
+2. 因此，获得的数据之后，不返回列表，只返回代表学生的dict。
+2. 如果学号有重复，打印一个警告信息：“学号有重复！请检查！”
+
+```{python}
+def find_student_by_id(data, student_id):
+  '''
+  按学号查找同学
+  '''
+  pass # 这部分由你完成
+
+result = find_student_by_id(students_info, 2021002)
+print(result)
+```
+
+
+### 简单统计
+
+统计一下，金融专业有多少人？
+
+1. 先筛选（利用上面的知识）
+2. 再算数
+```{python}
+finance_students = [s for s in students_info if s['major'] == 'finance']
+
+len(finance_students)
+
+```
+
+当然，也可以写个2函数：同样，先查找，在统计
+
+```{python}
+def find_students_by_major(data, major):
+  '''
+  按专业查找同学
+  '''
+  result = [s for s in data if s['major'] == major]
+  return result
+
+def count_by_major(data, majoy):
+  '''
+  计算专业的同学人数
+  '''
+  class_size = len(find_students_by_major(data,majoy))
+  return class_size
+
+print('金融专业人数:', count_by_major(students_info, 'finance'))
+print('会计专业人数:', count_by_major(students_info, 'accounting'))
+```
+
+小结：
+
+1. “一位同学”的信息可以用字典Dict：可以用`student_id`等标签，来获取该同学信息。
+2. “所有同学”的信息可以用列表List：所有同学，可以看作一个有序的队列，自然可以采用List。大量的列表操作，便于我们进行查找、筛选、统计等等。
+3. 常用的操作，可以写成函数。既便于使用，又可以通过函数名得知操作的意图，一目了然。
+4. 函数名，应该顾名思义。函数体的开头，必须写函数的说明，如作用，算法等。
+
+
+## 综合练习
+
+本章的内容，本质上是针对一些基础的信息（三个同学的信息），构造出数据结构（List-Dict），并且添加处理数据的功能（各种函数）。
+
+以下练习，要求你**继续**这个过程：在上述内容的基础上，添加新的信息和新的功能。
+
+
+### 添加python课分数
+
+
+问题：按学号`student_id`，添加同学的python课分数`python_score`
+
+知识点：List和Dict的赋值，循环或者列表推导式
+
+1. 写一个手动版
+2. 写一个函数版
+
+```{python}
+#|echo: false
+import pandas as pd
+pd.DataFrame(dict(student_id = [2021001,2021002,2021003],
+             name = ["Alex","Bob","Clare"],
+             python_score = [86,59,92]))
+ 
+```
+思路：
+
+1. “一个同学”的信息，是以dict的形式保存，因此我们需要给dict添新的key-value。
+2. 回忆：List和Dict都是可变对象，你可以直接对List中的Dict中的key赋值！
+
+```{python}
+def set_python_score(data, student_id, score):
+  '''
+  设置python课的分数
+  '''
+  pass # 这里由你完成
+
+set_python_score(students_info,2021001,90)
+
+```
+### 简单统计
+
+问题：统计python课的所有同学的平均分，以及分班级的平均分。
+
+知识点：循环或者列表推导式，累加，简单计算
+
+1. 手动版
+2. 函数版
+
+
+```{python}
+def get_avg_python_score(data):
+  '''
+  统计python课的平均分
+  '''
+  pass # 这里由你完成
+
+def get_avg_python_score_by_class(data,  class_id):
+  '''
+  按班级，统计python课的平均分
+  '''
+  pass # 这里由你完成
+
+```
+
+### 由分数获得评级
+
+问题：按照分数，给同学添加一个`rank`的变量。
+
+知识点：`if`条件判断，List和Dict的赋值
+
+1. 90分+，"A"
+2. 80分+，"B"
+3. 70分+，"C"
+4. 60分+，"D"
+5. 不足60分，"E"
+
+
+
+### 判断是否及格
+
+问题：按照分数，给同学添加一个`pass`的变量。60分以上为及格
+
+知识点：`if`条件判断，List和Dict的赋值，布尔值
+
+1. 手动版
+2. 函数版
+3. 统计及格率
+
+
+### 信息输出
+
+问题：以字符串的形式，输出某一个同学的信息（通过学号）
+
+知识点：循环或列表推导式，字符串操作。
+
+1. 输出的结果类似： "学号： ???? ； 姓名：??? ； 班级  ??? ... ..."。其中，班级信息要输出"专业 班级号"的形式，如“金融 5班”
+2. 手动版
+3. 函数版
+4. 写一个函数，输出不及格的同学的信息
+
+```{python}
+def print_by_student_id(data, student_id):
+  '''
+  打印同学信息
+  '''
+  pass # 这里由你完成
+
+def print_failed(data):
+  '''
+  打印不及格的同学的信息
+  '''
+  pass # 这里由你完成
+
+```
+
+
+
+
+
+

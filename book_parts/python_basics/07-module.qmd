@@ -1,0 +1,256 @@
+# 模块
+
+
+一个`.py`文件，就是一个模块module，里面的函数、变量等等，可以被其他代码所调用。
+（一个有多个`.py`文件的文件夹，也可以是一个模块，但是这里略过）
+
+写任何一个程序之前，我们一般会尽量调用用别人写好的代码（别人写好的不用白不用），这些代码一般也是用模块的形式组织。包括我们后面主要用到的数据分析三件套。
+
+## 引入模块
+
+Python作为一个发展了很多年的流行的变成语言，自带非常多的模块。我们安装的Anaconda，也格外把很多数据分析、科学计算等等的模块打包在一起。
+
+例如用于数学运算的`math`，这是Python自带的模块，其中有大量数学函数（顾名思义），例如开平方根`sqrt`就在其中。
+
+### import语言
+
+引入模块也很简单
+
+```
+import <模块名>
+import <模块名> as <简称>
+
+```
+
+注意：只要import一次，即可一直使用，因此一般我们可以放在代码的最前面。
+
+我们可以用`<模块名>.<函数名/变量名>`来调用里面的函数或者变量，例如我们要调用`math`模块下的平方根`sqrt()`。
+
+此时，模块内部的所有东西（函数、变量等），都必须通过`<模块名>.`来调用。
+
+
+```{python}
+import math # 引入模块
+print(math.sqrt(4)) # 调用模块内部的一个函数sqrt()
+```
+或者`math`中的圆周率。
+
+```{python}
+print(math.pi)
+```
+也可以采用简称或者缩写，比如我们后面用到的Numpy，习惯上缩写成np
+```{python}
+import numpy as np 
+print(np.sqrt(4)) # Numpy也有自己的开方函数！后面会讲
+```
+
+### 引入到当前名字空间
+
+这种方法让模块内部的函数或者变量名，直接出现在当前名字空间中（调用的使用不用再挂着模块的名字）。如果这个模块下的某些东西特别常用，这样可以少打一些字。
+
+```
+from <模块名> import <函数/变量名> as 简称
+
+```
+
+还是引入math中的开平方函数`sqrt`，可能你的代码中使用特别多，所以懒得打`math.sqrt()`，只想打`sqrt()`
+
+同样，import一次，后续即可一直使用。
+
+
+```{python}
+from math import sqrt
+print(sqrt(9))
+print(sqrt(4))
+```
+
+
+还可以一次性引入模块下的所有名字
+
+```
+from <模块名> import *
+
+```
+这样你引用模块下的所有对象，都不必通过模块名来调用。
+
+**注意：** 这种方式一般不推荐。一个模块里面可能有大量函数和子模块。除非你很明白自己在做什么，否则引入大量的你可能用不到，甚至不知道存在的东西，不是一个好习惯。
+
+## Python部分常用模块
+
+注意，这里只是常用模块的冰山一角。除了一些故名思意的函数比如sqrt()，一般是不用刻意记忆。
+
+### math
+
+常用的数学模块
+```{python}
+# 部分math模块的函数
+import math
+
+# math.ceil(x): 返回大于或等于 x 的最小整数。
+print(math.ceil(4.2))  # 输出 5
+
+# math.floor(x): 返回小于或等于 x 的最大整数。
+print(math.floor(4.8))  # 输出 4
+
+# math.fabs(x): 返回 x 的绝对值。
+print(math.fabs(-5))  # 输出 5.0
+
+# math.exp(x): 返回 e^x。
+print(math.exp(1))  # 输出 e
+
+# math.log(x[, base]): 返回 x 的自然对数（底为 e）或指定底数的对数。
+print(math.log(8, 2))  # 输出 3.0
+
+# math.pow(x, y): 返回 x^y。
+print(math.pow(2, 3))  # 输出 8.0
+
+# math.sqrt(x): 返回 x 的平方根。
+print(math.sqrt(16))  # 输出 4.0
+
+# math.sin(x): 返回 x（弧度）的正弦。
+print(math.sin(math.pi / 2))  # 输出 1.0
+
+# math.cos(x): 返回 x（弧度）的余弦。
+print(math.cos(0))  # 输出 1.0
+
+
+# math.pi: 圆周率 π。
+print(math.pi)  # 输出 3.141592653589793
+
+# math.e: 自然数 e。
+print(math.e)  # 输出 2.718281828459045
+
+```
+
+### os模块
+
+和操作系统交互，处理文件等等
+
+```{python}
+#| eval: false
+import os
+# 获得当前目录
+print("当前工作目录是：", os.getcwd())
+
+# 获得当前目录下的文件列表
+print("当前目录下的文件列表：", os.listdir())
+
+# 测试一个路径（可以是文件或者文件夹）是否存在
+print(os.path.exists('某个文件.txt'))
+
+```
+
+### datetime模块
+
+用来处理日期和时间
+
+```{python}
+# datetime模块的一些常见用法
+
+import datetime
+
+# datetime.datetime.now(): 获取当前日期和时间。
+now = datetime.datetime.now()
+print(f"当前的日期是和时间是: {now}")  # 输出当前日期和时间
+
+# datetime.date.today(): 获取当前日期。
+today = datetime.date.today()
+print(f"当前的日期是: {today}")  # 输出当前日期
+
+# datetime.timedelta(): 表示时间间隔。
+# 创建一个时间间隔对象，表示1天和5分钟。
+delta = datetime.timedelta(days=1, minutes=5)
+
+# 时间加减
+future = now + delta  # 当前时间加上时间间隔
+print(f"1天05分钟后的时间是: {future}")  # 输出未来的日期和时间
+
+past = now - delta  # 当前时间减去时间间隔
+print(f"1天05分钟之前的时间是: {past}")  # 输出过去的日期和时间
+
+# datetime.datetime.strftime(): 格式化日期和时间。
+formatted_date = now.strftime("%Y-%m-%d %H:%M:%S")
+print(f"时间格式化（注意会返回一个字符串）: {formatted_date}")  # 输出格式化后的日期和时间
+
+# datetime.datetime.strptime(): 从字符串解析日期和时间。
+parsed_date = datetime.datetime.strptime("2022-01-01 12:34:56", "%Y-%m-%d %H:%M:%S")
+print(f"从字符串解析出日期和时间: {parsed_date}")  # 输出从字符串解析出的日期和时间
+
+```
+
+注意：上述例子也表明了，datetime的对象和一个包含了日期的字符串是不同的。类比就是数字`1`和字符串`"1"`的区别。
+
+1. datetime（日期时间）可以获得表达的日期，时间等等，可以和delta（时间间隔）相互加减
+2. 日期字符串只是一个字符串，则没有这个功能。
+3. 如果要对日期字符串进行时间运算，需要解析成datetime，再运算，这个过程就是上述范例从下往上的应用。
+
+
+## 建立你自己的模块
+
+要完成一个特定的项目，你可能要写不计其数代码，没有理由把这么多代码都放在一个`.py`文件下。
+
+一般可以把相关的代码放在一个`.py`文件中，然后在其他文件里用模块的方式调用。
+
+
+例如，我们前面写过一个`add`函数，可以把2个数相加。
+
+
+```{python}
+def add(x,y):
+    return x + y
+
+print(add(1,2))
+```
+
+也写过一个翻倍函数
+```{python}
+def do_double(x):
+    return x * 2
+
+print(do_double(2))
+```
+
+这2个函数，显然都可以归类为计算函数，我们把中2个函数放到一个专门的文件中，例如`my_calc.py`
+
+你还可以保存变量，例如`my_pi = 3.14`
+
+新建一个文件`my_calc.py`，把一下内容放进去，存盘。
+
+```{python}
+def add(x,y):
+    return x + y
+
+def do_double(x):
+    return x * 2
+
+my_pi = 3.14
+```
+
+
+在我们后续的任务中，如果要调用这2个函数，或者你自己变量`my_pi`，就可以用`·`import`
+
+
+```{python}
+import my_calc
+
+print(my_calc.add(3,2))
+print(my_calc.my_pi)
+
+```
+
+当然，如简称、直接导入名称等等，和前述一样。
+
+以后，你就可以按照你自己逻辑，如同类的函数、数据，完全特定任务需要的组件等等，来组织自己的模块。
+
+按逻辑把你的代码分类组织，是一个好习惯。
+
+
+## 包package
+
+多个模块可以组成一个包。（略）
+
+
+
+
+
+

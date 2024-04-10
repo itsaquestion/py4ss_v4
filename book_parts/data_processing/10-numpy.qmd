@@ -1,0 +1,462 @@
+# NumPy：高性能向量运算 
+
+:::{.callout-note}
+1. 需要讲前6节
+2. 时间充足可以副本和视图等
+:::
+
+NumPy是什么：这个包提供的组件是Python自带的List的强大的替代品：速度飞快，操作便利（后面都会说到）。特别是处理长数组的时候，典型的比如各种时间序列数据。
+
+
+```{python}
+# 导入numpy
+import numpy as np
+```
+
+我们用一个List来创建一个NumPy的一维数组(array)
+
+`numpy.array()`函数可以接受一个List作为参数，返回给你一个numpy的ndarray。
+
+注意：array一般称为“数组”，你可以理解为“数据类型相同的列表”，比如股价序列，其中所有元素都是浮点数。
+那么ndarray，可以理解为n维数组，比如1维数组（向量），2维数组（矩阵），3维数组等等 ... 
+
+
+
+```{python}
+x = np.array([1,2,3,4,5]) 
+# 这里的np是我们前面定义的numpy的别名
+print('x的类型：',type(x)) # np.ndarray
+print('x的长度：', x.shape[0])
+print('x的第一个元素：', x[0])
+```
+
+
+## 广播(Broadcast)
+这和直接用Python中的List有什么区别？
+
+列举2个例子：
+
+
+比如我们要把一个序列里的元素全部乘以2。如果把数据用List的形式保存，我们可以用列表推导式：
+
+```{python}
+a = [1,2,3,4,5]
+b = [i * 2 for i in a]
+print(b)
+```
+
+如果用array保存，那直接*2即可:
+```{python}
+a = np.array([1,2,3,4,5])
+b = a * 2
+print(b)
+```
+
+我们两个序列中的数值对位相加。
+
+如果用List，我们可能用循环：
+```{python}
+a = [1,2,3,4]
+b = [2,3,4,5]
+
+c = []
+for i in range(len(a)):
+  c.append(a[i]+b[i])
+
+print(c)
+```
+
+如果用ndarray，直接相加即可。
+```{python}
+a = np.array([1,2,3,4])
+b = np.array([2,3,4,5])
+
+c = a + b
+
+print(c)
+```
+
+
+这个特性叫“广播Boardcast”。
+
+使用广播，你可以把一个序列视为“一个变量”：如果你不看定义，`c = a + b`和2个变量相加没什么区别。
+并且对一般的操作都成立。
+
+```{python}
+print(a - b * 4) # 复合运算
+print(a <= 3) # 逻辑运算
+```
+
+
+因此：
+1. 不用手写循环或者列表推导式，是采用ndarray最直接的一个好处。
+2. 任何数值型序列数据都可以考虑采用ndarray，很多时候你可以把一个序列看出一个变量来操作。
+3. ndarray处理速度飞快。
+
+## 构造ndarray
+
+ndarray的构造方式很多，这里列举一些
+
+```{python}
+a = np.array([1,2,3,4,5,6]) # 从列表构造
+print(a)
+
+b = np.zeros(3) # n个0
+print(b)
+
+c = np.ones(4) # n个1
+print(c)
+
+d = np.ones_like(a) # 和另一个数组同样长度的，由1构成的数组
+print(d) #（a有6个元素，因此会得到6个1）
+
+# 同样长度，但是0组成
+print(np.zeros_like(a))
+
+# 同样长度，但填充你指定的数字
+print(np.full_like(a,9))
+
+```
+
+
+`np.arange()`可以按范围创造数组，类比Python自带的`range()`函数，用法基本一致。
+
+注：
+
+`range()`返回的是可迭代对象：可以取值，可以切片，不是List但可以转为List。（考虑你要保存一个巨大的序列，比如全体自然数，但只要用到其中几个值）
+
+`np.arange()`返回的就是一维的`ndarray`对象。
+
+
+```{python}
+print(list(range(5))) # [0,1,2,3,4]
+print(list(range(2,8,2))) # 2到7，步长为2: [2,4,6]
+
+print(np.arange(5)) # [0 1 2 3 4]
+print(np.arange(2,8,2)) # 同样是[2 4 6]
+```
+
+
+
+## 取值和切片：几乎和Python的List一样
+
+我们采用索引(index)或者下标来取值，第一个元素的索引是0。
+
+```{python}
+a = np.arange(10)*2
+print(a)
+
+print(a[4]) # 取值
+
+print(a[3:6:2]) #切片： 3号元素（包含）到6号元素（不包含），步长为2
+
+print(a[::-1]) # 逆序
+
+```
+
+还可以按条件筛选，例如选择一个序列里的所有奇数：
+```{python}
+a = np.arange(5) 
+a % 2 == 1 # 广播求奇数，这是个布尔值序列 [False,True,False .... ] 
+
+print(a % 2 == 1)
+
+print(a)
+print(a[a % 2 == 1])  # a[某个布尔值序列]，就可以把True位置上的值取出
+
+```
+
+
+
+## 缺失值
+
+ndarray中缺失值由`np.nan`来表示。
+
+```{python}
+a = np.array([1,2,np.nan,5,np.nan])
+print(a)
+```
+
+判断哪个元素是缺失值？用函数`np.isnan()`，返回每一个元素是不是`np.nan`。
+
+```{python}
+print(np.isnan(a)) # 得到一个bool型的ndarray：[False, False,  True, False]
+```
+
+## 布尔序列和逻辑运算
+
+缺失值的索引是（第几个是）？`np.where()`函数。
+
+```{python}
+print(np.where(np.isnan(a))) # [2,4]，2号和4号（第3和第5个）
+
+```
+
+`np.where()`可以获得任何布尔序列`True`的位置，例如
+
+```{python}
+a = np.arange(10)*2
+print(a)
+print(np.where(a == 8)) # [4]， 
+```
+
+逻辑运算符：与`&`，或`|`，非`~`，和四则运算，`><=`类似。
+
+例如，与运算 `&`
+```{python}
+a = np.array([1,2,3,4,5])
+
+a > 3 # 这是一个bool序列：array([False, False, False,  True,  True])
+
+mask = (a > 3) & (a & 2 == 0)  
+# a > 3 且(与运算) a 是偶数：这也是一个bool序列
+
+# bool序列，可以作为筛选的条件
+
+a[mask] # 选出 a中大于3且是偶数的元素
+```
+
+或运算同理。
+
+非运算 `~`
+```{python}
+# 对mask取反，即求 "非(> 3 且 为偶数）"的元素 
+a[~mask]
+```
+
+
+布尔序列的逻辑运算，也可以用逻辑函数
+`np.logical_and()`,`np.logical_or()`,`np.logical_not()`。
+
+```{python}
+# 把2个布尔序列，进行对位的逻辑与操作
+print(np.logical_and([True,False],[True, True])) # [True, False] 
+
+# 或和非类似
+```
+
+例子：选取1-100 之间，可以被7整除，且不能被5整除的数字：
+
+用运算符写：
+```{python}
+a = np.arange(1,101)
+
+mask = (a % 7 == 0) & (a % 5 != 0)
+
+a[mask]
+```
+
+用逻辑函数写：
+
+```{python}
+a = np.arange(100) + 1 # [1 2 3 ...]
+
+mask = np.logical_and(a % 7 == 0, a % 5 != 0)  # mask：蒙版，可以理解为“过滤器”
+print(mask[:10]) # mask的前10个
+
+print(a[mask]) # 把a用mask过滤一下。
+```
+
+
+## 一些numpy函数
+
+数量太多，无法列举。请善于搜索引擎，如搜索"numpy 正弦函数"。
+
+应用numpy的另一个好处：内置极大量的数学函数，可以直接调用。对比List：求和也要手写循环。
+
+
+```{python}
+a = np.array([1,2,3,4])
+print(np.sin(a))
+```
+
+取对数
+
+```{python}
+print(np.log(a))
+```
+
+保留n位小数
+
+```{python}
+b = np.log(a)
+print(np.round(b,2))
+print(b.round(2))
+```
+
+最大值最小值
+
+```{python}
+print(np.max(a))
+print(a.max())
+
+print(np.min(a))
+print(a.min())
+```
+
+求和，均值，中位数，标准差
+
+```{python}
+print(np.sum(a))
+print(np.mean(a))
+print(np.median(a))
+print(np.std(a).round(2))
+
+# 也可以
+print(a.sum())
+print(a.mean())
+# print(a.median()) 没有median()方法，要用np.median()函数
+```
+
+排序
+
+1. `x.sort()`：原地排序，会改变变量的值
+2. `np.sort(x)`：获得新的排序后的数组，不会改变原值
+
+```{python}
+# 两种方法都可以
+a = np.array([5,4,3,2,1])
+a.sort() 
+print(a) # a的值已经改变
+
+
+a = np.array([5,4,3,2,1])
+b = np.sort(a) # 不改变原值
+print('原值a是:',a)
+print('排序后的b是:',b)
+
+```
+
+
+**善用搜索引擎**
+
+## 矩阵运算
+
+略
+
+
+## 副本和视图(view)
+
+所谓副本：就是数组另一个拷贝，对副本的修改不会影响原来的数组。
+
+所谓视图：和原数组共享数据，或者共享部分数据，对视图的修改会改变原数组。
+
+
+`.view()`方法和切片，产生的都是视图，修改视图会改变原数组：
+
+```{python}
+a = np.array([1,2,3,4,5])
+b = a.view() # 产生了一个视图：此时b和a共享数据
+
+b[0] = 999
+print(a)
+print(type(b))
+```
+
+```{python}
+b = a[:2]  # 切片也产生了一个视图：此时b和a的前2个元素共享数据
+
+b[-1] = -999 # 改变了原数组
+print(a)
+```
+
+数组的`base`属性会指示出一个视图所指向的数据。
+```{python}
+print(b)
+print(b.base) 
+```
+
+
+按条件选取（你提供一个布尔序列`[True,False,... ]`作为筛选条件）再赋值，产生的是副本，改变副本不影响原数组。
+
+```{python}
+a = np.array([1,2,3,4,5])
+print(a % 2 == 1)
+
+b = a[a % 2 == 1] # b是一个副本
+b[0] = 999
+print(a)
+```
+
+如果`b`是一个副本，那么`b.base`则是`None`。
+```{python}
+print(b)
+print(b.base) 
+```
+
+要明确地获得一个副本，可以用`.copy()`方法，和List一样。
+
+```{python}
+b = a.copy()
+b[0] = 12345
+print(a)
+```
+
+
+
+```{python}
+a[ a % 2 == 1] = -1
+print(a)
+```
+
+## reshape
+
+`.reshape()`方法可以改变数组的形状，比如把6个元素的一维数组，变成2x3的二维数组。
+
+```{python}
+a = np.arange(6)
+print('a:')
+print(a)
+
+print('b:')
+b = a.reshape((2,3)) # 2行3列
+print(b)
+```
+
+`.reshape()`获得的是什么呢？其实是一个视图。
+
+这里可以琢磨一下视图的含义：视图b，只是数组a中的数据的另一种呈现方式。
+
+同样共享了一片数据`[0 1 2 3 4 5]`，a的以一维的方式呈现，b的以二维的方式呈现。
+
+```{python}
+print(b.base) # b.base != None
+```
+
+显然我们改变b中的值，也会改变a。
+
+```{python}
+b[0,0] = 999
+print(a)
+```
+
+排序获得的是副本还是视图？
+
+```{python}
+a = np.array([5,4,3,2,1])
+b = np.sort(a)
+print(b)
+print(b.base) # b.base is None，b是一个拷贝，没有和其他数组共享数据。
+```
+
+
+## 视图和变量对变量的赋值
+
+视图，和数组对另一个变量赋值有什么区别？
+
+1. 视图是一个单独的变量，和原数组共享底层的数据，但是某些属性（比如行列shape）是各自独立的。
+2. 数组直接给另一个变量名赋值，等于原数组的一个别名（变量名只是标签），两个变量指向相同的实体。
+
+```{python}
+a = np.array([1,2,3,4,5,6])
+print(a)
+
+# b是a的一个视图，是另一个变量，只是共享数据
+b = a.view()[::-1]  # 获得一个逆序的视图
+
+print(b)
+
+# c是a的别名，a和c指向同样的实体，
+c = a
+print(c)
+```
