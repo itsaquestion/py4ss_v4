@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.553">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>线性回归</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="linear_reg_files/libs/clipboard/clipboard.min.js"></script>
+<script src="linear_reg_files/libs/quarto-html/quarto.js"></script>
+<script src="linear_reg_files/libs/quarto-html/popper.min.js"></script>
+<script src="linear_reg_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="linear_reg_files/libs/quarto-html/anchor.min.js"></script>
+<link href="linear_reg_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="linear_reg_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="linear_reg_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="linear_reg_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="linear_reg_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">线性回归</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>采用linearmodels包，https://bashtage.github.io/linearmodels/</p>
+<p>第一次运行之前，在任何一个Python单元格中执行这段代码安装，注意开头有个<code>!</code></p>
+<p><code>!pip install -i https://pypi.tuna.tsinghua.edu.cn/simple linearmodels</code></p>
+<p>本章内容包括：</p>
+<ol type="1">
+<li>一元回归、多元回归</li>
+<li>工具变量法</li>
+<li>面板数据回归</li>
+</ol>
+<section id="普通ols" class="level2">
+<h2 class="anchored" data-anchor-id="普通ols">普通OLS</h2>
+<p>这里采用伍德里奇的《计量经济学导论》中第15章中的例子。</p>
+<p>例 15.1，估计已婚女性的教育回报，这个例子中，作者想用已婚女性的受教育程度educ，来解释她的收入wage。</p>
+<p>在linearmodels包中已经包括了这份数据，我们可以从包中读取。当然， 一般情况下我们会从csv，dta或者excel文件中读取数据，读取数据会在Pandas的章节介绍。</p>
+<div id="cell-5" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels.datasets <span class="im">import</span> mroz  <span class="co"># 这个例子用到的数据</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.api <span class="im">import</span> add_constant</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(mroz.DESCR)  <span class="co"># 列出变量的描述</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> mroz.load()  <span class="co"># 读取数据</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data.dropna()  <span class="co"># 去掉na</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> add_constant(data, has_constant<span class="op">=</span><span class="st">"add"</span>)  <span class="co"># 添加常数项</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+T.A. Mroz (1987), "The Sensitivity of an Empirical Model of Married Women's
+Hours of Work to Economic and Statistical Assumptions," Econometrica 55,
+765-799.
+
+nlf        1 if in labor force, 1975
+hours      hours worked, 1975
+kidslt6    # kids &lt; 6 years
+kidsge6    # kids 6-18
+age        woman's age in yrs
+educ       years of schooling
+wage       estimated wage from earns., hours
+repwage    reported wage at interview in 1976
+hushrs     hours worked by husband, 1975
+husage     husband's age
+huseduc    husband's years of schooling
+huswage    husband's hourly wage, 1975
+faminc     family income, 1975
+mtr        fed. marginal tax rate facing woman
+motheduc   mother's years of schooling
+fatheduc   father's years of schooling
+unem       unem. rate in county of resid.
+city       =1 if live in SMSA
+exper      actual labor mkt exper
+nwifeinc   (faminc - wage*hours)/1000
+lwage      log(wage)
+expersq    exper^2
+</code></pre>
+</div>
+</div>
+<p>首先我们要进行的OLS估计是：</p>
+<p><span class="math display">\[\log(wage) = \beta_0 + \beta_1 educ + u\]</span></p>
+<p>我们将会使用linearmodels中的OLS对象，初始化的时候接受几个参数，第一个是被解释变量，第二个是解释变量</p>
+<ol type="1">
+<li>被解释变量/因变量是工资 <code>data['wage']</code>，但是这里要取对数 <code>np.log(data['wage'])</code></li>
+<li>解释变量/自变量是教育程度 <code>data['edu']</code>，要加上常数项，即<code>data[["const", "educ"]]</code>。注意常数项是前面<code>add_constant</code>函数添加的。</li>
+</ol>
+<p>一般的用法就是：</p>
+<p>回归结果 = OLS(因变量, 自变量).fit()</p>
+<div id="cell-7" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels <span class="im">import</span> OLS</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>res_ols <span class="op">=</span> OLS(np.log(data[<span class="st">"wage"</span>]), data[[<span class="st">"const"</span>, <span class="st">"educ"</span>]]).fit()</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res_ols)  <span class="co"># 打印一下回归结果</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                            OLS Estimation Summary                            
+==============================================================================
+Dep. Variable:                   wage   R-squared:                      0.1179
+Estimator:                        OLS   Adj. R-squared:                 0.1158
+No. Observations:                 428   F-statistic:                    65.899
+Date:                Thu, Apr 18 2024   P-value (F-stat)                0.0000
+Time:                        22:20:23   Distribution:                  chi2(1)
+Cov. Estimator:                robust                                         
+                                                                              
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+const         -0.1852     0.1703    -1.0872     0.2770     -0.5191      0.1487
+educ           0.1086     0.0134     8.1178     0.0000      0.0824      0.1349
+==============================================================================</code></pre>
+</div>
+</div>
+<p>可见，教育educ的系数是0.1086，每接受多1年教育，可以获得11%的回报。P-value约等于0，非常显著。这个结果符合《导论》保持一致。</p>
+<p>除了你直接指定数据列，<code>np.log(data["wage"]), data[["const", "educ"]]</code>，还可以用<code>OLS.from_formula()</code>指定回归公式。</p>
+<p>这里的公式是一个字符串，一般性的写法是 “被解释变量 ~ 解释变量1 + 解释变量2 + ….”，并且支持常用的运算，比如取对数。默认情况下会自带常数项，因此公式里不用特别指定。</p>
+<p>那么，实现上述回归，公式就是 <code>"log(wage) ~ educ"</code> 一般的用法是<code>OLS.from_formula(公式， data = 数据).fit()</code></p>
+<div id="cell-10" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>res_ols2 <span class="op">=</span> OLS.from_formula(<span class="st">"log(wage) ~ educ"</span>, data<span class="op">=</span>data).fit()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res_ols2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                            OLS Estimation Summary                            
+==============================================================================
+Dep. Variable:              log(wage)   R-squared:                      0.1179
+Estimator:                        OLS   Adj. R-squared:                 0.1158
+No. Observations:                 428   F-statistic:                    65.899
+Date:                Thu, Apr 18 2024   P-value (F-stat)                0.0000
+Time:                        22:20:23   Distribution:                  chi2(1)
+Cov. Estimator:                robust                                         
+                                                                              
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+Intercept     -0.1852     0.1703    -1.0872     0.2770     -0.5191      0.1487
+educ           0.1086     0.0134     8.1178     0.0000      0.0824      0.1349
+==============================================================================</code></pre>
+</div>
+</div>
+<p>可以对比上述两种方法，得到的结果是一样的。除了你肉眼看，还可以用compare函数来比较回归。</p>
+<div id="cell-12" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels.iv.results <span class="im">import</span> compare</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(compare([res_ols, res_ols2]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Model Comparison             
+==========================================
+                       Model 0     Model 1
+------------------------------------------
+Dep. Variable             wage   log(wage)
+Estimator                  OLS         OLS
+No. Observations           428         428
+Cov. Est.               robust      robust
+R-squared               0.1179      0.1179
+Adj. R-squared          0.1158      0.1158
+F-statistic             65.899      65.899
+P-value (F-stat)     4.441e-16   4.441e-16
+================== =========== ===========
+const                  -0.1852            
+                     (-1.0872)            
+educ                    0.1086      0.1086
+                      (8.1178)    (8.1178)
+Intercept                          -0.1852
+                                 (-1.0872)
+------------------------------------------
+
+T-stats reported in parentheses</code></pre>
+</div>
+</div>
+<p>可见educ的系数是一样的，证明OLS()和OLS.from_formula() 本质上相同，看你习惯用哪个。</p>
+<p>注意，add_constant()函数生成的常数项的名称是const，但是from_formula生成的常数项叫Intercept（截距），但只是不同的包作者习惯用不同的名称，本质上这两者是一样的。</p>
+<p>多元的版本也是类似，比如加入工作经验exper及其平方项作为控制变量</p>
+<p><span class="math display">\[\log(wage) = \beta_0 + \beta_1 educ + \beta_2 exper + \beta_3 expersq +  u\]</span></p>
+<div id="cell-15" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels <span class="im">import</span> OLS</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>res_ols <span class="op">=</span> OLS(np.log(data[<span class="st">"wage"</span>]), data[[<span class="st">"const"</span>, <span class="st">"educ"</span>, <span class="st">"exper"</span>, <span class="st">"expersq"</span>]]).fit()</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res_ols) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                            OLS Estimation Summary                            
+==============================================================================
+Dep. Variable:                   wage   R-squared:                      0.1568
+Estimator:                        OLS   Adj. R-squared:                 0.1509
+No. Observations:                 428   F-statistic:                    82.671
+Date:                Thu, Apr 18 2024   P-value (F-stat)                0.0000
+Time:                        22:20:25   Distribution:                  chi2(3)
+Cov. Estimator:                robust                                         
+                                                                              
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+const         -0.5220     0.2007    -2.6010     0.0093     -0.9154     -0.1287
+educ           0.1075     0.0132     8.1697     0.0000      0.0817      0.1333
+exper          0.0416     0.0152     2.7344     0.0063      0.0118      0.0714
+expersq       -0.0008     0.0004    -1.9402     0.0524     -0.0016   8.276e-06
+==============================================================================</code></pre>
+</div>
+</div>
+<div id="cell-16" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels <span class="im">import</span> OLS</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>res_ols2 <span class="op">=</span> OLS.from_formula(<span class="st">"log(wage) ~ educ + exper + expersq"</span>, data<span class="op">=</span>data).fit()</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res_ols2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                            OLS Estimation Summary                            
+==============================================================================
+Dep. Variable:              log(wage)   R-squared:                      0.1568
+Estimator:                        OLS   Adj. R-squared:                 0.1509
+No. Observations:                 428   F-statistic:                    82.671
+Date:                Thu, Apr 18 2024   P-value (F-stat)                0.0000
+Time:                        22:24:05   Distribution:                  chi2(3)
+Cov. Estimator:                robust                                         
+                                                                              
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+Intercept     -0.5220     0.2007    -2.6010     0.0093     -0.9154     -0.1287
+educ           0.1075     0.0132     8.1697     0.0000      0.0817      0.1333
+exper          0.0416     0.0152     2.7344     0.0063      0.0118      0.0714
+expersq       -0.0008     0.0004    -1.9402     0.0524     -0.0016   8.276e-06
+==============================================================================</code></pre>
+</div>
+</div>
+<div id="cell-17" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(compare([res_ols, res_ols2]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Model Comparison             
+==========================================
+                       Model 0     Model 1
+------------------------------------------
+Dep. Variable             wage   log(wage)
+Estimator                  OLS         OLS
+No. Observations           428         428
+Cov. Est.               robust      robust
+R-squared               0.1568      0.1568
+Adj. R-squared          0.1509      0.1509
+F-statistic             82.671      82.671
+P-value (F-stat)        0.0000      0.0000
+================== =========== ===========
+const                  -0.5220            
+                     (-2.6010)            
+educ                    0.1075      0.1075
+                      (8.1697)    (8.1697)
+exper                   0.0416      0.0416
+                      (2.7344)    (2.7344)
+expersq                -0.0008     -0.0008
+                     (-1.9402)   (-1.9402)
+Intercept                          -0.5220
+                                 (-2.6010)
+------------------------------------------
+
+T-stats reported in parentheses</code></pre>
+</div>
+</div>
+</section>
+<section id="工具变量法" class="level2">
+<h2 class="anchored" data-anchor-id="工具变量法">工具变量法</h2>
+<p>继续前面的例子。我们使用父亲的受教育程度 fatheduc 作为 educ 的工具变量。</p>
+<p>工具变量回归要导入IV2SLS，用法是 <code>IV2SLS(因变量, 外生变量, 内生变量, 工具变量)</code>，更通俗的表达是 <code>IV2SLS(因变量, 控制变量, 自变量, 工具变量)</code></p>
+<p>在本案中，则是<code>IV2SLS(np.log(data.wage), data[["const"]], data.educ, data.fathedcu)</code></p>
+<p><code>fit()</code>函数可以指定方差的计算方式，我们这里不展开。</p>
+<div id="cell-19" class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels.iv <span class="im">import</span> IV2SLS</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>res_second <span class="op">=</span> IV2SLS(np.log(data.wage), data[[<span class="st">"const"</span>]], data.educ, data.fatheduc).fit(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    cov_type<span class="op">=</span><span class="st">"unadjusted"</span>  <span class="co"># 使用传统的OLS方差估计,假设误差项是同方差的</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res_second)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          IV-2SLS Estimation Summary                          
+==============================================================================
+Dep. Variable:                   wage   R-squared:                      0.0934
+Estimator:                    IV-2SLS   Adj. R-squared:                 0.0913
+No. Observations:                 428   F-statistic:                    2.8487
+Date:                Thu, Apr 18 2024   P-value (F-stat)                0.0914
+Time:                        19:58:07   Distribution:                  chi2(1)
+Cov. Estimator:            unadjusted                                         
+                                                                              
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+const          0.4411     0.4451     0.9911     0.3216     -0.4312      1.3134
+educ           0.0592     0.0351     1.6878     0.0914     -0.0095      0.1279
+==============================================================================
+
+Endogenous: educ
+Instruments: fatheduc
+Unadjusted Covariance (Homoskedastic)
+Debiased: False</code></pre>
+</div>
+</div>
+<p>采用公式版，公式的写法是 <code>dep ~ exog + [ endog ~ instruments]</code></p>
+<div id="cell-21" class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>res_second2 <span class="op">=</span> IV2SLS.from_formula(<span class="st">"log(wage) ~ [educ ~ fatheduc]"</span>, data<span class="op">=</span>data).fit(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    cov_type<span class="op">=</span><span class="st">"unadjusted"</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res_second)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          IV-2SLS Estimation Summary                          
+==============================================================================
+Dep. Variable:                   wage   R-squared:                      0.0934
+Estimator:                    IV-2SLS   Adj. R-squared:                 0.0913
+No. Observations:                 428   F-statistic:                    2.8487
+Date:                Thu, Apr 18 2024   P-value (F-stat)                0.0914
+Time:                        19:58:07   Distribution:                  chi2(1)
+Cov. Estimator:            unadjusted                                         
+                                                                              
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+const          0.4411     0.4451     0.9911     0.3216     -0.4312      1.3134
+educ           0.0592     0.0351     1.6878     0.0914     -0.0095      0.1279
+==============================================================================
+
+Endogenous: educ
+Instruments: fatheduc
+Unadjusted Covariance (Homoskedastic)
+Debiased: False</code></pre>
+</div>
+</div>
+<p>当然两种方法的结果也是一样的，看你习惯用哪个。</p>
+<p>比较OLS和2SLS的回归结果</p>
+<div id="cell-24" class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(compare([res_ols, res_second]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 Model Comparison                
+=================================================
+                           Model 0        Model 1
+-------------------------------------------------
+Dep. Variable                 wage           wage
+Estimator                      OLS        IV-2SLS
+No. Observations               428            428
+Cov. Est.                   robust     unadjusted
+R-squared                   0.1179         0.0934
+Adj. R-squared              0.1158         0.0913
+F-statistic                 65.899         2.8487
+P-value (F-stat)         4.441e-16         0.0914
+==================     ===========   ============
+const                      -0.1852         0.4411
+                         (-1.0872)       (0.9911)
+educ                        0.1086         0.0592
+                          (8.1178)       (1.6878)
+==================== ============= ==============
+Instruments                              fatheduc
+-------------------------------------------------
+
+T-stats reported in parentheses</code></pre>
+</div>
+</div>
+<p>2SLS的估计值为5.9%，是OLS估计的一半左右</p>
+</section>
+<section id="稍微复杂一点的例子" class="level2">
+<h2 class="anchored" data-anchor-id="稍微复杂一点的例子">稍微复杂一点的例子</h2>
+<p>例子来自 《导论》 第15章的例15.4，作者试图用男性样本中的工资和受教育程度 <code>educ</code> 来估计教育回报 <code>wage</code> ，并且用一个人是否在一所四年制大学附近成长 <code>nearc4</code> ，来自作为受教育程度的工具变量。还包括其他控制变量，等等。</p>
+<p>同样，希望回答的问题也是“多读一年书能多拿多少钱工资？”</p>
+<p>数据是<code>datasets.card</code>，可以看到我们需要的变量都在里面。</p>
+<div id="cell-27" class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels.datasets <span class="im">import</span> card</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> card.load()</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(card.DESCR)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> add_constant(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+D. Card (1995), "Using Geographic Variation in College Proximity to Estimate
+the Return to Schooling," in Aspects of Labour Market Behavior:  Essays in
+Honour of John Vanderkamp.  Ed. L.N. Christophides, E.K. Grant, and R.
+Swidinsky, 201-222.  Toronto: University of Toronto Press.
+
+id                       person identifier
+nearc2                   =1 if near 2 yr college, 1966
+nearc4                   =1 if near 4 yr college, 1966
+educ                     years of schooling, 1976
+age                      in years
+fatheduc                 father's schooling
+motheduc                 mother's schooling
+weight                   NLS sampling weight, 1976
+momdad14                 =1 if live with mom, dad at 14
+sinmom14                 =1 if with single mom at 14
+step14                   =1 if with step parent at 14
+reg661                   =1 for region 1, 1966
+reg662                   =1 for region 2, 1966
+reg663                   =1 for region 3, 1966
+reg664                   =1 for region 4, 1966
+reg665                   =1 for region 5, 1966
+reg666                   =1 for region 6, 1966
+reg667                   =1 for region 7, 1966
+reg668                   =1 for region 8, 1966
+reg669                   =1 for region 9, 1966
+south66                  =1 if in south in 1966
+black                    =1 if black
+smsa                     =1 in in SMSA, 1976
+south                    =1 if in south, 1976
+smsa66                   =1 if in SMSA, 1966
+wage                     hourly wage in cents, 1976
+enroll                   =1 if enrolled in school, 1976
+KWW                      knowledge world of work score
+IQ                       IQ score
+married                  =1 if married, 1976
+libcrd14                 =1 if lib. card in home at 14
+exper                    age - educ - 6
+lwage                    log(wage)
+xpersq                   exper**2
+</code></pre>
+</div>
+</div>
+<p>我们首先确定回归用的数据</p>
+<div id="cell-29" class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>dep <span class="op">=</span> [<span class="st">"wage"</span>]  <span class="co"># 因变量：工资</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>endog <span class="op">=</span> [<span class="st">"educ"</span>]  <span class="co"># 自变量：教育程度</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>exog <span class="op">=</span> [  <span class="co"># 外生变量</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"const"</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"exper"</span>,  <span class="co"># 工作经验</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"expersq"</span>,  <span class="co"># 工作经验的平方</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"black"</span>,  <span class="co"># 是否是黑人</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"smsa"</span>,  <span class="co"># 是否住在大城市及其郊区</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"south"</span>,  <span class="co"># 是否住在南方</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"smsa66"</span>,  <span class="co"># 66年时候居住在何处</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reg662"</span>,  <span class="co"># 一系列地区虚拟变量</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reg663"</span>,</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reg664"</span>,</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reg665"</span>,</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reg666"</span>,</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reg667"</span>,</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reg668"</span>,</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reg669"</span>,</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>instr <span class="op">=</span> [<span class="st">"nearc4"</span>]  <span class="co"># 工具变量：是否在4年制大学附近成长</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data[dep <span class="op">+</span> exog <span class="op">+</span> endog <span class="op">+</span> instr].dropna()  <span class="co"># 把上述变量集合到data中</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="91">
+<div>
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">wage</th>
+<th data-quarto-table-cell-role="th">const</th>
+<th data-quarto-table-cell-role="th">exper</th>
+<th data-quarto-table-cell-role="th">expersq</th>
+<th data-quarto-table-cell-role="th">black</th>
+<th data-quarto-table-cell-role="th">smsa</th>
+<th data-quarto-table-cell-role="th">south</th>
+<th data-quarto-table-cell-role="th">smsa66</th>
+<th data-quarto-table-cell-role="th">reg662</th>
+<th data-quarto-table-cell-role="th">reg663</th>
+<th data-quarto-table-cell-role="th">reg664</th>
+<th data-quarto-table-cell-role="th">reg665</th>
+<th data-quarto-table-cell-role="th">reg666</th>
+<th data-quarto-table-cell-role="th">reg667</th>
+<th data-quarto-table-cell-role="th">reg668</th>
+<th data-quarto-table-cell-role="th">reg669</th>
+<th data-quarto-table-cell-role="th">educ</th>
+<th data-quarto-table-cell-role="th">nearc4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>548</td>
+<td>1.0</td>
+<td>16</td>
+<td>256</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>7</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>481</td>
+<td>1.0</td>
+<td>9</td>
+<td>81</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>12</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>721</td>
+<td>1.0</td>
+<td>16</td>
+<td>256</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>12</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>250</td>
+<td>1.0</td>
+<td>10</td>
+<td>100</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>11</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>729</td>
+<td>1.0</td>
+<td>16</td>
+<td>256</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>12</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+<section id="ols" class="level3">
+<h3 class="anchored" data-anchor-id="ols">OLS</h3>
+<p>先做一个OLS, 直接用educ来解释wage。</p>
+<p><code>log(wage) ~ educ + controls</code></p>
+<p>当我们不指定内生变量和工具变量的时候，IV2SLS()和OLS()结果一样</p>
+<div id="cell-31" class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> IV2SLS(np.log(data.wage), data[exog <span class="op">+</span> endog], <span class="va">None</span>, <span class="va">None</span>).fit()</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                            OLS Estimation Summary                            
+==============================================================================
+Dep. Variable:                   wage   R-squared:                      0.2998
+Estimator:                        OLS   Adj. R-squared:                 0.2963
+No. Observations:                3010   F-statistic:                    1377.0
+Date:                Thu, Apr 18 2024   P-value (F-stat)                0.0000
+Time:                        20:03:24   Distribution:                 chi2(15)
+Cov. Estimator:                robust                                         
+                                                                              
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+const          4.6208     0.0740     62.417     0.0000      4.4757      4.7659
+exper          0.0848     0.0067     12.592     0.0000      0.0716      0.0980
+expersq       -0.0023     0.0003    -7.1798     0.0000     -0.0029     -0.0017
+black         -0.1990     0.0181    -10.985     0.0000     -0.2345     -0.1635
+smsa           0.1364     0.0192     7.1159     0.0000      0.0988      0.1739
+south         -0.1480     0.0280    -5.2917     0.0000     -0.2028     -0.0932
+smsa66         0.0262     0.0185     1.4153     0.1570     -0.0101      0.0626
+reg662         0.0964     0.0350     2.7531     0.0059      0.0278      0.1650
+reg663         0.1445     0.0337     4.2850     0.0000      0.0784      0.2107
+reg664         0.0551     0.0411     1.3402     0.1802     -0.0255      0.1356
+reg665         0.1280     0.0428     2.9912     0.0028      0.0441      0.2119
+reg666         0.1405     0.0450     3.1223     0.0018      0.0523      0.2287
+reg667         0.1180     0.0455     2.5934     0.0095      0.0288      0.2071
+reg668        -0.0564     0.0505    -1.1183     0.2634     -0.1553      0.0425
+reg669         0.1186     0.0387     3.0658     0.0022      0.0428      0.1944
+educ           0.0747     0.0036     20.540     0.0000      0.0676      0.0818
+==============================================================================</code></pre>
+</div>
+</div>
+<p>educ的系数是7%左右，每多读书1年，工资增加7%。</p>
+</section>
+<section id="sls" class="level3">
+<h3 class="anchored" data-anchor-id="sls">2SLS</h3>
+<p>利用nearc4来做educ的工具变量.</p>
+<p>一阶段是: educ ~ nearc4 + controls</p>
+<p>二阶段是:</p>
+<p>我们首先手动做两阶段回归，然后再用一条命令完成，并从中提取第一阶段。</p>
+<p>一阶段：</p>
+<div id="cell-35" class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> IV2SLS(data.educ, data[instr <span class="op">+</span> exog], <span class="va">None</span>, <span class="va">None</span>).fit(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    cov_type<span class="op">=</span><span class="st">"unadjusted"</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>)  <span class="co"># 不指定内生变量和工具变量，最后2个参数都是None</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                            OLS Estimation Summary                            
+==============================================================================
+Dep. Variable:                   educ   R-squared:                      0.4771
+Estimator:                        OLS   Adj. R-squared:                 0.4745
+No. Observations:                3010   F-statistic:                    2746.5
+Date:                Thu, Apr 18 2024   P-value (F-stat)                0.0000
+Time:                        20:13:21   Distribution:                 chi2(15)
+Cov. Estimator:            unadjusted                                         
+                                                                              
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+nearc4         0.3199     0.0876     3.6506     0.0003      0.1481      0.4917
+const          16.638     0.2400     69.329     0.0000      16.168      17.109
+exper         -0.4125     0.0336    -12.274     0.0000     -0.4784     -0.3467
+expersq        0.0009     0.0016     0.5277     0.5977     -0.0024      0.0041
+black         -0.9355     0.0935    -10.007     0.0000     -1.1188     -0.7523
+smsa           0.4022     0.1045     3.8474     0.0001      0.1973      0.6071
+south         -0.0516     0.1351    -0.3821     0.7024     -0.3163      0.2131
+smsa66         0.0255     0.1055     0.2415     0.8091     -0.1813      0.2322
+reg662        -0.0786     0.1866    -0.4214     0.6735     -0.4444      0.2871
+reg663        -0.0279     0.1829    -0.1528     0.8786     -0.3864      0.3305
+reg664         0.1172     0.2167     0.5408     0.5886     -0.3075      0.5419
+reg665        -0.2726     0.2178    -1.2515     0.2108     -0.6996      0.1543
+reg666        -0.3028     0.2364    -1.2807     0.2003     -0.7662      0.1606
+reg667        -0.2168     0.2338    -0.9275     0.3537     -0.6750      0.2414
+reg668         0.5239     0.2668     1.9639     0.0495      0.0010      1.0467
+reg669         0.2103     0.2019     1.0414     0.2977     -0.1855      0.6060
+==============================================================================</code></pre>
+</div>
+</div>
+<p>nearc4的系数很显著，上面的结果同《导论》的公式15.32(p495)。</p>
+<div id="cell-37" class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> IV2SLS(np.log(data.wage), data[exog <span class="op">+</span> endog], <span class="va">None</span>, <span class="va">None</span>).fit()</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                            OLS Estimation Summary                            
+==============================================================================
+Dep. Variable:                   wage   R-squared:                      0.2998
+Estimator:                        OLS   Adj. R-squared:                 0.2963
+No. Observations:                3010   F-statistic:                    1377.0
+Date:                Thu, Apr 18 2024   P-value (F-stat)                0.0000
+Time:                        20:17:05   Distribution:                 chi2(15)
+Cov. Estimator:                robust                                         
+                                                                              
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+const          4.6208     0.0740     62.417     0.0000      4.4757      4.7659
+exper          0.0848     0.0067     12.592     0.0000      0.0716      0.0980
+expersq       -0.0023     0.0003    -7.1798     0.0000     -0.0029     -0.0017
+black         -0.1990     0.0181    -10.985     0.0000     -0.2345     -0.1635
+smsa           0.1364     0.0192     7.1159     0.0000      0.0988      0.1739
+south         -0.1480     0.0280    -5.2917     0.0000     -0.2028     -0.0932
+smsa66         0.0262     0.0185     1.4153     0.1570     -0.0101      0.0626
+reg662         0.0964     0.0350     2.7531     0.0059      0.0278      0.1650
+reg663         0.1445     0.0337     4.2850     0.0000      0.0784      0.2107
+reg664         0.0551     0.0411     1.3402     0.1802     -0.0255      0.1356
+reg665         0.1280     0.0428     2.9912     0.0028      0.0441      0.2119
+reg666         0.1405     0.0450     3.1223     0.0018      0.0523      0.2287
+reg667         0.1180     0.0455     2.5934     0.0095      0.0288      0.2071
+reg668        -0.0564     0.0505    -1.1183     0.2634     -0.1553      0.0425
+reg669         0.1186     0.0387     3.0658     0.0022      0.0428      0.1944
+educ           0.0747     0.0036     20.540     0.0000      0.0676      0.0818
+==============================================================================</code></pre>
+</div>
+</div>
+<div id="cell-38" class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> IV2SLS(np.log(data.wage), data[exog <span class="op">+</span> endog], <span class="va">None</span>, <span class="va">None</span>).fit()</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                            OLS Estimation Summary                            
+==============================================================================
+Dep. Variable:                   wage   R-squared:                      0.2998
+Estimator:                        OLS   Adj. R-squared:                 0.2963
+No. Observations:                3010   F-statistic:                    1377.0
+Date:                Thu, Apr 18 2024   P-value (F-stat)                0.0000
+Time:                        19:58:07   Distribution:                 chi2(15)
+Cov. Estimator:                robust                                         
+                                                                              
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+const          4.6208     0.0740     62.417     0.0000      4.4757      4.7659
+exper          0.0848     0.0067     12.592     0.0000      0.0716      0.0980
+expersq       -0.0023     0.0003    -7.1798     0.0000     -0.0029     -0.0017
+black         -0.1990     0.0181    -10.985     0.0000     -0.2345     -0.1635
+smsa           0.1364     0.0192     7.1159     0.0000      0.0988      0.1739
+south         -0.1480     0.0280    -5.2917     0.0000     -0.2028     -0.0932
+smsa66         0.0262     0.0185     1.4153     0.1570     -0.0101      0.0626
+reg662         0.0964     0.0350     2.7531     0.0059      0.0278      0.1650
+reg663         0.1445     0.0337     4.2850     0.0000      0.0784      0.2107
+reg664         0.0551     0.0411     1.3402     0.1802     -0.0255      0.1356
+reg665         0.1280     0.0428     2.9912     0.0028      0.0441      0.2119
+reg666         0.1405     0.0450     3.1223     0.0018      0.0523      0.2287
+reg667         0.1180     0.0455     2.5934     0.0095      0.0288      0.2071
+reg668        -0.0564     0.0505    -1.1183     0.2634     -0.1553      0.0425
+reg669         0.1186     0.0387     3.0658     0.0022      0.0428      0.1944
+educ           0.0747     0.0036     20.540     0.0000      0.0676      0.0818
+==============================================================================</code></pre>
+</div>
+</div>
+<div id="cell-39" class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>res_2sls <span class="op">=</span> IV2SLS(np.log(data.wage), data[exog], data[endog], data[instr]).fit()</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>res_2sls</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="108">
+<div>
+<table class="simpletable table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>IV-2SLS Estimation Summary</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>wage</td>
+<td data-quarto-table-cell-role="th">R-squared:</td>
+<td>0.2382</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Estimator:</td>
+<td>IV-2SLS</td>
+<td data-quarto-table-cell-role="th">Adj. R-squared:</td>
+<td>0.2343</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>3010</td>
+<td data-quarto-table-cell-role="th">F-statistic:</td>
+<td>840.83</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Thu, Apr 18 2024</td>
+<td data-quarto-table-cell-role="th">P-value (F-stat)</td>
+<td>0.0000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>20:19:23</td>
+<td data-quarto-table-cell-role="th">Distribution:</td>
+<td>chi2(15)</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Cov. Estimator:</td>
+<td>robust</td>
+<td data-quarto-table-cell-role="th"></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th"></td>
+<td></td>
+<td data-quarto-table-cell-role="th"></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table class="simpletable table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Parameter Estimates</caption>
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">Parameter</td>
+<td data-quarto-table-cell-role="th">Std. Err.</td>
+<td data-quarto-table-cell-role="th">T-stat</td>
+<td data-quarto-table-cell-role="th">P-value</td>
+<td data-quarto-table-cell-role="th">Lower CI</td>
+<td data-quarto-table-cell-role="th">Upper CI</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">const</td>
+<td>3.6662</td>
+<td>0.9085</td>
+<td>4.0352</td>
+<td>0.0001</td>
+<td>1.8855</td>
+<td>5.4468</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">exper</td>
+<td>0.1083</td>
+<td>0.0233</td>
+<td>4.6376</td>
+<td>0.0000</td>
+<td>0.0625</td>
+<td>0.1540</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">expersq</td>
+<td>-0.0023</td>
+<td>0.0003</td>
+<td>-6.7128</td>
+<td>0.0000</td>
+<td>-0.0030</td>
+<td>-0.0017</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">black</td>
+<td>-0.1468</td>
+<td>0.0524</td>
+<td>-2.8031</td>
+<td>0.0051</td>
+<td>-0.2494</td>
+<td>-0.0441</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">smsa</td>
+<td>0.1118</td>
+<td>0.0311</td>
+<td>3.5995</td>
+<td>0.0003</td>
+<td>0.0509</td>
+<td>0.1727</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">south</td>
+<td>-0.1447</td>
+<td>0.0291</td>
+<td>-4.9775</td>
+<td>0.0000</td>
+<td>-0.2016</td>
+<td>-0.0877</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">smsa66</td>
+<td>0.0185</td>
+<td>0.0205</td>
+<td>0.9035</td>
+<td>0.3663</td>
+<td>-0.0217</td>
+<td>0.0587</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">reg662</td>
+<td>0.1008</td>
+<td>0.0365</td>
+<td>2.7644</td>
+<td>0.0057</td>
+<td>0.0293</td>
+<td>0.1722</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">reg663</td>
+<td>0.1483</td>
+<td>0.0355</td>
+<td>4.1760</td>
+<td>0.0000</td>
+<td>0.0787</td>
+<td>0.2178</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">reg664</td>
+<td>0.0499</td>
+<td>0.0435</td>
+<td>1.1471</td>
+<td>0.2514</td>
+<td>-0.0354</td>
+<td>0.1352</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">reg665</td>
+<td>0.1463</td>
+<td>0.0491</td>
+<td>2.9794</td>
+<td>0.0029</td>
+<td>0.0500</td>
+<td>0.2425</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">reg666</td>
+<td>0.1629</td>
+<td>0.0516</td>
+<td>3.1553</td>
+<td>0.0016</td>
+<td>0.0617</td>
+<td>0.2641</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">reg667</td>
+<td>0.1346</td>
+<td>0.0504</td>
+<td>2.6689</td>
+<td>0.0076</td>
+<td>0.0357</td>
+<td>0.2334</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">reg668</td>
+<td>-0.0831</td>
+<td>0.0571</td>
+<td>-1.4552</td>
+<td>0.1456</td>
+<td>-0.1950</td>
+<td>0.0288</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">reg669</td>
+<td>0.1078</td>
+<td>0.0410</td>
+<td>2.6317</td>
+<td>0.0085</td>
+<td>0.0275</td>
+<td>0.1881</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">educ</td>
+<td>0.1315</td>
+<td>0.0540</td>
+<td>2.4353</td>
+<td>0.0149</td>
+<td>0.0257</td>
+<td>0.2373</td>
+</tr>
+</tbody>
+</table>
+<br><br>Endogenous: educ<br>Instruments: nearc4<br>Robust Covariance (Heteroskedastic)<br>Debiased: False<br>id: 0x707735e73790
+</div>
+</div>
+</div>
+<p>公式版</p>
+<div id="cell-41" class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> (</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"np.log(wage) ~ 1 + exper + expersq + black + smsa + south + smsa66 + reg662 + reg663 + reg664 + "</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reg665 + reg666 + reg667 + reg668 + reg669 + [educ ~ nearc4]"</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>mod <span class="op">=</span> IV2SLS.from_formula(formula, data)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>res_formula <span class="op">=</span> mod.fit(cov_type<span class="op">=</span><span class="st">"unadjusted"</span>)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>res_formula</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="107">
+<div>
+<table class="simpletable table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>IV-2SLS Estimation Summary</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>np.log(wage)</td>
+<td data-quarto-table-cell-role="th">R-squared:</td>
+<td>0.2382</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Estimator:</td>
+<td>IV-2SLS</td>
+<td data-quarto-table-cell-role="th">Adj. R-squared:</td>
+<td>0.2343</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>3010</td>
+<td data-quarto-table-cell-role="th">F-statistic:</td>
+<td>769.20</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Thu, Apr 18 2024</td>
+<td data-quarto-table-cell-role="th">P-value (F-stat)</td>
+<td>0.0000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>20:19:15</td>
+<td data-quarto-table-cell-role="th">Distribution:</td>
+<td>chi2(15)</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Cov. Estimator:</td>
+<td>unadjusted</td>
+<td data-quarto-table-cell-role="th"></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th"></td>
+<td></td>
+<td data-quarto-table-cell-role="th"></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table class="simpletable table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Parameter Estimates</caption>
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">Parameter</td>
+<td data-quarto-table-cell-role="th">Std. Err.</td>
+<td data-quarto-table-cell-role="th">T-stat</td>
+<td data-quarto-table-cell-role="th">P-value</td>
+<td data-quarto-table-cell-role="th">Lower CI</td>
+<td data-quarto-table-cell-role="th">Upper CI</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Intercept</td>
+<td>3.6662</td>
+<td>0.9224</td>
+<td>3.9747</td>
+<td>0.0001</td>
+<td>1.8583</td>
+<td>5.4740</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">exper</td>
+<td>0.1083</td>
+<td>0.0236</td>
+<td>4.5886</td>
+<td>0.0000</td>
+<td>0.0620</td>
+<td>0.1545</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">expersq</td>
+<td>-0.0023</td>
+<td>0.0003</td>
+<td>-7.0201</td>
+<td>0.0000</td>
+<td>-0.0030</td>
+<td>-0.0017</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">black</td>
+<td>-0.1468</td>
+<td>0.0538</td>
+<td>-2.7304</td>
+<td>0.0063</td>
+<td>-0.2521</td>
+<td>-0.0414</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">smsa</td>
+<td>0.1118</td>
+<td>0.0316</td>
+<td>3.5407</td>
+<td>0.0004</td>
+<td>0.0499</td>
+<td>0.1737</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">south</td>
+<td>-0.1447</td>
+<td>0.0272</td>
+<td>-5.3165</td>
+<td>0.0000</td>
+<td>-0.1980</td>
+<td>-0.0913</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">smsa66</td>
+<td>0.0185</td>
+<td>0.0216</td>
+<td>0.8599</td>
+<td>0.3899</td>
+<td>-0.0237</td>
+<td>0.0608</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">reg662</td>
+<td>0.1008</td>
+<td>0.0376</td>
+<td>2.6810</td>
+<td>0.0073</td>
+<td>0.0271</td>
+<td>0.1744</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">reg663</td>
+<td>0.1483</td>
+<td>0.0367</td>
+<td>4.0380</td>
+<td>0.0001</td>
+<td>0.0763</td>
+<td>0.2202</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">reg664</td>
+<td>0.0499</td>
+<td>0.0436</td>
+<td>1.1438</td>
+<td>0.2527</td>
+<td>-0.0356</td>
+<td>0.1354</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">reg665</td>
+<td>0.1463</td>
+<td>0.0469</td>
+<td>3.1162</td>
+<td>0.0018</td>
+<td>0.0543</td>
+<td>0.2383</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">reg666</td>
+<td>0.1629</td>
+<td>0.0518</td>
+<td>3.1466</td>
+<td>0.0017</td>
+<td>0.0614</td>
+<td>0.2644</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">reg667</td>
+<td>0.1346</td>
+<td>0.0493</td>
+<td>2.7313</td>
+<td>0.0063</td>
+<td>0.0380</td>
+<td>0.2311</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">reg668</td>
+<td>-0.0831</td>
+<td>0.0592</td>
+<td>-1.4040</td>
+<td>0.1603</td>
+<td>-0.1991</td>
+<td>0.0329</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">reg669</td>
+<td>0.1078</td>
+<td>0.0417</td>
+<td>2.5853</td>
+<td>0.0097</td>
+<td>0.0261</td>
+<td>0.1895</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">educ</td>
+<td>0.1315</td>
+<td>0.0548</td>
+<td>2.3989</td>
+<td>0.0164</td>
+<td>0.0241</td>
+<td>0.2389</td>
+</tr>
+</tbody>
+</table>
+<br><br>Endogenous: educ<br>Instruments: nearc4<br>Unadjusted Covariance (Homoskedastic)<br>Debiased: False<br>id: 0x70770faeaed0
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="面板数据" class="level2">
+<h2 class="anchored" data-anchor-id="面板数据">面板数据</h2>
+<div id="cell-43" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels.datasets <span class="im">import</span> wage_panel</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> wage_panel.load()</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>year <span class="op">=</span> pd.Categorical(data.year)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data.set_index([<span class="st">"nr"</span>, <span class="st">"year"</span>])</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"year"</span>] <span class="op">=</span> year</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(wage_panel.DESCR)</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+F. Vella and M. Verbeek (1998), "Whose Wages Do Unions Raise? A Dynamic Model
+of Unionism and Wage Rate Determination for Young Men," Journal of Applied
+Econometrics 13, 163-183.
+
+nr                       person identifier
+year                     1980 to 1987
+black                    =1 if black
+exper                    labor market experience
+hisp                     =1 if Hispanic
+hours                    annual hours worked
+married                  =1 if married
+educ                     years of schooling
+union                    =1 if in union
+lwage                    log(wage)
+expersq                  exper^2
+occupation               Occupation code
+</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div>
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">black</th>
+<th data-quarto-table-cell-role="th">exper</th>
+<th data-quarto-table-cell-role="th">hisp</th>
+<th data-quarto-table-cell-role="th">hours</th>
+<th data-quarto-table-cell-role="th">married</th>
+<th data-quarto-table-cell-role="th">educ</th>
+<th data-quarto-table-cell-role="th">union</th>
+<th data-quarto-table-cell-role="th">lwage</th>
+<th data-quarto-table-cell-role="th">expersq</th>
+<th data-quarto-table-cell-role="th">occupation</th>
+<th data-quarto-table-cell-role="th">year</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">nr</th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="5" data-quarto-table-cell-role="th" data-valign="top">13</td>
+<td data-quarto-table-cell-role="th">1980</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>2672</td>
+<td>0</td>
+<td>14</td>
+<td>0</td>
+<td>1.197540</td>
+<td>1</td>
+<td>9</td>
+<td>1980</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1981</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2320</td>
+<td>0</td>
+<td>14</td>
+<td>1</td>
+<td>1.853060</td>
+<td>4</td>
+<td>9</td>
+<td>1981</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1982</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>2940</td>
+<td>0</td>
+<td>14</td>
+<td>0</td>
+<td>1.344462</td>
+<td>9</td>
+<td>9</td>
+<td>1982</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1983</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>2960</td>
+<td>0</td>
+<td>14</td>
+<td>0</td>
+<td>1.433213</td>
+<td>16</td>
+<td>9</td>
+<td>1983</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1984</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+<td>3071</td>
+<td>0</td>
+<td>14</td>
+<td>0</td>
+<td>1.568125</td>
+<td>25</td>
+<td>5</td>
+<td>1984</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+<div id="cell-44" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>data.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+MultiIndex: 4360 entries, (13, 1980) to (12548, 1987)
+Data columns (total 11 columns):
+ #   Column      Non-Null Count  Dtype   
+---  ------      --------------  -----   
+ 0   black       4360 non-null   int64   
+ 1   exper       4360 non-null   int64   
+ 2   hisp        4360 non-null   int64   
+ 3   hours       4360 non-null   int64   
+ 4   married     4360 non-null   int64   
+ 5   educ        4360 non-null   int64   
+ 6   union       4360 non-null   int64   
+ 7   lwage       4360 non-null   float64 
+ 8   expersq     4360 non-null   int64   
+ 9   occupation  4360 non-null   int64   
+ 10  year        4360 non-null   category
+dtypes: category(1), float64(1), int64(9)
+memory usage: 378.9 KB</code></pre>
+</div>
+</div>
+<p>不考虑个体相应（不管个体在不同的年份是否相同），我们可以进行混合截面回归， PooledOLS</p>
+<div id="cell-46" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels.panel <span class="im">import</span> PooledOLS</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>exog_vars <span class="op">=</span> [<span class="st">"black"</span>, <span class="st">"hisp"</span>, <span class="st">"exper"</span>, <span class="st">"expersq"</span>, <span class="st">"married"</span>, <span class="st">"educ"</span>, <span class="st">"union"</span>, <span class="st">"year"</span>]</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>exog <span class="op">=</span> sm.add_constant(data[exog_vars])</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>mod <span class="op">=</span> PooledOLS(data.lwage, exog)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>pooled_res <span class="op">=</span> mod.fit()</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pooled_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          PooledOLS Estimation Summary                          
+================================================================================
+Dep. Variable:                  lwage   R-squared:                        0.1893
+Estimator:                  PooledOLS   R-squared (Between):              0.2066
+No. Observations:                4360   R-squared (Within):               0.1692
+Date:                Thu, Apr 18 2024   R-squared (Overall):              0.1893
+Time:                        22:49:22   Log-likelihood                   -2982.0
+Cov. Estimator:            Unadjusted                                           
+                                        F-statistic:                      72.459
+Entities:                         545   P-value                           0.0000
+Avg Obs:                       8.0000   Distribution:                 F(14,4345)
+Min Obs:                       8.0000                                           
+Max Obs:                       8.0000   F-statistic (robust):             72.459
+                                        P-value                           0.0000
+Time periods:                       8   Distribution:                 F(14,4345)
+Avg Obs:                       545.00                                           
+Min Obs:                       545.00                                           
+Max Obs:                       545.00                                           
+                                                                                
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+const          0.0921     0.0783     1.1761     0.2396     -0.0614      0.2455
+black         -0.1392     0.0236    -5.9049     0.0000     -0.1855     -0.0930
+hisp           0.0160     0.0208     0.7703     0.4412     -0.0248      0.0568
+exper          0.0672     0.0137     4.9095     0.0000      0.0404      0.0941
+expersq       -0.0024     0.0008    -2.9413     0.0033     -0.0040     -0.0008
+married        0.1083     0.0157     6.8997     0.0000      0.0775      0.1390
+educ           0.0913     0.0052     17.442     0.0000      0.0811      0.1016
+union          0.1825     0.0172     10.635     0.0000      0.1488      0.2161
+year.1981      0.0583     0.0304     1.9214     0.0548     -0.0012      0.1178
+year.1982      0.0628     0.0332     1.8900     0.0588     -0.0023      0.1279
+year.1983      0.0620     0.0367     1.6915     0.0908     -0.0099      0.1339
+year.1984      0.0905     0.0401     2.2566     0.0241      0.0119      0.1691
+year.1985      0.1092     0.0434     2.5200     0.0118      0.0243      0.1942
+year.1986      0.1420     0.0464     3.0580     0.0022      0.0509      0.2330
+year.1987      0.1738     0.0494     3.5165     0.0004      0.0769      0.2707
+==============================================================================</code></pre>
+</div>
+</div>
+<div id="cell-47" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels.panel <span class="im">import</span> PooledOLS</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>exog_vars <span class="op">=</span> [<span class="st">"black"</span>, <span class="st">"hisp"</span>, <span class="st">"exper"</span>, <span class="st">"expersq"</span>, <span class="st">"married"</span>, <span class="st">"educ"</span>, <span class="st">"union"</span>, <span class="st">"year"</span>]</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>exog <span class="op">=</span> sm.add_constant(data[exog_vars])</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>mod <span class="op">=</span> PooledOLS(data.lwage, exog)</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>pooled_res <span class="op">=</span> mod.fit()</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pooled_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                            OLS Estimation Summary                            
+==============================================================================
+Dep. Variable:                  lwage   R-squared:                      0.1893
+Estimator:                        OLS   Adj. R-squared:                 0.1867
+No. Observations:                4360   F-statistic:                    1064.1
+Date:                Thu, Apr 18 2024   P-value (F-stat)                0.0000
+Time:                        22:50:06   Distribution:                 chi2(14)
+Cov. Estimator:                robust                                         
+                                                                              
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+const          0.0921     0.0793     1.1606     0.2458     -0.0634      0.2475
+black         -0.1392     0.0245    -5.6824     0.0000     -0.1873     -0.0912
+hisp           0.0160     0.0197     0.8138     0.4158     -0.0226      0.0546
+exper          0.0672     0.0133     5.0683     0.0000      0.0412      0.0932
+expersq       -0.0024     0.0008    -3.1368     0.0017     -0.0039     -0.0009
+married        0.1083     0.0152     7.1119     0.0000      0.0784      0.1381
+educ           0.0913     0.0053     17.294     0.0000      0.0810      0.1017
+union          0.1825     0.0163     11.225     0.0000      0.1506      0.2143
+year.1981      0.0583     0.0320     1.8208     0.0686     -0.0045      0.1211
+year.1982      0.0628     0.0341     1.8389     0.0659     -0.0041      0.1297
+year.1983      0.0620     0.0364     1.7052     0.0882     -0.0093      0.1333
+year.1984      0.0905     0.0410     2.2045     0.0275      0.0100      0.1709
+year.1985      0.1092     0.0439     2.4894     0.0128      0.0232      0.1953
+year.1986      0.1420     0.0471     3.0152     0.0026      0.0497      0.2342
+year.1987      0.1738     0.0490     3.5504     0.0004      0.0779      0.2698
+==============================================================================</code></pre>
+</div>
+</div>
+<p>固定效应模型</p>
+<div id="cell-49" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels.panel <span class="im">import</span> PanelOLS</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>exog_vars <span class="op">=</span> [<span class="st">"expersq"</span>, <span class="st">"union"</span>, <span class="st">"married"</span>, <span class="st">"year"</span>]</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>exog <span class="op">=</span> sm.add_constant(data[exog_vars])</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>mod <span class="op">=</span> PanelOLS(data.lwage, exog, entity_effects<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>fe_res <span class="op">=</span> mod.fit()</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fe_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          PanelOLS Estimation Summary                           
+================================================================================
+Dep. Variable:                  lwage   R-squared:                        0.1806
+Estimator:                   PanelOLS   R-squared (Between):             -0.0052
+No. Observations:                4360   R-squared (Within):               0.1806
+Date:                Thu, Apr 18 2024   R-squared (Overall):              0.0807
+Time:                        22:44:28   Log-likelihood                   -1324.8
+Cov. Estimator:            Unadjusted                                           
+                                        F-statistic:                      83.851
+Entities:                         545   P-value                           0.0000
+Avg Obs:                       8.0000   Distribution:                 F(10,3805)
+Min Obs:                       8.0000                                           
+Max Obs:                       8.0000   F-statistic (robust):             83.851
+                                        P-value                           0.0000
+Time periods:                       8   Distribution:                 F(10,3805)
+Avg Obs:                       545.00                                           
+Min Obs:                       545.00                                           
+Max Obs:                       545.00                                           
+                                                                                
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+const          1.4260     0.0183     77.748     0.0000      1.3901      1.4620
+expersq       -0.0052     0.0007    -7.3612     0.0000     -0.0066     -0.0038
+union          0.0800     0.0193     4.1430     0.0000      0.0421      0.1179
+married        0.0467     0.0183     2.5494     0.0108      0.0108      0.0826
+year.1981      0.1512     0.0219     6.8883     0.0000      0.1082      0.1942
+year.1982      0.2530     0.0244     10.360     0.0000      0.2051      0.3008
+year.1983      0.3544     0.0292     12.121     0.0000      0.2971      0.4118
+year.1984      0.4901     0.0362     13.529     0.0000      0.4191      0.5611
+year.1985      0.6175     0.0452     13.648     0.0000      0.5288      0.7062
+year.1986      0.7655     0.0561     13.638     0.0000      0.6555      0.8755
+year.1987      0.9250     0.0688     13.450     0.0000      0.7902      1.0599
+==============================================================================
+
+F-test for Poolability: 9.1568
+P-value: 0.0000
+Distribution: F(544,3805)
+
+Included effects: Entity</code></pre>
+</div>
+</div>
+<div id="cell-50" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>exog_vars <span class="op">=</span> [<span class="st">"expersq"</span>, <span class="st">"union"</span>, <span class="st">"married"</span>]</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>exog <span class="op">=</span> sm.add_constant(data[exog_vars])</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>mod <span class="op">=</span> PanelOLS(data.lwage, exog, entity_effects<span class="op">=</span><span class="va">True</span>, time_effects<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>fe_te_res <span class="op">=</span> mod.fit()</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fe_te_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          PanelOLS Estimation Summary                           
+================================================================================
+Dep. Variable:                  lwage   R-squared:                        0.0216
+Estimator:                   PanelOLS   R-squared (Between):             -0.0052
+No. Observations:                4360   R-squared (Within):              -0.4809
+Date:                Thu, Apr 18 2024   R-squared (Overall):             -0.2253
+Time:                        22:44:52   Log-likelihood                   -1324.8
+Cov. Estimator:            Unadjusted                                           
+                                        F-statistic:                      27.959
+Entities:                         545   P-value                           0.0000
+Avg Obs:                       8.0000   Distribution:                  F(3,3805)
+Min Obs:                       8.0000                                           
+Max Obs:                       8.0000   F-statistic (robust):             27.959
+                                        P-value                           0.0000
+Time periods:                       8   Distribution:                  F(3,3805)
+Avg Obs:                       545.00                                           
+Min Obs:                       545.00                                           
+Max Obs:                       545.00                                           
+                                                                                
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+const          1.8706     0.0378     49.430     0.0000      1.7964      1.9448
+expersq       -0.0052     0.0007    -7.3612     0.0000     -0.0066     -0.0038
+union          0.0800     0.0193     4.1430     0.0000      0.0421      0.1179
+married        0.0467     0.0183     2.5494     0.0108      0.0108      0.0826
+==============================================================================
+
+F-test for Poolability: 10.067
+P-value: 0.0000
+Distribution: F(551,3805)
+
+Included effects: Entity, Time</code></pre>
+</div>
+</div>
+<div id="cell-51" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels.panel.data <span class="im">import</span> PanelData</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>exog_vars <span class="op">=</span> [<span class="st">"expersq"</span>, <span class="st">"union"</span>, <span class="st">"married"</span>]</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>exog <span class="op">=</span> sm.add_constant(data[exog_vars])</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the `PanelData` structure to simplify constructing the time IDs</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>time_ids <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>    PanelData(data.lwage).time_ids, index<span class="op">=</span>data.index, columns<span class="op">=</span>[<span class="st">"Other Effect"</span>]</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>mod <span class="op">=</span> PanelOLS(data.lwage, exog, entity_effects<span class="op">=</span><span class="va">True</span>, other_effects<span class="op">=</span>time_ids)</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>fe_oe_res <span class="op">=</span> mod.fit()</span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fe_oe_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          PanelOLS Estimation Summary                           
+================================================================================
+Dep. Variable:                  lwage   R-squared:                        0.0216
+Estimator:                   PanelOLS   R-squared (Between):             -0.0052
+No. Observations:                4360   R-squared (Within):              -0.4809
+Date:                Thu, Apr 18 2024   R-squared (Overall):             -0.2253
+Time:                        22:45:15   Log-likelihood                   -1324.8
+Cov. Estimator:            Unadjusted                                           
+                                        F-statistic:                      27.959
+Entities:                         545   P-value                           0.0000
+Avg Obs:                       8.0000   Distribution:                  F(3,3805)
+Min Obs:                       8.0000                                           
+Max Obs:                       8.0000   F-statistic (robust):             27.959
+                                        P-value                           0.0000
+Time periods:                       8   Distribution:                  F(3,3805)
+Avg Obs:                       545.00                                           
+Min Obs:                       545.00                                           
+Max Obs:                       545.00                                           
+                                                                                
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+const          1.8706     0.0378     49.430     0.0000      1.7964      1.9448
+expersq       -0.0052     0.0007    -7.3612     0.0000     -0.0066     -0.0038
+union          0.0800     0.0193     4.1430     0.0000      0.0421      0.1179
+married        0.0467     0.0183     2.5494     0.0108      0.0108      0.0826
+==============================================================================
+
+F-test for Poolability: 10.067
+P-value: 0.0000
+Distribution: F(551,3805)
+
+Included effects: Entity, Other Effect (Other Effect)
+Model includes 1 other effect
+Other Effect Observations per group (Other Effect):
+Avg Obs: 545.00, Min Obs: 545.00, Max Obs: 545.00, Groups: 8</code></pre>
+</div>
+</div>
+<div id="cell-52" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.datasets <span class="im">import</span> grunfeld</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> grunfeld.load_pandas().data</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<div>
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">invest</th>
+<th data-quarto-table-cell-role="th">value</th>
+<th data-quarto-table-cell-role="th">capital</th>
+<th data-quarto-table-cell-role="th">firm</th>
+<th data-quarto-table-cell-role="th">year</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>317.6</td>
+<td>3078.5</td>
+<td>2.8</td>
+<td>General Motors</td>
+<td>1935.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>391.8</td>
+<td>4661.7</td>
+<td>52.6</td>
+<td>General Motors</td>
+<td>1936.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>410.6</td>
+<td>5387.1</td>
+<td>156.9</td>
+<td>General Motors</td>
+<td>1937.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>257.7</td>
+<td>2792.2</td>
+<td>209.2</td>
+<td>General Motors</td>
+<td>1938.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>330.8</td>
+<td>4313.2</td>
+<td>203.4</td>
+<td>General Motors</td>
+<td>1939.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+<div id="cell-53" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data.set_index([<span class="st">"firm"</span>, <span class="st">"year"</span>])</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<div>
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">invest</th>
+<th data-quarto-table-cell-role="th">value</th>
+<th data-quarto-table-cell-role="th">capital</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">firm</th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="5" data-quarto-table-cell-role="th" data-valign="top">General Motors</td>
+<td data-quarto-table-cell-role="th">1935.0</td>
+<td>317.6</td>
+<td>3078.5</td>
+<td>2.8</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1936.0</td>
+<td>391.8</td>
+<td>4661.7</td>
+<td>52.6</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1937.0</td>
+<td>410.6</td>
+<td>5387.1</td>
+<td>156.9</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1938.0</td>
+<td>257.7</td>
+<td>2792.2</td>
+<td>209.2</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1939.0</td>
+<td>330.8</td>
+<td>4313.2</td>
+<td>203.4</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+<div id="cell-54" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> linearmodels <span class="im">import</span> PanelOLS</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>mod <span class="op">=</span> PanelOLS.from_formula(<span class="st">"invest ~ value + capital + EntityEffects"</span>, data<span class="op">=</span>data)</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(mod.fit())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          PanelOLS Estimation Summary                           
+================================================================================
+Dep. Variable:                 invest   R-squared:                        0.7667
+Estimator:                   PanelOLS   R-squared (Between):              0.8223
+No. Observations:                 220   R-squared (Within):               0.7667
+Date:                Thu, Apr 18 2024   R-squared (Overall):              0.8132
+Time:                        23:17:11   Log-likelihood                   -1167.4
+Cov. Estimator:            Unadjusted                                           
+                                        F-statistic:                      340.08
+Entities:                          11   P-value                           0.0000
+Avg Obs:                       20.000   Distribution:                   F(2,207)
+Min Obs:                       20.000                                           
+Max Obs:                       20.000   F-statistic (robust):             340.08
+                                        P-value                           0.0000
+Time periods:                      20   Distribution:                   F(2,207)
+Avg Obs:                       11.000                                           
+Min Obs:                       11.000                                           
+Max Obs:                       11.000                                           
+                                                                                
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+value          0.1101     0.0113     9.7461     0.0000      0.0879      0.1324
+capital        0.3100     0.0165     18.744     0.0000      0.2774      0.3426
+==============================================================================
+
+F-test for Poolability: 49.207
+P-value: 0.0000
+Distribution: F(10,207)
+
+Included effects: Entity</code></pre>
+</div>
+</div>
+<div id="cell-55" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>mod <span class="op">=</span> PanelOLS.from_formula(</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"invest ~ 1 + value + capital + EntityEffects + TimeEffects"</span>, data<span class="op">=</span>data</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(mod.fit())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                          PanelOLS Estimation Summary                           
+================================================================================
+Dep. Variable:                 invest   R-squared:                        0.7253
+Estimator:                   PanelOLS   R-squared (Between):              0.7944
+No. Observations:                 220   R-squared (Within):               0.7566
+Date:                Thu, Apr 18 2024   R-squared (Overall):              0.7856
+Time:                        23:18:20   Log-likelihood                   -1153.0
+Cov. Estimator:            Unadjusted                                           
+                                        F-statistic:                      248.15
+Entities:                          11   P-value                           0.0000
+Avg Obs:                       20.000   Distribution:                   F(2,188)
+Min Obs:                       20.000                                           
+Max Obs:                       20.000   F-statistic (robust):             248.15
+                                        P-value                           0.0000
+Time periods:                      20   Distribution:                   F(2,188)
+Avg Obs:                       11.000                                           
+Min Obs:                       11.000                                           
+Max Obs:                       11.000                                           
+                                                                                
+                             Parameter Estimates                              
+==============================================================================
+            Parameter  Std. Err.     T-stat    P-value    Lower CI    Upper CI
+------------------------------------------------------------------------------
+Intercept     -72.394     12.732    -5.6861     0.0000     -97.509     -47.278
+value          0.1167     0.0129     9.0219     0.0000      0.0912      0.1422
+capital        0.3514     0.0210     16.696     0.0000      0.3099      0.3930
+==============================================================================
+
+F-test for Poolability: 18.476
+P-value: 0.0000
+Distribution: F(29,188)
+
+Included effects: Entity, Time</code></pre>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

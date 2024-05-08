@@ -23,20 +23,21 @@ book:
         - book_parts/python_basics/08-useage.qmd
         - book_parts/python_basics/07-module.qmd
         - book_parts/python_basics/09-OO.qmd
-    - part: "第2部分 统计学"
+    - part: "book_parts/stats/index.ipynb"
       chapters:
-        - book_parts/stats/01.ipynb
-    - part: "parts/data_processing/index.qmd"
+        - book_parts/stats/00-basic.ipynb
+        - book_parts/stats/01-hypothesis_tests.ipynb
+    - part: "book_parts/data_processing/index.qmd"
       chapters:
         - book_parts/data_processing/10-numpy.qmd
         - book_parts/data_processing/11-pandas.ipynb
         - book_parts/data_processing/12-plot.ipynb
 #        - 13-big-game.qmd
-    - part: "第3部分 工具"
+    - part: "第4部分 工具"
       chapters:
         - book_parts/tools/20-ml.ipynb
         - book_parts/tools/21-math.ipynb
-    - part: "第4部分 案例"
+    - part: "第5部分 案例"
       chapters:
         - book_parts/case_study/31-data_source.ipynb
         - book_parts/case_study/32-basic_examples.ipynb
