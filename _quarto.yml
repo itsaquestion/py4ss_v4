@@ -27,6 +27,7 @@ book:
       chapters:
         - book_parts/stats/00-basic.ipynb
         - book_parts/stats/01-hypothesis_tests.ipynb
+        - book_parts/stats/06-classification.ipynb
     - part: "book_parts/data_processing/index.qmd"
       chapters:
         - book_parts/data_processing/10-numpy.qmd
