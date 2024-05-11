@@ -25,8 +25,9 @@ book:
         - book_parts/python_basics/09-OO.qmd
     - part: "book_parts/stats/index.ipynb"
       chapters:
-        - book_parts/stats/00-basic.ipynb
-        - book_parts/stats/01-hypothesis_tests.ipynb
+        - book_parts/stats/00-numpy-pandas-primer.ipynb
+        - book_parts/stats/01-parameter-estimation.ipynb
+        - book_parts/stats/02-hypothesis_tests.ipynb
         - book_parts/stats/06-classification.ipynb
     - part: "book_parts/data_processing/index.qmd"
       chapters:
