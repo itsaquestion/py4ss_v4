@@ -31,11 +31,13 @@ book:
         - book_parts/stats/03-linear_reg.ipynb
         - book_parts/stats/04-clustering.ipynb
         - book_parts/stats/06-classification.ipynb
+        - book_parts/stats/statistical_theory.qmd
     - part: "book_parts/data_processing/index.qmd"
       chapters:
         - book_parts/data_processing/10-numpy.qmd
         - book_parts/data_processing/11-pandas.ipynb
         - book_parts/data_processing/12-plot.ipynb
+
 #        - 13-big-game.qmd
     - part: "第4部分 工具"
       chapters:
