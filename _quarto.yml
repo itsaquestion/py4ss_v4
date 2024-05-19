@@ -30,6 +30,7 @@ book:
         - book_parts/stats/02-hypothesis_tests.ipynb
         - book_parts/stats/03-linear_reg.ipynb
         - book_parts/stats/04-clustering.ipynb
+        - book_parts/stats/05-factor-analysis.ipynb
         - book_parts/stats/06-classification.ipynb
         - book_parts/stats/statistical_theory.qmd
     - part: "book_parts/data_processing/index.qmd"
