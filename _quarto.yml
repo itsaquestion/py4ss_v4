@@ -3,7 +3,7 @@ project:
 
 book:
   title: "写给文科生的Python教程"
-  subtitle: "Python for Social Scientists v2.1"
+  subtitle: "Python for Social Scientists v4.1"
   author: "Weicheng Li"
   date: today
 
