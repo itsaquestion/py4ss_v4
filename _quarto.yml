@@ -44,7 +44,7 @@ book:
       chapters:
         - book_parts/tools/20-ml.ipynb
         - book_parts/tools/21-math.ipynb
-    - part: "第5部分 案例"
+    - part: "第5部分 案例（金融方向）"
       chapters:
         - book_parts/case_study/31-data_source.ipynb
         - book_parts/case_study/32-basic_examples.ipynb
