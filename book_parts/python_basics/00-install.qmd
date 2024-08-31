@@ -4,27 +4,23 @@
 
 ## 安装Anaconda
 
-Python除了指代一种编程语言，同时指一个巨大的程序仓库。Python非常流行，因此用Python编程的一个好处，就是你遇到的大部分问题，都有别人写好的程序（称为包Package或者库Library）帮你来完成。
+**Python除了指代一种编程语言，同时指一个巨大的程序仓库。**Python非常流行，因此用Python编程的一个好处，就是你遇到的大部分问题，都有别人写好的程序（称为包Package或者库Library）帮你来完成。
 
 例如，处理二维表格的Pandas，绘图包Matplotlib等等，这些包已经完成了绝大部分基础性的工作，你只要按你的要求调用它们提供的函数或者方法即可。比如你只要告诉Pandas读取一个Excel文件，数据出现在你的屏幕上：从你的指令开始，中间工作都不用你来完成。
 
 大部分编程工作，我们往往要调用大量这些别人写好的包或者库。但是数据分析类的工作，要用的库大同小异，因此有人把面向这类工作的包（包括上述Pandas和Matplotlib等），全部打包到一起，形成一个所谓“发行版”，这就是的Anaconda。
 
-Anaconda包括了Python的执行程序（代码的解释器等）以及大部分数据分析工作要用到的包（虽然大部分你可能用不到），完成本课程有余。
+**Anaconda包括了Python的执行程序（代码的解释器等）以及大部分数据分析工作要用到的包**（虽然大部分你可能用不到），完成本课程有余。
 
-
-当前（2023年8月），最新版本的Anacoda附带的Python为3.11.x版，我们的课程默认是用这个版本。但需要注意，实际上工作中最新是意见非常危险的事情，往往选择上一个版本（比如3.10.x版）会更加稳妥。
+当前（2024年8月），最新版本的Anacoda附带的Python为3.12.x版，我们的课程默认是用这个版本。但需要注意，实际上工作中追新是意见非常危险的事情，往往选择上一个版本（比如3.11.x版）会更加稳妥。
 
 Anaconda的安装包可以在其官方网站下载。如果官方网站访问速度太慢，可以采用清华大学的镜像地址。
 
-安装则只需要一路下一步即可。
-
-注意：安装时请选择“Just Me（仅为我安装）”，而不要选“All Users”。
+以下是两种下载方式：
 
 ### 下载Anaconda（官网）
 
-
-下载地址：https://www.anaconda.com/download#downloads
+下载地址：https://www.anaconda.com/download/success
 
 拉到最后，按你电脑的操作系统，选择下载对应的64-Bit Graphical Installer即可。
 
@@ -34,16 +30,19 @@ Anaconda的安装包可以在其官方网站下载。如果官方网站访问速
 
 1. 对于Windows系统：
 
-[Anaconda3-2023.07-2-Windows-x86_64.exe](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2023.07-2-Windows-x86_64.exe)
+https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.06-1-Windows-x86_64.exe
 
-1. 对于Mac系统(采用M系列处理器)：
+2. 对于Mac系统(采用M系列处理器)：
 
-[Anaconda3-2023.07-2-MacOSX-arm64.pkg)](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2023.07-2-MacOSX-arm64.pkg)
+https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.06-1-MacOSX-arm64.pkg
 
-1. 对于Mac系统(采用Intel处理器)：
+3. 对于Mac系统(采用Intel处理器)：
 
-[Anaconda3-2023.07-2-MacOSX-x86_64.pkg](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2023.07-2-MacOSX-x86_64.pkg)
+https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.06-1-MacOSX-x86_64.pkg
 
+安装则只需要一路下一步即可。
+
+**注意**：安装时请选择“Just Me（仅为我安装）”，而不要选“All Users”。
 
 ### 检查安装
 
@@ -84,7 +83,8 @@ Anaconda的安装包可以在其官方网站下载。如果官方网站访问速
 
 1. `Chinese (Simplified)`: vscode的中文界面
 2. `Python`: 微软出品的Python插件集合
-3. `Jupyter`：我们后面要用到的Jupyter插件，一般已经包括在Python插件中，如果已经存在不用再安装。
+3. `Jupyter`：我们后面要用到的Jupyter插件
+4. `indent-rainbow`: 不是必须，但是推荐，后面会用到。
 
 ![](images/vscode_ui1.png){width=60%}
 
