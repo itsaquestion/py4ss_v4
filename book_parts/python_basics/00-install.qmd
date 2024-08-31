@@ -1,6 +1,13 @@
 # 搭建Python编程环境
 
-本课程采用的编程环境是Anaconda + vscode，这也是业界常见的组合。
+本课程采用的编程环境是Anaconda + VSCODE，也是现实的数据分析行业中的常见组合
+
+Anaconda: 流行的发行版。包括Python代码解释器，以及数据分析、科学运算等等一大堆包。
+
+VSCODE: 微软出品的代码编辑器，最流行的选择之一。
+
+对于初学者，一个粗暴的理解是：我们将会在vscode中写代码，然后让anacodna中的python来运行。
+
 
 ## 安装Anaconda
 
@@ -16,7 +23,7 @@
 
 Anaconda的安装包可以在其官方网站下载。如果官方网站访问速度太慢，可以采用清华大学的镜像地址。
 
-以下是两种下载方式：
+以下是两种下载方式，选择一种即可：
 
 ### 下载Anaconda（官网）
 
@@ -42,7 +49,16 @@ https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.06-1-MacOSX
 
 安装则只需要一路下一步即可。
 
-**注意**：安装时请选择“Just Me（仅为我安装）”，而不要选“All Users”。
+**注意**：
+
+1. 安装时请选择“**Just Me**（仅为我安装）”，而不要选“All Users”。
+2. **推荐安装在默认路径**，免去后面的进一步设置。
+
+**更换安装路径**
+
+有2个原因可能会让你换安装路径：1. 你的用户名是中文，使得默认的路径中包含中文。2. 你的C盘空间不足。
+
+如果你更换了安装路径，后面有可能在vscode（我们写代码编辑器）中要额外指定，见下一节的内容。
 
 ### 检查安装
 
@@ -58,7 +74,7 @@ https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.06-1-MacOSX
 
 ## 安装Visual Studio Code
 
-基本上是当前最受欢迎的编程编辑器之一，可以视为记事本的替代品。
+基本上是当前最受欢迎的编程编辑器之一，我们将会在这里写代码。
 
 请在其[官方网站](https://code.visualstudio.com/download)进行下载。
 
@@ -84,11 +100,14 @@ https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.06-1-MacOSX
 1. `Chinese (Simplified)`: vscode的中文界面
 2. `Python`: 微软出品的Python插件集合
 3. `Jupyter`：我们后面要用到的Jupyter插件
-4. `indent-rainbow`: 不是必须，但是推荐，后面会用到。
+4. `indent-rainbow`: 非必须但推荐，有利于检查代码缩进，后面的知识点。
 
 ![](images/vscode_ui1.png){width=60%}
 
 至此，编程环境已经搭建完成。
 
+### 本节要求
 
-
+1. 完成安装：anaconda, vscode + 插件
+2. 检查：Anaconda Prompt可以正常运行，在你的开始菜单里有
+3. 检查：vscode的插件可以正常安装
