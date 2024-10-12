@@ -31,7 +31,16 @@ print(person_info)
 # %%
 # 题目5：删除键值对和获取所有键 首先，删除 person_info 字典中键 ‘age’ 及其对应的值。然后获取该字典中所有的键，并将它们存储在一个名为 keys_list 的列表中。
 
-del person_info['age']
+# 如果person_info里有age，才删除
+# 否则，不做操作
+
+if 'age' in person_info:
+    del person_info['age']
+    
 keys_list = person_info.keys()
 print(keys_list)
 
+# 如果执行删除的代码2次，第一次会成功，age就不存在了
+# 执行第二次，会删除一个“不存在的key”，因此会报错
+
+# %%
