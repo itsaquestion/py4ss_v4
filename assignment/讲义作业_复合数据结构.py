@@ -46,7 +46,7 @@ data = {} # 构建空字典
 # {'id':ids[i], 'score':scores[i]}
 # data[names[i]] = ...
 # 对字典普通的赋值
-# 其中第一个人：data['Alice'] = {'id':101,'scores':85}
+# 其中第一个人：data['Alice'] = {'id':101,'score':85}
 
 # 用循环来完成对全部人的遍历
 for i in range(len(names)):
