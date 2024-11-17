@@ -1,4 +1,5 @@
 #/usr/bin/bash
+cp plotly.js _book/book_parts/case_study
 rsync -av -e ssh _book/ lee@hk.imtass.me:/www/py4ss.net/python 
 
 # # turn off cache = development_mode on 
