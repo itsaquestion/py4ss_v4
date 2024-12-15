@@ -42,7 +42,7 @@ book:
 #        - 13-big-game.qmd
     - part: "第4部分 工具"
       chapters:
-        - book_parts/tools/20-ml.ipynb
+        # - book_parts/tools/20-ml.ipynb
         - book_parts/tools/21-math.ipynb
     - part: "第5部分 案例（金融方向）"
       chapters:
