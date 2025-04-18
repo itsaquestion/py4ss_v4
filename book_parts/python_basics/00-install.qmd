@@ -4,9 +4,7 @@
 
 Anaconda: 流行的发行版。包括Python代码解释器，以及数据分析、科学运算等等一大堆包。
 
-VSCODE: 微软出品的代码编辑器，最流行的选择之一。
-
-对于初学者，一个粗暴的理解是：我们将会在vscode中写代码，然后让anacodna中的python来运行。
+VSCODE: 微软出品的代码编辑器，当前最流行的选择之一。
 
 
 ## 安装Anaconda
@@ -19,8 +17,6 @@ VSCODE: 微软出品的代码编辑器，最流行的选择之一。
 
 **Anaconda包括了Python的执行程序（代码的解释器等）以及大部分数据分析工作要用到的包**（虽然大部分你可能用不到），完成本课程有余。
 
-当前（2024年8月），最新版本的Anacoda附带的Python为3.12.x版，我们的课程默认是用这个版本。但需要注意，实际上工作中追新是意见非常危险的事情，往往选择上一个版本（比如3.11.x版）会更加稳妥。
-
 Anaconda的安装包可以在其官方网站下载。如果官方网站访问速度太慢，可以采用清华大学的镜像地址。
 
 以下是两种下载方式，选择一种即可：
@@ -31,21 +27,23 @@ Anaconda的安装包可以在其官方网站下载。如果官方网站访问速
 
 拉到最后，按你电脑的操作系统，选择下载对应的64-Bit Graphical Installer即可。
 
+**注意**： 本课程使用 Anaconda，不是Miniconda，下载的时候要注意
+
 ### 下载Anaconda（清华大学镜像）
 
 如果访问Anaconda官网速度太慢，可以采用清华大学镜像地址来下载：
 
 1. 对于Windows系统：
 
-https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.06-1-Windows-x86_64.exe
+https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.10-1-Windows-x86_64.exe
 
 2. 对于Mac系统(采用M系列处理器)：
 
-https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.06-1-MacOSX-arm64.pkg
+https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.10-1-MacOSX-arm64.pkg
 
 3. 对于Mac系统(采用Intel处理器)：
 
-https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.06-1-MacOSX-x86_64.pkg
+https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.10-1-MacOSX-x86_64.pkg
 
 安装则只需要一路下一步即可。
 
@@ -90,15 +88,15 @@ https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.06-1-MacOSX
 
 ### 安装Python有关插件
 
-启动vscode，点击左侧工具栏的“插件按钮”，我们需要安装这几个插件：（如果是微软出品的插件，
-可以看到一个蓝色底的✓标志以及Microsoft字样）。
+启动vscode，点击左侧工具栏的“插件按钮”，我们需要安装这几个插件：（如果是微软出品的插件，可以看到一个蓝色底的✓标志以及Microsoft字样）。
 
 请逐一搜索并安装，如图所示。
 
-1. `Chinese (Simplified)`: vscode的中文界面
+1. `Chinese (Simplified)`: 微软出品vscode的中文界面
 2. `Python`: 微软出品的Python插件集合
-3. `Jupyter`：我们后面要用到的Jupyter插件
+3. `Jupyter`：我们后面要用到。
 4. `indent-rainbow`: 非必须但推荐，有利于检查代码缩进，后面的知识点。
+5. `Data Wrangler`: 微软出品的数据展示和简单处理工具。
 
 ![](images/vscode_ui1.png){width=60%}
 
