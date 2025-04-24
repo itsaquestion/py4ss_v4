@@ -51,10 +51,20 @@ https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.10-1-MacOSX
 
 1. 安装时请选择“**Just Me**（仅为我安装）”，而不要选“All Users”。
 2. **推荐安装在默认路径**，免去后面的进一步设置（**新手强烈推荐**）。
+3. 更换安装路径：
 
-**更换安装路径**
+虽然推荐使用默认路径，但也有两种可能，你无法安装在默认的路径：
 
-如果你更换了安装路径，比如你的C盘空间不足，后面有可能在vscode（我们写代码编辑器）中要额外指定，见后续的内容。
+1. 路径中有中文，比如你的用户名。
+2. C盘空间不够
+
+![](images/中文路径.png)
+
+那么，可以考虑换一个安装路径，例如，如果你有D盘，那就可以考虑安装在`d:\anaconda3`下，如图：
+
+![](images/可选d盘.png)
+
+如果你更换了安装路径，后面有可能在vscode（我们写代码编辑器）中要额外指定，见后续的内容。
 
 ### 检查安装
 
@@ -76,9 +86,9 @@ https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.10-1-MacOSX
 
 ![](images/vscode_download.png){width=90%}
 
+**注意**： 对于绝大多数Windows电脑，选“x64”，不要选“Arm64”，选项很靠近，不要点错。
 
-1. Windows系统请选择“User Installer	64 bit”。安装中点选“通过Code打开...”的两个选项。
-其余则一直下一步即可。
+1. Windows系统选择“x64”，在安装中点选“通过Code打开...”的两个选项。其余则一直下一步即可。
 
 ![](images/vscode_install.png){width=90%}
 
