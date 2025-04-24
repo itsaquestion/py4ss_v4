@@ -1,4 +1,6 @@
 #!/bin/sh
+
+find _book -type f -exec chmod 644 {} + # make sure all files are readable
 cp plotly.js _book/book_parts/case_study
 rsync -av -e ssh _book/ lee@hk:/var/www/py4ss.net/python 
 
