@@ -1,12 +1,29 @@
 # 条件与循环
 
-前置知识：代码块和Tab（按钮）
+我们的程序到目前为止大多是“一条道走到黑”，从上到下顺序执行每一行代码。
+
+**完成本章学习后，你将能够：**
+
+*   理解什么是**代码块**以及Python如何使用**缩进**来定义它们。
+*   使用 `if`, `elif`, `else` 语句，让你的程序根据特定条件执行不同的代码路径，实现决策逻辑。
+*   掌握 `while` 循环，在满足特定条件时重复执行一段代码。
+*   熟练使用 `for` 循环，遍历序列（如列表、字符串、元组）或其他可迭代对象中的每一个元素，并对它们进行操作。
+*   了解 `range()` 函数如何与 `for` 循环结合，方便地执行固定次数的重复任务。
+*   使用 `break` 和 `continue` 语句来更精细地控制循环的流程。
+*   （初步）接触并使用**列表推导式**和**字典推导式**，以更简洁的方式从现有数据创建新的列表或字典。
+*   更深入地理解**布尔逻辑**在条件判断和循环控制中的核心作用。
+
+掌握了条件和循环，你的程序将不再是简单的线性执行，而是能够根据输入和中间结果展现出“智能”行为，能够自动化处理大量重复工作。这是从编写简单脚本到构建复杂应用程序的关键一步。
+
+
+## 前置知识：代码块和Tab（按钮）
 
 1. Python代码层级，用缩进来表示，一般每一层是“缩进4个空格”（下面有示例），也有人习惯缩进2个空格。选择哪一种都不是错误，但是建议是前后保持一致。
 2. 同样的缩进级别，表示代码处于同一层。
 3. 如果你使用Tab键（键盘左侧Q键旁边），可以补齐（对齐）4个空格。
 
 (**推荐**) 使用vscode的插件 indent-rainbow （或者类似的其他插件），可以用不同颜色显示缩进的层级。忘记怎么安装插件的可以看前面的章节。
+
 
 ## 条件if
 
@@ -304,11 +321,11 @@ i = 1
 while i <= 5:
     print(i)
     i +=1 
-else:
-    print("循环结束")
+
+print("循环结束")
 ```
 
-<iframe width="800" height="500" frameborder="0" src="https://pythontutor.com/iframe-embed.html#code=i%20%3D%201%0Awhile%20i%20%3C%3D%205%3A%0A%20%20print%28i%29%0A%20%20i%20%2B%3D1%20%0Aelse%3A%0A%20%20print%28%22%E5%BE%AA%E7%8E%AF%E7%BB%93%E6%9D%9F%22%29&codeDivHeight=400&codeDivWidth=350&cumulative=false&curInstr=0&heapPrimitives=nevernest&origin=opt-frontend.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false"> </iframe>
+<iframe width="800" height="500" frameborder="0" src="https://pythontutor.com/iframe-embed.html#code=i%20%3D%201%0Awhile%20i%20%3C%3D%205%3A%0A%20%20%20%20print%28i%29%0A%20%20%20%20i%20%2B%3D%201%0A%20%20%20%20%0Aprint%28%22%E5%BE%AA%E7%8E%AF%E7%BB%93%E6%9D%9F%22%29&codeDivHeight=400&codeDivWidth=350&cumulative=false&curInstr=18&heapPrimitives=nevernest&origin=opt-frontend.js&py=311&rawInputLstJSON=%5B%5D&textReferences=false"> </iframe>
 
 ### 练习
 
@@ -465,12 +482,10 @@ for循环一般用于遍历一个可迭代对象（简单理解，就是如 List
 
 
 ```{python}
-
 a_list = [1,2,3,4,5]
 
 for i in a_list:  
     print(i)
-  
 
 ```
 
@@ -482,32 +497,10 @@ for i in a_list:
 4. `  print(i)`：由上一句，`i`可以看作每一个元素代称，我们打印它。注意，前面由“1个缩进”。
 
 
-<iframe width="800" height="500" frameborder="0" src="https://pythontutor.com/iframe-embed.html#code=a_list%20%3D%20%5B1,2,3,4,5%5D%0A%0Afor%20i%20in%20a_list%3A%20%20%0A%20%20print%28i%29&codeDivHeight=400&codeDivWidth=350&cumulative=false&curInstr=0&heapPrimitives=nevernest&origin=opt-frontend.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false"> </iframe>
+<iframe width="800" height="500" frameborder="0" src="https://pythontutor.com/iframe-embed.html#code=a_list%20%3D%20%5B1,2,3,4,5%5D%0A%0Afor%20i%20in%20a_list%3A%20%20%0A%20%20%20%20print%28i%29&codeDivHeight=400&codeDivWidth=350&cumulative=false&curInstr=0&heapPrimitives=nevernest&origin=opt-frontend.js&py=311&rawInputLstJSON=%5B%5D&textReferences=false"> </iframe>
 
 
-
-break
-
-```{python}
-a = [1,2,3,4,5]
-
-for i in a:
-    if i < 4:
-        print (i)
-    else:
-        print('从这里断开！')
-        break
-else:
-    print('循环完成！')
-
-```
-
-
-
-
-
-### range的循环
-
+### 用range进行for循环
 
 
 `range(起点, 终点, 步长)`：快速生成一个序列：惰性的（lazy）可迭代序列
@@ -521,23 +514,100 @@ print(range(0,10))
 print(list(range(0,10))) 
 ```
 
-但是，range不用转换为List，也可以使用！
-
-如：按索引取值，或者切片(range切片会得到另一个range)等等
+在for循环中，我们往往用range来快速生成一个数字序列，避免手动输入非常多的数字。
 
 ```{python}
-print(range(10,15)[2])
-print(range(10,15)[2:4])
-```
-
-也可以替代List，用在for循环中，常用于快速生成一个数字序列
-
-```{python}
-for i in range (1,10,2):
-    print ('奇数是: ',i) 
+print('打印奇数序列：')
+for i in range (1,20,2): # 替代手动输入 [1,3,5 ...]
+    print (i) 
 
 ```
 
+## 使用break和continue
+
+我们就可以：
+
+1. 使用break语句中断循环。如果符合某些条件，则跳出循环。
+2. 使用continue，直接执行下一次迭代。这等于跳过了continue后面的代码
+
+**注意：** break和continue，在for和while循环中都可以使用。
+
+```{python}
+
+# break 的范例
+# for语句试图执行1000次循环
+# 但中途被break语句中断
+for i in range(1000):
+    print (i)
+
+    if i >= 3: 
+        print('如果i大于等于3，则中断循环。')
+        break
+
+print('循环结束')
+```
+
+```{python}
+# continue 的范例
+# 每次遇到偶数，就会直接开始下一次迭代
+# 因此i为偶数时，print将不会被执行
+
+# 只打印列表中的奇数
+numbers = [1, 2, 3, 4, 5, 6]
+for num in numbers:
+    if num % 2 == 0:  # 如果是偶数
+        continue      # 跳过本次循环中后续的print语句，直接开始下一次迭代
+    print(num)        # 这行只在num是奇数时执行
+```
+
+
+## 注意：小心无限循环！
+
+当使用 `while` 循环时，我们需要特别注意循环的**终止条件**。如果 `while` 后面的条件判断永远为 `True`，那么循环体内的代码就会被无限次地执行下去，程序就会“卡住”，这就是所谓的**无限循环**。
+
+**注意：** 如果陷入无限循环，可以直接关闭vscode！
+
+**一个容易犯的错误导致无限循环的例子：**
+
+```{python}
+#| eval: false 
+# 警告：下面的代码会导致无限循环，执行时可能需要手动停止程序！
+count = 0
+while count < 5:
+    print("这是一个循环...")
+    # 糟糕！忘记更新 count 的值了 (比如写 count += 1)     # 所以 count 永远是 0，count < 5 永远是 True
+```
+在上面的例子中，因为 `count` 的值没有在循环体内被修改以最终使 `count < 5` 这个条件变为 `False`，所以 `print` 语句会不停地执行。
+
+**如何避免？**
+
+确保你的循环体内部有某些操作，能够最终影响到 `while` 的判断条件，使其在某个时刻变为 `False`，从而让循环能够正常结束。
+
+### 主动控制的“无限”循环：`while True:` 与 `break`
+
+有时，我们确实需要一个循环持续运行，直到某个特定的内部事件发生才停止。在这种情况下，一种常见的模式是使用 `while True:` 来创建一个表面上的无限循环，然后在循环体内部使用 `if` 语句来检查某个条件，一旦条件满足，就用 `break` 语句来强行跳出循环。
+
+**示例：等待用户特定输入**
+
+```{python}
+#| eval: false
+while True:
+    user_input = input("请输入 'quit' 来结束程序: ")
+    if user_input == "quit":
+        print("程序已结束。")
+        break  # 如果用户输入了 "quit"，跳出循环
+    else:
+        print(f"你输入了: {user_input}，请继续输入或输入 'quit' 退出。")
+```
+
+在这个例子中：
+1. `while True:` 开始了一个循环，它自己永远不会停止。
+2. 循环内部，我们获取用户输入。
+3. `if user_input == "quit":` 检查用户是否输入了 "quit"。
+4. 如果是，`break` 语句就会执行，立即终止 `while` 循环。
+5. 否则，循环会继续，等待下一次输入。
+
+这种 `while True:` 结合 `break` 的方式，为我们提供了一种灵活控制循环何时退出的方法，特别适用于那些退出条件不方便直接放在 `while` 判断里的情况。
 
 
 ## 更多练习
@@ -624,7 +694,7 @@ print(b)
 当然，如果只是要筛选，不做其他操作，上面`i*2`改成`i`即可。
 
 ```{python}
-a = range(1,6) # 约等于 [1,2,3,4,5]
+a = range(1,6) # 迭代时会产生 1, 2, 3, 4, 5。回忆前文中range和list的区别
 b = [i for i in a if i >=3 ]
 print(b)
 ```
@@ -670,9 +740,10 @@ for value in d.values():
 
 回顾：d.items()可以返回 `[(key,value),(key,value),...]`的结构。
 
+`d.items()` 返回一系列 (键, 值) 对（元组）。在 `for` 循环中，我们使用 `key, value` 这种形式来自动地将每个元组中的两个元素分别赋值给 `key` 和 `value` 变量，这称为序列解包。
+
 ```{python}
-# 注意：这里的key,value，其实是不加括号的元组(key,value)
-# 等于遍历每一个(key,value)对，进行某些操作
+# 遍历每一个(key,value)对，进行某些操作
 for key, value in d.items():
     print(key,value)
 ```
@@ -711,3 +782,34 @@ print(e)
 请使用字典循环遍历，打印出所有年龄大于30的人名。
 
 2. 使用字典推导式，从上面给出的ages字典中创建一个新的字典，其中只包括年龄小于或等于30的人。
+
+## 本章小结
+
+学会使用条件判断和循环，这意味着你的程序现在可以“思考”并“重复工作”了。
+
+**核心要点回顾：**
+
+*   **代码块与缩进：** Python使用**缩进**（通常是4个空格）来定义代码块的层级，这对于 `if`、`while`、`for` 等结构至关重要。
+*   **条件判断 (`if`, `elif`, `else`):**
+    *   `if condition:`: 如果条件为 `True`，执行其下的代码块。
+    *   `elif another_condition:`: 在前一个 `if` 或 `elif` 条件为 `False` 时，检查此条件。
+    *   `else:`: 如果以上所有条件都为 `False`，执行此代码块。
+*   **循环 (Repetition):**
+    *   **`while condition:`**: 只要条件为 `True`，就持续执行其下的代码块。注意避免**无限循环**，并确保有明确的退出条件或使用 `break`。
+    *   **`for item in iterable:`**: 遍历可迭代对象（如列表、元组、字符串、`range()` 对象、字典的键/值/项）中的每一个元素。
+*   **循环控制语句:**
+    *   `break`: 立即**终止**并跳出当前所在的整个循环。
+    *   `continue`: 立即**跳过**当前迭代中循环体内的剩余代码，并开始下一次迭代。
+*   **循环的 `else` 子句:** 当循环**正常结束**（即不是通过 `break` 跳出）时执行。
+*   **`range(start, stop, step)`:** 生成一个数字序列，常用于 `for` 循环中控制迭代次数。记住“包含起点，不含终点”。
+*   **布尔逻辑是核心：** `if` 和 `while` 的条件本质上都是布尔表达式，其结果决定了程序的执行路径。
+*   **列表推导式 (`[expr for item in iterable if cond]`) 和字典推导式 (`{k_expr: v_expr for item in iterable if cond}`):** 提供了一种简洁、高效的方式来从一个可迭代对象创建新的列表或字典。
+
+**常见错误提示 (本章相关)：**
+
+*   `IndentationError`: 缩进不正确或不一致。
+*   无限循环：`while` 循环的条件永远为 `True`，且没有 `break`。
+*   逻辑错误：`if` 条件的判断逻辑不符合预期，或比较运算符使用错误（如把 `==` 写成 `=`）。
+*   `TypeError` / `NameError`: 在循环或条件判断中使用了未定义或类型不兼容的变量。
+
+通过条件和循环，你可以让程序自动化地处理更复杂的逻辑和数据。这是构建任何有实际用途的程序的基础。在接下来的学习中，我们将把这些控制流结构与函数结合起来，构建更模块化、更可重用的代码。
