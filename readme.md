@@ -37,5 +37,7 @@ python -c "import matplotlib; print(matplotlib.matplotlib_fname())"
 font.family         : Microsoft YaHei
 ```
 
-
-
+## .ipynb 转 markdown
+```bash
+jupyter nbconvert --to markdown your_notebook.ipynb --output-dir=output_folder
+```
