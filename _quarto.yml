@@ -38,6 +38,7 @@ book:
         - book_parts/data_processing/10-numpy.qmd
         - book_parts/data_processing/11-pandas.ipynb
         - book_parts/data_processing/12-plot.ipynb
+        - book_parts/data_processing/12.1-seaborn.ipynb
 
 #        - 13-big-game.qmd
     - part: "第4部分 工具"
