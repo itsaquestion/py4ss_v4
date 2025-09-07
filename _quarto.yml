@@ -2,8 +2,8 @@ project:
   type: book
 
 book:
-  title: "写给文科生的Python教程"
-  subtitle: "Python for Social Scientists v4.2"
+  title: "面向社科专业的Python教程"
+  subtitle: "Python for Social Scientists v4.3"
   author: "Weicheng Li"
   date: today
 
