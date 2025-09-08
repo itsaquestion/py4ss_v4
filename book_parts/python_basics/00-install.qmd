@@ -27,7 +27,7 @@ Anaconda的安装包可以在其官方网站下载。如果官方网站访问速
 
 拉到最后，按你电脑的操作系统，选择下载对应的64-Bit Graphical Installer即可。
 
-**注意**： 本课程使用 Anaconda，不是Miniconda，下载的时候要注意
+<span style="color:red">**注意**：</span> 本课程使用 Anaconda，不是Miniconda，下载的时候要注意
 
 ### 下载Anaconda（清华大学镜像）
 
@@ -35,19 +35,19 @@ Anaconda的安装包可以在其官方网站下载。如果官方网站访问速
 
 1. 对于Windows系统：
 
-https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.10-1-Windows-x86_64.exe
+https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2025.06-1-Windows-x86_64.exe
 
 2. 对于Mac系统(采用M系列处理器)：
 
-https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.10-1-MacOSX-arm64.pkg
+https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2025.06-1-MacOSX-arm64.pkg
 
 3. 对于Mac系统(采用Intel处理器)：
 
-https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.10-1-MacOSX-x86_64.pkg
+https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2025.06-1-MacOSX-x86_64.pkg
 
 安装则只需要一路下一步即可。
 
-**注意**：
+<span style="color:red">**注意**：</span> 
 
 1. 安装时请选择“**Just Me**（仅为我安装）”，而不要选“All Users”。
 2. **推荐安装在默认路径**，免去后面的进一步设置（**新手强烈推荐**）。
@@ -55,8 +55,8 @@ https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.10-1-MacOSX
 
 虽然推荐使用默认路径，但也有两种可能，你无法安装在默认的路径：
 
-1. 路径中有中文，比如你的用户名。
-2. C盘空间不够
+- 路径中有中文，比如你的用户名。
+- C盘空间不够
 
 ![](images/中文路径.png)
 
@@ -65,6 +65,8 @@ https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.10-1-MacOSX
 ![](images/可选d盘.png)
 
 如果你更换了安装路径，后面有可能在vscode（我们写代码编辑器）中要额外指定，见后续的内容。
+
+4. 安装完成后，**关闭全部弹出的程序界面**即可。
 
 ### 检查安装
 
@@ -86,15 +88,14 @@ https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.10-1-MacOSX
 
 ![](images/vscode_download.png){width=90%}
 
-**注意**： 对于绝大多数Windows电脑，选“x64”，不要选“Arm64”，选项很靠近，不要点错。
+<span style="color:red">**注意**：</span> 
+对于绝大多数Windows电脑，选“x64”，不要选“Arm64”，选项很靠近，不要点错。
 
 1. Windows系统选择“x64”，在安装中点选“通过Code打开...”的两个选项。其余则一直下一步即可。
 
 ![](images/vscode_install.png){width=90%}
 
-
 2. Mac系统请选择“.zip	Universal”，下载解压后把`.app`拖到“应用程序”即可。
-
 
 ### 安装Python有关插件
 
@@ -102,11 +103,11 @@ https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-2024.10-1-MacOSX
 
 请逐一搜索并安装，如图所示。
 
-1. `Chinese (Simplified)`: 微软出品vscode的中文界面
-2. `Python`: 微软出品的Python插件集合
-3. `Jupyter`：我们后面要用到。
+1. `Chinese (Simplified)`: 可选，微软出品vscode的中文界面
+2. `Python`: 必须，微软出品的Python插件集合
+3. `Jupyter`：必须，我们后面要用到。
 4. `indent-rainbow`: 非必须但推荐，有利于检查代码缩进，后面的知识点。
-5. `Data Wrangler`: 微软出品的数据展示和简单处理工具。
+5. `Data Wrangler`: 非必须但推荐，微软出品的数据展示和简单处理工具。
 
 ![](images/vscode_ui1.png){width=60%}
 
