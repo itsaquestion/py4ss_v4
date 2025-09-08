@@ -36,12 +36,14 @@ VS Code 会从一个文本编辑器，成为一个集编辑、运行、调试于
 
 右下角出现了 Python 字样，现在进入了 Python 代码编辑模式。
 
+<span style="color:red">**注意：** </span> VS Code 打开什么文件，就会进入什么模式。如果你的VS Code 没有进入Python代码编辑模式，最大的可能是你还打开一个`.py`文件。如果是这样，请先完成上一小节。
+
 ![](images/选择解释器.png)
 
 如果出现了黄底色的 “选择解释器” Select Interpreter 字样，是没指定解释器。等于在问：
 写好的代码交给谁来执行？可以点击状态栏中的“选择解释器”黄色按钮，进行选择。
 
-点击之后，如果一切顺利， 在VS CODE界面的上方，你的解释器的路径会被自动识别出来，你选择 带有 `Conda`标记的解释器即可。
+点击之后，如果一切顺利， 在VS Code界面的上方，你的解释器的路径会被自动识别出来，你选择 带有 `Conda`标记的解释器即可。
 
 例如，在 Windows 上可能是`~\anaconda3\python.exe`。如果你一开始修改了 Anaconda 的安装路径，比如改到D盘，则可能是 `D:\anaconda3\python.exe`。
 
@@ -51,7 +53,7 @@ VS Code 会从一个文本编辑器，成为一个集编辑、运行、调试于
 
 ![](images/select_interpreter.png)
 
-**注意**：
+<span style="color:red">**注意：** </span>
 
 1. 如果你在安装 Anaconda 的时候更换了安装路径，这里可能会出现**找不到 Anaconda，进而找不到 Python 解释器**的问题，见下文“排错：VS Code 执行代码出错”部分，或者找老师。
 2. 在找不到 Anaconda 的情况下，部分同学会选择让 Windows 系统安装一个 Python，**新手不推荐**。
@@ -161,7 +163,7 @@ Ctrl+Enter（macOS: Cmd+Enter）：执行当前 cell；Shift+Enter：执行当�
 
 尝试：把上述代码的`print(a)`和`print(b)`改写。
 
-**注意**：如果你的 Anaconda 安装路径中有中文（例如你的用户名是中文），可能运行报 `Bad file descriptor` 错误，见下文“排错：VS Code 执行代码出错”部分，或者找老师。
+<span style="color:red">**注意：** </span> 如果你的 Anaconda 安装路径中有中文（例如你的用户名是中文），可能运行报 `Bad file descriptor` 错误，见下文“排错：VS Code 执行代码出错”部分，或者找老师。
 
 ### 变量表
 

@@ -4,7 +4,7 @@
 
 - Python 程序与源代码的基本概念
 - 扩展名与文件类型（含 Windows 显示扩展名设置）
-- 在终端进入 Python 交互式环境（python/python3）
+- 在终端进入 Python 交互式环境
 - 交互示例：1 + 2 与 `print()`
 - 基础概念：变量、运算符、函数
 - 退出交互环境并回到命令行
@@ -63,7 +63,7 @@
 
 ![](images/terminal.png)
 
-3. 输入`python`并回车（如无反应或版本过旧，试`python3`），进入 Python 交互式环境。
+1. 输入`python`并回车，进入 Python 交互式环境。
 
 该命令会启动 Python 解释器：你在其中输入的 Python 语句，会被解释器翻译并执行。
 
@@ -148,7 +148,7 @@ Python中，对变量赋值使用1个等号 “`=`”。
 
 ## 本节要求
 
-1. 在windows系统下显示文件的扩展名
+1. 在Windows系统下显示文件的扩展名
 2. 在Python的交互环境中计算1+2
 
 ## 补充：路径
@@ -178,7 +178,7 @@ Python中，对变量赋值使用1个等号 “`=`”。
 
 ### 相对路径和绝对路径
 
-1. 绝对路径：从根目录（windows下即一个盘符，如c盘或者d盘）开始的路径，可以确定无疑地指向某个文件或者目录。如`C:\Users\lee\add.py`。
+1. 绝对路径：从根目录（Windows下即一个盘符，如c盘或者d盘）开始的路径，可以确定无疑地指向某个文件或者目录。如`C:\Users\lee\add.py`。
 2. 相对路径：不从根目录起始的路径。其指向的目的地，从你的“当前路径”开始，往下数。
 
 假如，你的当前路径是`C:\Users`，那么此时，相对路径`lee\add.py`，所指向的，就是当前路径下（`C:\Users`），`lee`目录下的`add.py`。这也等价于绝对路径`C:\Users\lee\add.py`。
@@ -227,11 +227,11 @@ cd /
 
 在 Windows 资源管理器（“此电脑”）中，在任意文件夹点击地址栏：
 
-<img src="images/windows_01.png" width="400"/>
+<img src="images/Windows_01.png" width="400"/>
 
 即可获得该文件夹的路径，复制后可粘贴到命令行中。
 
-<img src="images/windows_02.png" width="400"/>
+<img src="images/Windows_02.png" width="400"/>
 
 <span style="color:red">**特别注意：正反斜杠问题**</span>
 
