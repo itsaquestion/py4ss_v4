@@ -124,18 +124,21 @@ print(c)
 
 ```{python}
 #|eval: false
-# %%
+# %% 
+# 对变量a和b进行赋值并打印
 a = 1
 b = 2
-print(a)
-print(b)
+print(a) # 打印a的值
+print(b) # 打印c的值
 
 # %%
+# 计算c的值并打印
 c = a + b
-print(c) # 把变量 c 的值打印到屏幕上
+print(c) # 打印c的值
+
 ```
 
-![](images/runcell.png)
+![](images/runcell2.png)
 
 `# %%` cell separator 把代码切成了一块一块：两行 separator 中间的部分，被视为一个 cell。
 
@@ -192,7 +195,7 @@ python 001.py
 ## 本节要求
 
 1. 创建一个用来专门存放本课程代码和数据的文件夹（称为工程目录），如果图省事就在桌面上建立（但不推荐）
-2. 在上述工程目录中建立一个.py文件，计算上述的 1+2的代码。（这里可能会遇到一大堆问题）
+2. 在上述工程目录中建立一个.py文件，计算上述的 1+2的代码，包括使用“运行Python文件”和“按单元格运行” 两种方式。（这里可能会遇到一大堆问题）
 
 <span style="color:red">**注意：** </span>
 
