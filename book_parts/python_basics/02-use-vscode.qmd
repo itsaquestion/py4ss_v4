@@ -233,6 +233,27 @@ conda run --live-stream --name base python d:/Python
 
 解决办法：把你的工作文件夹的中空格去掉 或者改为下划线`_`即可，如讲义的范例`python_class`。
 
+### 运行整个Python文件报错误提示但能得到运行的结果
+
+
+点击“运行 Python 文件”按钮后，VS Code下方的命令行终端可以正常弹出，但会弹出红字错误提示：
+
+```
+conda : 无法将“conda”项识别为 cmdlet、函数、脚本文件或可运行程序的名称。请检查名称的拼写，如果包括路径，请确保路径正确
+```
+
+但是能得到正常的运行结果。
+
+这是因为部分同学的powershell版本有点旧，我们统一改为cmd（这句话你看不懂也没关系）。
+
+1. 点击左下角齿轮图标，选择“设置”
+2. 在搜索框中输入“terminal.integrated.defaultProfile.windows”
+3. 选择“Command Prompt”
+
+![](images/use_cmd.png)
+
+再点击“运行 Python 文件”按钮后，应该不会再报错。
+
 ### 运行单元格(run cell)出现 Bad file descriptor 错误
 
 如果你用的是Windows，且你的用户名是中文，那么用vs code的run cell运行，可能会出现如下错误：
@@ -301,10 +322,6 @@ pip install pyzmq==19.0.2 <回车>
 2. `Default Interpreter Path`：指向具体的 Python 解释器。例如 `D:\\anaconda3\\python.exe`，或环境 `D:\\anaconda3\\envs\\<env>\\python.exe`。
 
 这时候再进行前面选择解释器的过程，应该就找到 Conda 和解释器了（选择解释器的时候多点几下刷新按钮 ↻）。
-
-### 执行整个文件，可以得到正确结果，但还是有一串红字
-
-比如你“执行整个文件（右上角的播放按钮）”，最后可以得到结果（比如“3”），但是首次执行的时候出现一串红字错误，然后才是正确结果（这里一时找不到截图），那么可以用上面的方法，把截图中的第一个选项 Terminal 设定为 `Command Prompt`，与截图保持一致即可。
 
 
 
