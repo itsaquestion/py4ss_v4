@@ -13,7 +13,7 @@ Python编程流行的IDE有PyCharm，以及我们现在要用的 VS Code 文本�
 为了便于演示，这里选择在桌面上新建一个“python_class”的文件夹，
 作为本课程有关代码的存放地点。
 
-<span style="color:red">**注意：** </span> 文件夹的名称最好不要有空格，空格建议用下划线替代，否则可能会产生bug，见[排错：VS Code 执行代码出错](#排错vs-code-执行代码出错)
+<span style="color:red">**注意：** </span> 文件夹的名称最好不要有空格，空格建议用下划线替代，否则可能会产生bug，见[排错：VS Code 执行代码出错](#排错VS-Code-执行代码出错)
 
 但一般建议选择一个比较好的目录，比如你可能有一个地方是专门用来存放课程的地方（比如在“我的文档”下），
 在此位置建立python_class较好。这里选择桌面仅仅是为了方便演示。
@@ -213,7 +213,7 @@ python 001.py
 
 ## 排错：VS Code 执行代码出错
 
-### 运行整个Python文件出错
+### 运行整个Python文件无结果且无错误提示
 
 点击“运行 Python 文件”按钮后，VS Code下方的命令行终端可以正常弹出，但是不显示任何结果，或者闪过一行命令后直接结束。
 
@@ -233,7 +233,7 @@ conda run --live-stream --name base python d:/Python
 
 解决办法：把你的工作文件夹的中空格去掉 或者改为下划线`_`即可，如讲义的范例`python_class`。
 
-### 运行整个Python文件报错误提示但能得到运行的结果
+### 运行整个Python文件报出Conda错误
 
 
 点击“运行 Python 文件”按钮后，VS Code下方的命令行终端可以正常弹出，但会弹出红字错误提示：
@@ -242,9 +242,13 @@ conda run --live-stream --name base python d:/Python
 conda : 无法将“conda”项识别为 cmdlet、函数、脚本文件或可运行程序的名称。请检查名称的拼写，如果包括路径，请确保路径正确
 ```
 
-但是能得到正常的运行结果。
+或者
 
-这是因为部分同学的powershell版本有点旧，我们统一改为cmd（这句话你看不懂也没关系）。
+```
+&:无法加载文件 c:\users\*\anaconda3\shell\condabin\conda-hook.ps1，因为在此系统上禁止运行脚本。
+```
+
+这是因为部分同学的powershell版本有点旧，或者权限不足导致无法启动conda环境（这句话你看不懂也没关系）。我们统一改为cmd即可。
 
 1. 点击左下角齿轮图标，选择“设置”
 2. 在搜索框中输入“terminal.integrated.defaultProfile.windows”
