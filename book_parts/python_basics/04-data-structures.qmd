@@ -68,7 +68,7 @@ print(empty_list)
 #%% 
 print(list('apple'))
 ```
-**注意**：实际上，list()可以用于所有类型的序列（有序列结构的其他数据），以后我们遇到回说。
+**注意**：实际上，list()可以用于所有类型的序列（有序列结构的其他数据），以后我们遇到再说。
 
 
 特别地，如果我们转换一个多行的字符串，会发现什么？
@@ -86,7 +86,7 @@ print(list(a))
 
 ### 列表的元素
 
-要引用一个列表的元素，也使用`[]`，其中包括元素的索引(index)，注意第一个元素的索引是0（Python和c语言一样，从0开始计数）
+要引用一个列表的元素，也使用`[]`，其中包括元素的索引(index)，注意第一个元素的索引是0（Python 和 C 语言一样，从0开始计数）
 
 
 
@@ -166,7 +166,7 @@ print(sum(a))
 ```
 
 
-3. 原地排序`.sort()`,默认的排序方式是“从小到大”
+3. 原地排序`.sort()`,默认的排序方式是“从小到大”。与 `sorted()` 的区别在于：`.sort()`原地修改列表，而`sorted()`返回一个新的已排序列表。
 
 **注意：**这个方法会改变原List的顺序
 
@@ -184,7 +184,7 @@ print(a)
 
 4. 排序`sorted()`，
 
-**注意：**`sorted()`回返回一个新的、排序后的List，不会改变原List的顺序。
+**注意：**`sorted()`会返回一个新的、排序后的List，不会改变原List的顺序。
 
 ```{python}
 a = [5,3,4,2,1]
@@ -225,11 +225,11 @@ print(a.index('p'))
 ```{python}
 # 是否全部为真
 a = [True, True]
-all(a) 
+print(all(a))
 
 # 是否有任何一个元素为真
 b = [False, True]
-any(b)
+print(any(b))
 ```
 
 8. 判断in 某个元素是否在一个列表中
@@ -237,6 +237,35 @@ any(b)
 a = [1,2,3,5,6]
 print(3 in a)
 print(4 in a)
+```
+
+9. 弹出并删除元素：`pop()`（默认末尾，或指定索引）
+```{python}
+a = [1,2,3,4]
+last = a.pop()     # 删除末尾，返回 4
+first = a.pop(0)   # 删除索引0，返回 1
+print(a, last, first)
+```
+
+10. 清空列表：`clear()`
+```{python}
+a = [1,2,3]
+a.clear()
+print(a)
+```
+
+11. 原地反转：`reverse()`（与切片 `a[::-1]` 的区别是是否原地）
+```{python}
+a = [1,2,3]
+a.reverse()
+print(a)
+```
+
+12. 排序的高级用法：按键 `key=` 与 `reverse=`
+```{python}
+words = ['apple','kiwi','banana']
+print(sorted(words, key=len))              # 按长度
+print(sorted(words, key=lambda s: s[-1]))  # 按最后一个字母
 ```
 
 小思考：如何判断一个元素是否“不在一个列表中”呢？
@@ -314,7 +343,7 @@ print(a[:-2]) # 从头切到倒数第二个元素（不含终点）
 ```
 
 
-切片赋值 ： 直接覆盖原理位置的值，可以不等长
+切片赋值 ： 直接覆盖原来的位置的值，可以不等长
 
 ```{python}
 a = list('abcdef')
@@ -378,7 +407,7 @@ print(b)
 
 5. 创建一个名为my_list的列表，包含以下元素：'apple', 'banana', 'cherry', 'date', 'elderberry'。使用切片和列表连接来替换中间的三个元素为一个新的子列表['fig', 'grape', 'honeydew']。
 
-### 注意：List的拷贝
+### 注意：List的拷贝 (*)
 
 这部分可能有点抽象。
 
@@ -474,6 +503,30 @@ print(f'a is {a}\nb is {b}')
 
 这样就不会互相干扰了。
 
+补充：拷贝列表的常见方式还有切片和构造函数，效果等同于 `.copy()`（都是浅拷贝）：
+
+```{python}
+a = [1,2,3]
+b1 = a[:]       # 切片拷贝
+b2 = list(a)    # 构造函数拷贝
+b3 = a.copy()   # 方法拷贝
+print(b1, b2, b3)
+```
+
+浅拷贝对嵌套列表并不能复制内层对象（仍然共享）：
+
+```{python}
+import copy
+orig = [[1,2],[3,4]]
+shallow = orig.copy()     # 或 orig[:]
+deep = copy.deepcopy(orig)
+
+orig[0][0] = 999
+print('orig   =', orig)
+print('shallow=', shallow)  # 受影响
+print('deep   =', deep)     # 不受影响
+```
+
 总结：
 
 1. Number ,String,Tuple等，是“不可变类型”：修改这个变量，会创建一个对象，然后重绑定（转贴标签）
@@ -500,7 +553,7 @@ print(a) # 元组
 b = [1,2,3,4,5]
 print(b)
 ```
-如果元组只有1个元素，必须加一个逗号`,`，以避免python认为这是个运算。
+如果元组只有1个元素，必须加一个逗号`,`，以避免 Python 认为这是个运算。
 ```{python}
 a = (1,) # 正确的做法，识别成元组
 print(a)
@@ -549,7 +602,7 @@ List和Tuple用非常接近的结构，互相转换只要用前述的“简单�
 ```{python}
 
 a_list = list('apple') # str转为list
-a_tuple = tuple(a_list) # list转为tup;e
+a_tuple = tuple(a_list) # list转为tuple
 print(a_tuple) # 注意，打印的结果是()小括号
 
 ```
@@ -590,6 +643,26 @@ print(a)
 
 注意：集合中的元素不会重复。
 
+### 空集合与不可索引 (*)
+
+- 创建空集合需使用 `set()`；`{}` 表示空字典：
+
+```{python}
+print(type({}))      # 空字典
+print(type(set()))   # 空集合
+```
+
+- 集合是无序、不可下标访问的数据结构，不能用 `a[0]`：
+
+```{python}
+#|eval: false
+a = {1, 2, 3}
+a[0]
+```
+```
+TypeError: 'set' object is not subscriptable
+```
+
 ### 简单集合运算
 
 这里只简单介绍，后续用到再深入。
@@ -616,7 +689,21 @@ print(A.difference(B))
 print(A - B) 
 ```
 
-###  其他
+4. 对称差：`.symmetric_difference()` 或 `^`（属于其中一个集合但不同时属于两个）
+```{python}
+print(A.symmetric_difference(B))
+print(A ^ B)
+```
+
+5. 子集/超集判断：`issubset` / `issuperset`
+```{python}
+print({1,2}.issubset(A))
+print(A.issuperset({1,2}))
+```
+
+6. 成员测试复杂度：`in` 对 set 为近似 O(1)，对 list 为 O(n)。 简单理解：用 `in` 来检查set，大部分情况下耗时是常数，和set的size无关，但如果用来检查list，则耗时和list的size成正比。
+
+###  其他 (*)
 一个小技巧：如何去除list中的重复元素？转为set再转回list。注意：转换为Set之后，其中元素的顺序就不保证了。
 
 ```{python}
@@ -628,6 +715,21 @@ print(b) # 顺序不保证和a相同
 
 ```
 
+如果希望“去重且保持原有顺序”，可以使用：
+
+```{python}
+a = list('apple')
+print(list(dict.fromkeys(a)))  # ['a','p','l','e']，顺序按首次出现
+```
+
+
+
+### Set 小练习 (*)
+
+1. 给定列表 `ids = [101,102,102,103,104,101]`，去重得到唯一客户集合，并判断 `105` 是否在其中。
+2. 设 `A = {'a','b','c'}`，`B = {'b','c','d'}`，分别求并集、交集、差集、对称差。
+3. 判断 `{1,2}` 是否为 `{1,2,3}` 的子集，并判断 `{1,2,3}` 是否为 `{1,2}` 的超集。
+4. 比较两种去重方式的差异：`list(set(seq))` 与 `list(dict.fromkeys(seq))`，在 `seq = list('abcaabbcc')` 上分别输出结果并比较顺序。
 
 ## 字典Dict
 
@@ -642,7 +744,7 @@ print(b) # 顺序不保证和a相同
 这和新华字典类似：
 
 1. 通过这个字的拼音(即key)，找一个字的含义(value)
-2. 你一般不会通过这个字在字典中的第几个(index)来访问，虽然也不是不可以
+2. 不能通过“第几个（索引）”来访问字典，只能通过 key 访问；若确需按插入顺序取“第 i 个”键，可用 `list(d)[i]`（不推荐在业务逻辑中依赖此方式）。
 
 ### 创建dict
 
@@ -716,7 +818,7 @@ del class_size['class_4']
 print(class_size)
 ```
 
-### 获得所有键值
+### 获得所有的 key (*)
 
 获得全部的key，使用`.keys()`方法。注意是复数，有个s。
 
@@ -731,7 +833,7 @@ keys = list(class_size.keys())
 print(keys)
 ```
 
-### 所有的value
+### 所有的value (*)
 
 获得全部的value，使用`.values()`方法。
 
@@ -751,6 +853,47 @@ print(values)
 
 ```{python}
 print(len(class_size))
+```
+
+### 更新与删除（常用方法） (*)
+
+```{python}
+d = {'a':1, 'b':2}
+d.update({'b':20, 'c':3})   # 合并/更新
+print(d)
+
+val = d.pop('a')            # 删除并返回指定键
+print(val, d)
+
+key, val = d.popitem()      # 弹出并返回“最后插入”的一对
+print(key, val, d)
+
+print(d.setdefault('x', 0)) # 若不存在则设置默认值并返回
+print(d)
+```
+
+### 遍历字典 (*)
+
+```{python}
+d = {'apple':3, 'banana':5}
+for k in d:                 # 遍历键（等同于 d.keys()）
+    print(k)
+
+for k, v in d.items():      # 同时遍历键和值
+    print(k, v)
+
+print('apple' in d)         # 成员测试检查 key 是否存在
+```
+
+### 从序列构造与字典推导式 (*)
+
+```{python}
+keys = ['A','B','C']
+vals = [10, 20, 30]
+print(dict(zip(keys, vals)))
+
+# 推导式：构造平方表
+print({k: v*v for k, v in zip(keys, vals)})
 ```
 
 ### 别名与拷贝
@@ -802,7 +945,7 @@ print('class_9' in class_size) # class_9是不存在的
 ```
 
 
-### （键-值元组）
+### 键-值对（items） (*)
 
 dict也可以视为一个类List的数据结构：其中每一个元素，是一个（键-值）对，即`(key, value)`的元组。
 
@@ -894,3 +1037,16 @@ print(all_items[0])
 现在你已经具备了处理更结构化数据的基本能力。在接下来的学习中，我们将看到如何结合这些数据结构和控制流语句（如循环和条件判断），来编写更强大、更智能的程序来处理和分析数据。
 
 
+## 常见错误速查
+
+- NameError: 使用了不存在或拼写错误的变量名。优先检查变量名拼写、是否在使用前已正确赋值/定义（注意作用域）。
+- IndexError: 访问了超出范围的索引（列表/元组）。检查长度 `len(seq)`，确认最大索引为 `len(seq)-1`，或先做空值/边界判断。
+- KeyError: 访问了字典中不存在的键。先用 `in` 判断或改用 `dict.get(key, default)` 提供默认值。
+- TypeError: 
+  - 试图修改元组（不可变类型）元素。改用列表或在修改前将元组转为列表。
+  - 将可变类型（如 list、dict）作为字典的键或集合元素（不可哈希）。改用不可变等价物（如 tuple）。
+  - 在不支持的操作中混合不兼容类型（如包含 str 与 int 的列表直接 `sort()`）。为其提供 `key=` 函数或先做类型清洗。
+- ValueError:
+  - `list.remove(x)` 时 `x` 不在列表中。先用 `if x in lst:` 判断或使用更稳妥的逻辑。
+- AttributeError: 在不支持的方法上调用（如对元组调用 `append`）。确认对象类型，查阅对应类型的有效方法。
+- UnboundLocalError: 在函数内引用了尚未绑定的局部变量。考虑使用 `global/nonlocal` 或在引用前先赋值。
