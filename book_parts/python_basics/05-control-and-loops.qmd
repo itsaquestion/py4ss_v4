@@ -22,7 +22,11 @@
 2. 同样的缩进级别，表示代码处于同一层。
 3. 如果你使用Tab键（键盘左侧Q键旁边），可以补齐（对齐）4个空格。
 
-(**推荐**) 使用vscode的插件 indent-rainbow （或者类似的其他插件），可以用不同颜色显示缩进的层级。忘记怎么安装插件的可以看前面的章节。
+注意：Tab键原本用于输入“制表符 \t”，但是在VS Code中，这个按键的默认行为是用空格来补全缩进。
+
+4. 建议统一使用4个空格缩进。
+
+(**推荐**) 使用 VS Code 的插件 indent-rainbow （或者类似的其他插件），可以用不同颜色显示缩进的层级。建议在 VS Code 设置中开启“Insert Spaces: true, Tab Size: 4”。忘记怎么安装或设置的可以看前面的章节。
 
 
 ## 条件if
@@ -40,9 +44,15 @@ if 语句：
 ```{python}
 price = 98
 if price <100:
-    print ('buy')
+    print('buy')
 
 ```
+
+### range 进阶
+
+- 只有一个参数时，如 `range(5)`，起点默认为 0，步长为 1。
+- 可以使用负步长倒序计数：`range(10, 0, -1)` 生成 `10, 9, ..., 1`。
+- 仍然“包含起点，不含终点”。
 
 if-else语句：
 
@@ -54,7 +64,7 @@ if-else语句：
 ```{python}
 price = 102
 if price <100:
-    print ('buy')
+    print('buy')
 else:
     print('not buy')
 ```
@@ -69,13 +79,13 @@ if-elif语句：
 ```{python}
 price = 102
 if price <100:
-    print ('buy')
+    print('buy')
 elif price < 110:
-    print ('hold')
+    print('hold')
 elif price < 120:
-    print ('think about it')
+    print('think about it')
 else:
-    print ('sell')
+    print('sell')
 
 ```
 
@@ -86,11 +96,13 @@ if price<80: print('buy')
 
 ```
 
+小提示：实际项目中更推荐使用多行 `if`，可读性更好。
+
 ### 三元表达式
 
 ```{python}
 price = 85
-'buy' if (price<80) else 'don\'t buy'
+"buy" if (price < 80) else "don't buy"
 ```
 
 ### 练习
@@ -117,6 +129,7 @@ weight = 80.5
 
 # 计算BMI指数
 # 用 if-elif 判断，并打印结果
+# 提示：可以使用链式比较，比如 18.5 <= bmi < 25
 
 
 ```
@@ -206,12 +219,12 @@ print(f"最大值是{max_value}")
 ```{python}
 # 表示现在正在刮风下雨
 is_raining = True 
-is_blowing = True
+is_windy = True
 
 ```
 判断是否同时在刮风和下雨
 ```{python}
-print(is_raining and is_blowing)
+print(is_raining and is_windy)
 ```
 
 
@@ -220,7 +233,7 @@ print(is_raining and is_blowing)
 `bad_weather`
 
 ```{python}
-bad_weather = is_raining and is_blowing # 布尔运算的结果，也是一个布尔型，并且可以赋值给另一个变量
+bad_weather = is_raining and is_windy # 布尔运算的结果，也是一个布尔型，并且可以赋值给另一个变量
 print(bad_weather)
 ```
 
@@ -234,24 +247,24 @@ bool_and(x, y)
 
 ```{python} 
 #|eval: false
-bad_weather = bool_and(is_raining, is_blowing) # 这是随便写的，无法执行
+bad_weather = bool_and(is_raining, is_windy) # 这是随便写的，无法执行
 ```
 
 回到我们的`if`语句。`if`语句接受的判断条件，本质上一个**布尔型变量**
 
 ```{python}
-if is_raining and is_blowing:
-    print('don\'t go outside!')
+if is_raining and is_windy:
+    print("don't go outside!")
 ```
 
 等价于：
 
 ```{python}
 if bad_weather:
-    print('don\'t go outside!')
+    print("don't go outside!")
 ```
 
-所以，你在`if`后面跟一个布尔型变量`bad_weather`，或者一个条件`is_raining and is_blowing`，是等价的。但后者可以少进行一次赋值的操作，并且节约一个变量名。
+所以，你在`if`后面跟一个布尔型变量`bad_weather`，或者一个条件`is_raining and is_windy`，是等价的。但后者可以少进行一次赋值的操作，并且节约一个变量名。
 
 回看前面的例子：
 ```{python}
@@ -281,14 +294,30 @@ else:
 
 小结，布尔运算，实际上会返回一个新的布尔值，可以和任何变量一样进行操作，比如绑定名字，放进if里等等
 
+### 布尔短路与真值测试
+
+在 Python 中，`and` 与 `or` 具有短路特性：
+
+- `A and B`: 当 `A` 为假（False）时，`B` 不再计算；当 `A` 为真时才计算 `B`。
+- `A or B`: 当 `A` 为真（True）时，`B` 不再计算；当 `A` 为假时才计算 `B`。
+
+另外，很多对象在布尔上下文中有“真/假”语义：空字符串 `""`、空列表 `[]`、空字典 `{}`、数字 `0`、以及 `None` 都被视为“假”，其余通常为“真”。
+
+```{python}
+print(bool(""), bool("hi"))   # False True
+print(bool([]), bool([1]))     # False True
+print("a" and "b")            # 'b'
+print("" or "fallback")       # 'fallback'
+```
+
 ## while循环
 
 while循环比较直观，“**只要条件成立，就重复执行某块代码块**”
 
 或者说，“**重复执行某块代码块，直到条件不成立为止**”
 
-```{}
-while 判断条件(condition)：
+```text
+while 判断条件(condition):
     执行语句(statements)
 ```
 
@@ -310,15 +339,15 @@ while 判断条件(condition)：
 
 ```{python}
 i = 1
-i += 999
+i += 2
 print(i)
 ```
 
 
-设计一个从1到5的循环
+设计一个从1到10的循环
 ```{python}
 i = 1
-while i <= 5:
+while i <= 10:
     print(i)
     i +=1 
 
@@ -351,7 +380,7 @@ print("循环结束")
 
 ## for循环
 
-for循环一般用于遍历一个可迭代对象（简单理解，就是如 List、Tuple和Dict这样具有序列结构的数据）
+for循环一般用于遍历一个可迭代对象（如列表 List、元组 Tuple、字典 Dict、字符串、`range` 等）
 
 其作用是“对其中的每一个元素都做点什么”。
 
@@ -375,8 +404,8 @@ for i in a_list:
 
 1. 目标：对`a = [1,2,3,4,5]`中的每一个元素，执行打印这个动作。
 2. `a_list`是一个列表的名字
-3. `for i in a_list: `：我们把中的每一个元素，按顺序，逐个过一遍。轮到哪个元素，我们就用`i`来指向它。
-4. `  print(i)`：由上一句，`i`可以看作每一个元素代称，我们打印它。注意，前面由“1个缩进”。
+3. `for i in a_list:`：我们把中的每一个元素，按顺序，逐个过一遍。轮到哪个元素，我们就用`i`来指向它。
+4. `    print(i)`：由上一句，`i`可以看作每一个元素代称，我们打印它。注意，前面有“1个缩进”。
 
 
 <iframe width="800" height="500" frameborder="0" src="https://pythontutor.com/iframe-embed.html#code=a_list%20%3D%20%5B1,2,3,4,5%5D%0A%0Afor%20i%20in%20a_list%3A%20%20%0A%20%20%20%20print%28i%29&codeDivHeight=400&codeDivWidth=350&cumulative=false&curInstr=0&heapPrimitives=nevernest&origin=opt-frontend.js&py=311&rawInputLstJSON=%5B%5D&textReferences=false"> </iframe>
@@ -392,16 +421,16 @@ for i in a_list:
 3. 可以转为List，如:
 
 ```{python}
-print(range(0,10))
-print(list(range(0,10))) 
+print(range(0, 10))
+print(list(range(0, 10))) 
 ```
 
 在for循环中，我们往往用range来快速生成一个数字序列，避免手动输入非常多的数字。
 
 ```{python}
 print('打印奇数序列：')
-for i in range (1,20,2): # 替代手动输入 [1,3,5 ...]
-    print (i) 
+for i in range(1, 20, 2):  # 替代手动输入 [1,3,5 ...]
+    print(i)
 
 ```
 
@@ -420,7 +449,7 @@ for i in range (1,20,2): # 替代手动输入 [1,3,5 ...]
 # for语句试图执行1000次循环
 # 但中途被break语句中断
 for i in range(1000):
-    print (i)
+    print(i)
 
     if i >= 3: 
         print('如果i大于等于3，则中断循环。')
@@ -440,6 +469,23 @@ for num in numbers:
     if num % 2 == 0:  # 如果是偶数
         continue      # 跳过本次循环中后续的print语句，直接开始下一次迭代
     print(num)        # 这行只在num是奇数时执行
+```
+
+
+### 循环的 else 子句
+
+当循环“正常结束”（即不是通过 `break` 提前跳出）时，会执行与之配套的 `else:` 语句块。这对“查找-未找到”的场景很有用。
+
+```{python}
+nums = [2, 4, 6, 8]
+target = 5
+
+for x in nums:
+    if x == target:
+        print('found')
+        break
+else:
+    print('not found')  # 只有当 for 未被 break 打断时才会执行
 ```
 
 
@@ -510,7 +556,7 @@ score = [70, 90, 78, 85, 97, 94, 65, 80]
 1. 找到列表的中间位置的元素
 2. 比较这个元素，和目标的大小。如果一样大，得到位置。
 3. 根据大小，把范围缩小到List前半段，或者后半段
-3. 在新的区间，回到1. 重复这个过程
+4. 在新的区间，回到1. 重复这个过程
 
 
 ```{python}
@@ -592,13 +638,23 @@ print(b)
 
 
 
+#### 推导式进阶：条件表达式 if-else
+
+在推导式中也可以使用条件表达式，但逻辑复杂时建议改回普通循环以保持可读性。
+
+```{python}
+a = [1, 2, 3, 4, 5]
+b = [x*2 if x % 2 == 0 else x for x in a]
+print(b)  # 偶数翻倍，奇数保持不变
+```
+
 ## Dict的循环和字典推导式
 
 ### 遍历字典
 
-前面讲过，字典本身也是序列结构，因此我们也可以遍历字典。
+字典是映射类型，但它是可迭代的，因此我们也可以遍历字典。
 
-我们可以用.keys()和.values()获得所有的key和list，那么我就可以按循环list的方法来做。
+我们可以用 `.keys()` 和 `.values()` 获得所有的键与值（均为“视图”对象，如需列表可用 `list(...)` 转换），也可以用 `.items()` 同时拿到键和值。
 
 1. 遍历key
 
@@ -613,12 +669,11 @@ for key in d:
 ```{python}
 d = {'x': 1, 'y': 3, 'z': 5}
 for value in d.values(): 
-# 或者用 for key in d.keys()
     print(value)
 
 ```
 
-我们也介绍过dict可以看出一系列key-value的元组，因此可以遍历items。
+我们也介绍过dict可以看作一系列key-value的元组，因此可以遍历items。
 
 回顾：d.items()可以返回 `[(key,value),(key,value),...]`的结构。
 
@@ -665,6 +720,21 @@ print(e)
 
 2. 使用字典推导式，从上面给出的ages字典中创建一个新的字典，其中只包括年龄小于或等于30的人。
 
+## for 循环进阶：索引与并行遍历
+
+需要索引时，推荐使用 `enumerate`；需要并行遍历多个序列时，使用 `zip`。
+
+```{python}
+a_list = ['a', 'b', 'c']
+for idx, val in enumerate(a_list, start=1):
+    print(idx, val)
+
+names = ['Alice', 'Bob']
+scores = [90, 85]
+for name, score in zip(names, scores):
+    print(name, score)
+```
+
 ## 本章小结
 
 学会使用条件判断和循环，这意味着你的程序现在可以“思考”并“重复工作”了。
@@ -695,3 +765,11 @@ print(e)
 *   `TypeError` / `NameError`: 在循环或条件判断中使用了未定义或类型不兼容的变量。
 
 通过条件和循环，你可以让程序自动化地处理更复杂的逻辑和数据。这是构建任何有实际用途的程序的基础。在接下来的学习中，我们将把这些控制流结构与函数结合起来，构建更模块化、更可重用的代码。
+
+## 常见错误速查
+
+- IndentationError: 缩进不正确或不一致（例如混用 Tab 与空格）。统一为4个空格，避免在同一文件中混用。
+- 无限循环: `while` 条件永远为 True 且没有 `break`。检查循环内是否有能改变条件的语句。
+- 边界（off-by-one）错误: `range(start, stop)` 不包含 `stop`，容易少算或多算一次。
+- 赋值与比较混淆: 在条件判断中把 `==` 错写成 `=`（语法错误），或将 `is` 误用作数值比较。
+- 字典/列表访问越界或不存在: `my_list[idx]` 超出范围抛 `IndexError`；访问不存在的字典键抛 `KeyError`，可用 `in` 检查或 `dict.get(key, default)`。
