@@ -41,8 +41,8 @@ $$
 
 
 写成代码，大概是：
-```{python eval=FALSE}  
-#|eval: false
+```{python}
+#| eval: false
 苹果汁 = 榨汁机(苹果)
 ```
 
@@ -73,12 +73,12 @@ print(a_size)
 
 
 
-在python中
+在Python中
 
 1. 定义一个函数的关键字是`def`，
 2. `def`后，是函数名，小括号内是参数（这个函数要接收的东西），最后是冒号
 3. 函数体，要有“1个缩进”
-4. 返回关键词是`return`。如果函数执行完都没有遇到`return`，则返回`none`
+4. 返回关键词是`return`。如果函数执行完都没有遇到`return`，则返回`None`
 
 
 ![](https://www.runoob.com/wp-content/uploads/2014/05/py-tup-10-26-1.png)
@@ -135,6 +135,25 @@ c = add(a, b)
 print(c)
 ```
 
+### Docstring 与类型标注（推荐）
+
+良好的文档字符串与类型标注有助于阅读、IDE 辅助与静态检查。
+
+```{python}
+def add(x: int, y: int) -> int:
+    """返回两个整数的和。
+
+    参数
+    x, y: 两个整数
+    返回
+    int: x + y
+    """
+    return x + y
+
+print(add(1, 2))
+help(add)
+```
+
 
 ### 例：求两个数的最大值
 
@@ -169,8 +188,7 @@ print(my_max(3,5))
 
 ```{python}
 def calc_area(r): 
-    area = 3.14159 * (r ** 2) 
-    return area
+    return 3.14159 * (r ** 2)
 
 ```
 
@@ -206,14 +224,14 @@ hello2()
 
 有时候需要先占用函数名，但是函数的内容想以后再写，此时可以写一个空函数。函数体内只需要使用`pass`语句。
 
-特别地，没有`return`语句（例如现在这种情况），或者`return`语句不返回值的时候，函数会返回一个`none`。
+特别地，没有`return`语句（例如现在这种情况），或者`return`语句不返回值的时候，函数会返回一个`None`。
 
 
 ```{python}
-def do_noting():
+def do_nothing():
     pass
 
-print(do_noting())
+print(do_nothing())
 ```
 
 ### 小练习
@@ -282,6 +300,42 @@ print(power(3, 3))  # 调用函数传递n的值，使用传递值，结果为27
 
 ```
 
+### 参数进阶：位置专用与关键字专用
+
+可以通过在函数签名中使用 `/` 与 `*` 控制调用方式：
+
+```{python}
+def f(a, /, b, *, c):
+    # a 只能用位置传参；c 只能用关键字传参
+    return a + b + c
+
+f(1, 2, c=3)     # 合法
+# f(a=1, b=2, c=3)  # TypeError: a 不能用关键字传参
+# f(1, 2, 3)        # TypeError: c 必须使用关键字传参
+```
+
+#### 可变默认参数陷阱
+
+不要把列表、字典等可变对象作为默认参数，它们会在多次调用间共享状态：
+
+```{python}
+def append_bad(x, acc=[]):  # 不推荐
+    acc.append(x)
+    return acc
+
+print(append_bad(1))  # [1]
+print(append_bad(2))  # [1, 2] 共享了上次的结果
+```
+
+正确写法：用 `None` 作为占位，在函数内创建新对象。
+
+```{python}
+def append_ok(x, acc=None):
+    acc = [] if acc is None else acc
+    acc.append(x)
+    return acc
+```
+
 
 
 
@@ -303,7 +357,7 @@ print(max(4,1,5,2))
 ```{python}
 # 第一个参数是class_id，从第二个参数起，不定数量个参数，都会组成一个tuple，并命名为`students`(没有*)
 def print_students(class_id, *students): 
-    '打印班级号，和同学的姓名'
+    """打印班级号，和同学的姓名"""
     print("班级:",class_id)
     print("学生包括:", students) 
     
@@ -367,7 +421,7 @@ my_sum(3,4,5) == 12
 1. tuple或者list前面加`*`
 2. dict前加`**`
 
-称之为拆包（unpakcing）
+称之为拆包（unpacking）
 
 例：
 
@@ -398,6 +452,21 @@ print(add(*[1,2]))
 
 ```
 
+### 多返回值与解包
+
+Python 函数可以一次返回多个值（本质是返回一个元组），可在调用处解包：
+
+```{python}
+def split_pair(x: int) -> tuple[int, int]:
+    return x, x**2
+
+a, b = split_pair(3)
+print(a, b)
+
+# 解包长度不匹配会抛出 ValueError
+# a, b, c = split_pair(3)  # ValueError: not enough values to unpack
+```
+
 
 * 注意和上一节的不同：定义函数的时候参数名是否带有星号？
 
@@ -408,7 +477,7 @@ print(add(*[1,2]))
 
 前面提到，多个变量名指向同一个可变对象（例如List，Dict），针对其中一个变量的修改，会引起所有指向同一个数据的变量都发生改变。
 
-把List等，作为参数传递个一个函数，也有类似的后果。因此：
+把List等，作为参数传递给一个函数，也有类似的后果。因此：
 
 1. 当不可变类型（如数字、字符串、元组）作为参数传递时，函数内部对参数的重新赋值不会影响到函数外部的原始变量，因为这实际上是在函数内部创建了一个新的局部变量。
 2. 当可变类型（如列表、字典）作为参数传递时，函数内部对该参数内容的修改（例如 list.append() 或修改字典的键值对）会影响到函数外部的原始变量，因为函数内外的变量名指向的是内存中的同一个对象。如果想避免这种情况，应在函数内部创建该对象的副本（如使用 list.copy() 或 dict.copy()）再进行操作。
@@ -465,14 +534,13 @@ print(a_list)
 
 `[do_something(i) for i in a_list if condition(i)]`
 
-其中我们要对i进行的操作，可以是一个函数。
+其中我们要对i进行的操作，可以是一个函数（推荐写出清晰的文档字符串与类型标注，便于后续维护与 IDE 辅助）。
 
 比如，我们要把一个列表中的值进行一个很复杂的运行，可以首先把这个运算写成一个函数。这里以乘以2为例。
 
 ```{python}
-def do_double(x):
-    """这是一个超级复杂的运行，算法有一万行
-    """
+def do_double(x: int) -> int:
+    """这是一个超级复杂的运算，算法有一万行（示例）"""
     return x * 2
 
 do_double(3)
@@ -536,7 +604,7 @@ def func():
     
 func()
 ```
-`r red("注:")`：函数內部和外部变量重名的情况，要额外小心。因此第二个例子可能是你“**忘记了在函数内部定义a**”，而不是你想要“引用全局变量a”，但是因为有一个全局的变量a，所以忘记定义`a`这个问题可能会被隐藏。
+<span style="color:red"><strong>注意：</strong></span> 函数內部和外部变量重名的情况，要额外小心。因此第二个例子可能是你“忘记了在函数内部定义 a”，而不是你想要“引用全局变量 a”，但是因为有一个全局的变量 a，所以忘记定义 `a` 这个问题可能会被隐藏。
 
 
 ### 全局作用域
@@ -545,8 +613,8 @@ func()
 
 因为Python在编译函数的字节码时，只要发现函数内部有对变量的赋值操作（如 `a = ...`），就会默认该变量是局部变量，除非显式声明为 `global` 或 `nonlocal`。
 
-```{python eval=FALSE}
-#|eval: false
+```{python}
+#| eval: false
 a = 100      # 全局变量a
 def func():
     a = a + 1  # a + 1这个a系统认为是局部变量，但这个函数没有局部的a
@@ -570,6 +638,24 @@ def func():
     print(a)   # 全局变量a
       
 func()
+```
+
+### nonlocal（修改外层局部变量）
+
+`nonlocal` 用于修改“外层函数的局部变量”。它不同于 `global`（修改模块级全局）。
+
+```{python}
+def outer():
+    x = 0
+    def inner():
+        nonlocal x
+        x += 1
+        return x
+    return inner
+
+counter = outer()
+print(counter())  # 1
+print(counter())  # 2
 ```
 
 ## 递归简介（进阶）
@@ -669,15 +755,15 @@ print(result)
 
 ```{python}
 def do_double(x):
-    '翻倍函数'
+    """翻倍函数"""
     return x * 2
 
 print(do_double(3))
 ```
-把do_dobule函数，应用到列表a中的每一个元素里。
+把 do_double 函数，应用到列表 a 中的每一个元素里。
 
 ```{python}
-result = map(do_double, a) # 把do_dobule函数，应用到列表a中的每一个元素里。
+result = map(do_double, a) # 把 do_double 函数，应用到列表 a 中的每一个元素里。
 
 print(list(result))
 ```
@@ -769,13 +855,13 @@ print(result)
 a 
 -> filter by is_odd()
 -> map by do_double()
--> reuslt
+-> result
 '''
 
 ```
 
 
-1. 列表`a`首先经过filter函数的加工，然后再经过map函数的加工，最后得到reuslt。
+1. 列表`a`首先经过filter函数的加工，然后再经过map函数的加工，最后得到result。
 2. 比喻：一堆水果(数据）-> 剔除坏的（处理1）-> 清洗（处理2）-> 削皮（处理3）-> 榨汁（处理4） -> 果汁（处理后的数据）
 
 
@@ -788,10 +874,10 @@ a
 
 所以
 
-1. 清晰性：列表推导式 > map/filter函数 > 循环
-2. 性能：map/filter函数 > 列表推导式 > 循环
+1. 清晰性：列表推导式 ≥ map/filter 函数 > 循环（通常更符合 Python 风格）。
+2. 性能：内置函数/向量化（如 `map` 搭配内建或 NumPy/Pandas）通常更快；列表推导式与 `map` 接近；纯 Python 循环最慢（但最直观）。以可读性为先，在有瓶颈时再做基准测试。
 
-从逻辑上来讲，应该是先有`map/filer`：要把一个函数应用到List中的所有元素/过滤元素，这是个基础性的需求，大多数编程语言都有做这件事的办法。我们一般把这种操作统称为`map/filter`。Python的列表推导式，可以看成是一个Python优化版的`map/filter`。
+从逻辑上来讲，应该是先有`map/filter`：要把一个函数应用到List中的所有元素/过滤元素，这是个基础性的需求，大多数编程语言都有做这件事的办法。我们一般把这种操作统称为`map/filter`。Python的列表推导式，可以看成是一个Python优化版的`map/filter`。
 
 
 
@@ -833,6 +919,18 @@ print(list(result))
 ```{python}
 result =  map(lambda x : x * 2,a)
 print(list(result))
+```
+
+#### `key` 函数与排序/选最值
+
+在排序或选最值时，常通过 `key=` 指定“比较的依据”。
+
+```{python}
+items = [("alice", 3), ("bob", 5), ("carol", 2)]
+print(sorted(items, key=lambda x: x[1], reverse=True))  # 按第二列降序
+
+scores = {"alice": 92, "bob": 85, "carol": 97}
+print(max(scores, key=scores.get))  # 选出分数最高的键
 ```
 
 
@@ -886,7 +984,7 @@ print(list(filter(is_even, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])))
 
 
 
-在python中，函数是一等公民（头等函数，first-class function）。
+在Python中，函数是一等公民（头等函数，first-class function）。
 
 一个函数，可以和任何变量或者对象一样，绑定一个名字（函数名），也可以换一个名字（重绑定），也可以作为参数传递给另一个函数（函数作为参数传另一个函数），也可以作为一个函数的返回值（函数返回另一个函数）。
 
@@ -972,7 +1070,7 @@ print(cube(2))
 这个函数，可以根据你给的参数`n`，生成另一个函数：n次方函数生成器
 
 ```{python}
-def make_power_funcion(n):
+def make_power_function(n):
     
     def func(x):
         # return power(x, n) # 也是一样的
@@ -981,7 +1079,7 @@ def make_power_funcion(n):
     return func
 ```
 
-`make_power_funcion`是一个函数，这个函数会返回另一个函数`func`
+`make_power_function`是一个函数，这个函数会返回另一个函数`func`
 
 ```{python}
 '''
@@ -993,13 +1091,13 @@ def func(x):
 
 square = func
 '''
-square = make_power_funcion(2)
+square = make_power_function(2)
 
 ```
 
 
 ```{python}
-cube = make_power_funcion(3)
+cube = make_power_function(3)
 
 ```
 
@@ -1054,7 +1152,7 @@ reduce(add,a)
 例如
 
 ```{python}
-def make_power_funcion(n):
+def make_power_function(n):
     def func(x):
         # return power(x, n) # 也是一样的
         return x ** n 
@@ -1063,26 +1161,26 @@ def make_power_funcion(n):
 ```
 
 
-这个代码里，调用`power()`函数，会返回另一个函数`fun()`。
-
-这个函数里面调用了变量`n`，但`n`不在`fun()`的函数体内，而在上一层。`fun()`函数，会把生产自己的坏境中的变量（本例中即`n`），也包括在里面：**闭包是一个附带数据的函数**。
+这个代码里，调用`make_power_function()`函数，会返回另一个函数`func()`。
+ 
+这个函数里面调用了变量`n`，但`n`不在`func()`的函数体内，而在上一层。`func()`函数，会把生成自己的环境中的变量（本例中即`n`），也包括在里面：**闭包是一个附带数据的函数**。
 
 
 这段代码发生了什么？
 ```{python}
-square = make_power_funcion(2) 
+square = make_power_function(2) 
 ```
 
 `square`函数，相当于一个**附带了`n=2`的`func()`函数**
 
 1. `power(n = 2)`，其中`n = 2`
-2. 在`make_power_funcion()`函数的内部，`func(x)`是可以看见这个`n=2`的
+2. 在`make_power_function()`函数的内部，`func(x)`是可以看见这个`n=2`的
 3. `return func`的时候，会把`n=2`，一并返回到外层
 4. `square = power(2) `,此时我们把`square`这个名字，绑定给`func`这个函数（闭包），而后者同时还附带了`n=2`
 
 
 
-前面讲变量作用域，python找一个名称，是从内到外
+前面讲变量作用域，Python找一个名称，是从内到外
 
 1. L局部作用域：即函数体内。例如本例中`func`函数的`x`
 2. Enclosing function locals：函数中嵌套函数的外部：例如本例中`func`函数的`n`
@@ -1104,18 +1202,46 @@ square = make_power_funcion(2)
 *   **可变/不可变类型作参数**：注意可变类型（如列表）作参数时，在函数内部的修改会影响外部原对象。
 *   **函数式编程初步**：`map`、`filter` 用于对序列进行批量操作，`lambda` 用于创建简单的匿名函数。
 
-**常见错误 (Common Errors & Pitfalls)：**
+## 函数 vs 向量化（数据分析实务）
 
-1.  **`UnboundLocalError: local variable 'var_name' referenced before assignment`**
-    *   **原因**：在函数内部尝试修改一个与全局变量同名的变量，但没有使用 `global` 关键字声明，Python会认为你试图引用一个尚未赋值的局部变量。
-    *   **示例**：`x = 10; def func(): x = x + 1; print(x)`，调用 `func()` 会报错。
-    *   **解决**：如果意图是修改全局变量，请在函数内部使用 `global var_name`。
+在数据分析中，优先考虑 NumPy/Pandas 的向量化、聚合与布尔索引，通常比编写 Python 层的 `for` 循环更简洁且高效：
 
-2.  **忘记 `return` 或 `return` 位置不当**
-    *   **原因**：函数需要返回一个计算结果，但忘记写 `return` 语句，或者 `return` 语句在逻辑上没有被执行到（例如在某个 `if` 分支内，但条件未满足）。
-    *   **结果**：函数默认返回 `None`，可能导致后续代码逻辑错误。
-    *   **解决**：仔细检查函数的逻辑，确保在所有期望的路径上都有正确的 `return` 语句。
+```{python}
+#| eval: false
+import numpy as np
+import pandas as pd
 
-3.  **对可变类型参数副作用的忽视**
-    *   **原因**：将列表或字典等可变对象传入函数，在函数内部修改了它，导致函数外部的原始对象也被意外改变。
-    *   **解决**：如果不想修改原始对象，在函数内部应先创建副本（如使用 `.copy()` 方法）。
+df = pd.DataFrame({
+    'a': [1, 2, 3, 4],
+    'b': [10, 20, 30, 40]
+})
+
+# 列运算（向量化）
+df['c'] = df['a'] + df['b']
+
+# 条件列
+df['flag'] = np.where(df['a'] > 2, 1, 0)
+
+# 映射
+code_to_cat = {1: 'X', 2: 'Y', 3: 'Z', 4: 'Z'}
+df['cat'] = df['a'].map(code_to_cat)
+
+# 分组聚合
+g = df.groupby('cat')['b'].agg(['mean', 'sum'])
+```
+
+提示：
+- `np.vectorize` 只是语法糖，不会带来显著加速。
+- `DataFrame.apply(axis=1, ...)` 逐行运算通常较慢，应优先列运算或矢量化方案。
+
+## 常见错误速查
+
+- UnboundLocalError：在函数内赋值导致变量被视为局部，引用前未赋值；用 `global`/`nonlocal` 明确意图。
+- TypeError（参数不匹配）：缺少必需位置参数、传多了参数，或对同一参数传了多个值（既位置又关键字）。
+- 可变默认值陷阱：默认列表/字典在多次调用间共享；使用 `None` 作为占位并在函数内创建新对象。
+- 忘记调用函数：写成 `func` 而非 `func()`，得到函数对象而不是返回值。
+- 返回值为 None：遗漏 `return` 或分支未覆盖，后续参与计算报错。
+- 解包长度不匹配：返回数量与左侧变量数不一致，抛 `ValueError`。
+- lambda 晚绑定：循环内创建的 lambda 捕获同一变量，执行时取最终值；可传默认值参数规避。
+- map/filter 惰性：未消费或未 `list(...)` 转换，看不到结果。
+- 关键字专用/位置专用：错误传参导致 `TypeError`，注意 `def f(a, /, b, *, c)` 的规则。
