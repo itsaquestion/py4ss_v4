@@ -43,7 +43,7 @@ if 语句：
 
 ```{python}
 price = 98
-if price <100:
+if price < 100:
     print('buy')
 
 ```
@@ -57,7 +57,7 @@ if-else语句：
 
 ```{python}
 price = 102
-if price <100:
+if price < 100:
     print('buy')
 else:
     print('not buy')
@@ -72,7 +72,7 @@ if-elif语句：
 
 ```{python}
 price = 102
-if price <100:
+if price < 100:
     print('buy')
 elif price < 110:
     print('hold')
@@ -86,7 +86,7 @@ else:
 ### 单行if
 ```{python}
 price = 70
-if price<80: print('buy')
+if price < 80: print('buy')
 
 ```
 
@@ -96,7 +96,8 @@ if price<80: print('buy')
 
 ```{python}
 price = 85
-"buy" if (price < 80) else "don't buy"
+decision = "buy" if (price < 80) else "don't buy"
+print(decision)
 ```
 
 ### 练习
@@ -223,9 +224,7 @@ print(is_raining and is_windy)
 
 
 布尔运算，其结果，也是一个布尔类型的变量：因此可以赋值给另一个变量。
-
-`bad_weather`
-
+ 
 ```{python}
 bad_weather = is_raining and is_windy # 布尔运算的结果，也是一个布尔型，并且可以赋值给另一个变量
 print(bad_weather)
@@ -240,7 +239,7 @@ bool_and(x, y)
 就可以视为一个函数调用，返回的结果，就是与操作
 
 ```{python} 
-#|eval: false
+#| eval: false
 bad_weather = bool_and(is_raining, is_windy) # 这是随便写的，无法执行
 ```
 
@@ -304,6 +303,22 @@ print("a" and "b")            # 'b'
 print("" or "fallback")       # 'fallback'
 ```
 
+### 逻辑/比较/成员运算补充
+
+- 优先级：`not > and > or`。复杂表达式建议加括号以增强可读性。
+- 成员测试：`x in s` / `x not in s`，适用于字符串、列表、字典（测试键）。
+- 身份判断：`is` / `is not` 判断“是否是同一对象”，不是数值相等判断；比较值请用 `==`。
+- 链式比较：写作 `0 <= x < 10`，等价于 `0 <= x and x < 10`，更可读。
+- 内置短路聚合：`any(iterable)` 有任一真即真；`all(iterable)` 全真才真。
+
+```{python}
+print(not False and True)
+print('a' in 'cat')       # True
+print(0 <= 5 < 10)        # True
+print(any([0, '', 3]))    # True（3 为真）
+print(all([1, 2, 0]))     # False（0 为假）
+```
+
 ## while循环
 
 while循环比较直观，“**只要条件成立，就重复执行某块代码块**”
@@ -343,12 +358,12 @@ print(i)
 i = 1
 while i <= 10:
     print(i)
-    i +=1 
+    i += 1 
 
 print("循环结束")
 ```
 
-<iframe width="800" height="500" frameborder="0" src="https://pythontutor.com/iframe-embed.html#code=i%20%3D%201%0Awhile%20i%20%3C%3D%205%3A%0A%20%20%20%20print%28i%29%0A%20%20%20%20i%20%2B%3D%201%0A%20%20%20%20%0Aprint%28%22%E5%BE%AA%E7%8E%AF%E7%BB%93%E6%9D%9F%22%29&codeDivHeight=400&codeDivWidth=350&cumulative=false&curInstr=18&heapPrimitives=nevernest&origin=opt-frontend.js&py=311&rawInputLstJSON=%5B%5D&textReferences=false"> </iframe>
+<iframe width="800" height="500" frameborder="0" src="https://pythontutor.com/iframe-embed.html#code=i%20%3D%201%0Awhile%20i%20%3C%3D%2010%3A%0A%20%20%20%20print%28i%29%0A%20%20%20%20i%20%2B%3D%201%0A%20%20%20%20%0Aprint%28%22%E5%BE%AA%E7%8E%AF%E7%BB%93%E6%9D%9F%22%29&codeDivHeight=400&codeDivWidth=350&cumulative=false&curInstr=18&heapPrimitives=nevernest&origin=opt-frontend.js&py=311&rawInputLstJSON=%5B%5D&textReferences=false"> </iframe>
 
 ### 练习
 
@@ -365,7 +380,7 @@ print("循环结束")
 
 2. 利用循环，求1到100的累加，计算完成最后打印出来
 
-小提示：你可以建立一个新的变量，用来存放累加的结果
+小提示：你可以建立一个新的变量，用来存放累加的结果；或直接使用内置函数 `sum(range(1, 101))`。
 
 ```{python}
 
@@ -428,6 +443,26 @@ for i in range(1, 20, 2):  # 替代手动输入 [1,3,5 ...]
 
 ```
 
+注意：遍历时不要原地修改同一个列表的元素数量，否则可能“跳项”或结果异常；可以使用列表推导式构造新列表，或遍历副本。
+
+```{python}
+#| eval: false
+xs = [1, 2, 3, 4]
+for x in xs:
+    if x % 2 == 0:
+        xs.remove(x)  # 反例：修改正在遍历的列表
+
+# 推荐做法 1：列表推导式
+xs = [1, 2, 3, 4]
+xs = [x for x in xs if x % 2 != 0]
+
+# 推荐做法 2：遍历副本
+xs = [1, 2, 3, 4]
+for x in xs[:]:
+    if x % 2 == 0:
+        xs.remove(x)
+```
+
 ### range 进阶
 
 - 只有一个参数时，如 `range(5)`，起点默认为 0，步长为 1。
@@ -488,12 +523,27 @@ else:
     print('not found')  # 只有当 for 未被 break 打断时才会执行
 ```
 
+`while` 也有同样的语义：只要不是被 `break` 提前跳出，循环结束后就会执行 `else`。
+
+```{python}
+target = 5
+guess = 0
+
+while guess <= 10:
+    if guess == target:
+        print('found')
+        break
+    guess += 1
+else:
+    print('not found')  # 只有没被 break 打断时才会执行
+```
+
 
 ## 注意：小心无限循环！
 
 当使用 `while` 循环时，我们需要特别注意循环的**终止条件**。如果 `while` 后面的条件判断永远为 `True`，那么循环体内的代码就会被无限次地执行下去，程序就会“卡住”，这就是所谓的**无限循环**。
 
-**注意：** 如果陷入无限循环，可以直接关闭vscode！
+**注意：** 如果陷入无限循环，可以在终端按 Ctrl+C（或在 Jupyter/Quarto 停止内核），必要时再关闭 VS Code！
 
 **一个容易犯的错误导致无限循环的例子：**
 
@@ -675,14 +725,15 @@ for value in d.values():
 
 我们也介绍过dict可以看作一系列key-value的元组，因此可以遍历items。
 
-回顾：d.items()可以返回 `[(key,value),(key,value),...]`的结构。
+回顾：`d.items()` 返回的是“视图对象”，可迭代地产生 `(key, value)` 对；如需列表可用 `list(d.items())`。
 
 `d.items()` 返回一系列 (键, 值) 对（元组）。在 `for` 循环中，我们使用 `key, value` 这种形式来自动地将每个元组中的两个元素分别赋值给 `key` 和 `value` 变量，这称为序列解包。
 
 ```{python}
 # 遍历每一个(key,value)对，进行某些操作
+d = {'x': 1, 'y': 3, 'z': 5}
 for key, value in d.items():
-    print(key,value)
+    print(key, value)
 ```
 
 ### 字典推导式
@@ -735,6 +786,48 @@ for name, score in zip(names, scores):
     print(name, score)
 ```
 
+## 循环 vs 向量化（数据分析实务）
+
+在数据分析场景（NumPy/Pandas）中，优先使用“向量化运算、聚合和布尔索引”，通常比 Python 层面的 `for` 循环更简洁且更快。
+
+- 元素级运算：数组/Series 直接相加、比较、求均值等，无需显式循环。
+- 布尔筛选：用条件生成布尔掩码进行过滤。
+- 条件组合：在 NumPy/Pandas 中用 `&`、`|` 组合条件，并用括号包裹每个子条件；不要用 `and`/`or`。
+
+```{python}
+#| eval: false
+import numpy as np
+import pandas as pd
+
+# 示例数据
+arr = np.arange(1, 6)             # array([1, 2, 3, 4, 5])
+ser = pd.Series([1, 2, 3, 4, 5])  # 1D 列
+
+# 向量化 vs 循环：求平方
+# 循环（不推荐）
+squares_loop = []
+for x in arr:
+    squares_loop.append(x ** 2)
+
+# 向量化（推荐）
+squares_vec = arr ** 2
+
+# 聚合：求和/均值
+total = arr.sum()
+mean = ser.mean()
+
+# 布尔筛选与组合条件（注意使用 & 和 |，并加括号）
+mask = (ser >= 2) & (ser % 2 == 0)  # 选出大于等于2且为偶数
+filtered = ser[mask]
+
+print(squares_vec, total, mean)
+print(filtered)
+```
+
+提示：
+- 单纯求和/计数等，优先用 `sum`、`mean`、`value_counts` 等聚合方法。
+- 在 Pandas 中逐行逻辑尽量避免 `for`，改用列运算或 `np.where`、`pd.Series.map`。
+
 ## 本章小结
 
 学会使用条件判断和循环，这意味着你的程序现在可以“思考”并“重复工作”了。
@@ -757,19 +850,16 @@ for name, score in zip(names, scores):
 *   **布尔逻辑是核心：** `if` 和 `while` 的条件本质上都是布尔表达式，其结果决定了程序的执行路径。
 *   **列表推导式 (`[expr for item in iterable if cond]`) 和字典推导式 (`{k_expr: v_expr for item in iterable if cond}`):** 提供了一种简洁、高效的方式来从一个可迭代对象创建新的列表或字典。
 
-**常见错误提示 (本章相关)：**
-
-*   `IndentationError`: 缩进不正确或不一致。
-*   无限循环：`while` 循环的条件永远为 `True`，且没有 `break`。
-*   逻辑错误：`if` 条件的判断逻辑不符合预期，或比较运算符使用错误（如把 `==` 写成 `=`）。
-*   `TypeError` / `NameError`: 在循环或条件判断中使用了未定义或类型不兼容的变量。
-
 通过条件和循环，你可以让程序自动化地处理更复杂的逻辑和数据。这是构建任何有实际用途的程序的基础。在接下来的学习中，我们将把这些控制流结构与函数结合起来，构建更模块化、更可重用的代码。
 
 ## 常见错误速查
 
-- IndentationError: 缩进不正确或不一致（例如混用 Tab 与空格）。统一为4个空格，避免在同一文件中混用。
-- 无限循环: `while` 条件永远为 True 且没有 `break`。检查循环内是否有能改变条件的语句。
-- 边界（off-by-one）错误: `range(start, stop)` 不包含 `stop`，容易少算或多算一次。
-- 赋值与比较混淆: 在条件判断中把 `==` 错写成 `=`（语法错误），或将 `is` 误用作数值比较。
-- 字典/列表访问越界或不存在: `my_list[idx]` 超出范围抛 `IndexError`；访问不存在的字典键抛 `KeyError`，可用 `in` 检查或 `dict.get(key, default)`。
+- IndentationError：缩进不一致或混用 Tab/空格，导致 if/for/while 代码块错位。
+- 无限循环/未更新循环变量：`while` 条件始终为 True，或忘记在循环内改变条件变量；无 `break`/退出路径。
+- 边界（off-by-one）：`range(start, stop)` 不包含 `stop`；用 `<=` 循环上界易多算一次。
+- 比较/身份混淆：把 `==` 写成 `=`（语法错误）；用 `is` 代替 `==` 做数值/字符串比较。
+- 循环的 `else` 误解：一旦循环被 `break` 提前跳出，`else` 不会执行。
+- 遍历时原地修改列表：在 `for` 中对同一列表增删元素导致“跳项”；用列表推导式或遍历副本解决。
+- `zip` 截断：`zip` 会按最短序列截断，长度不齐会丢数据；如需对齐可用 `itertools.zip_longest`。
+- 布尔短路返回对象：`and`/`or` 返回参与运算的对象本身，非布尔值；用于“默认值选择”时要注意类型语义。
+- NumPy/Pandas 条件组合：数组/Series 条件应使用 `&`/`|` 且每个条件加括号；不要用 `and`/`or`。
