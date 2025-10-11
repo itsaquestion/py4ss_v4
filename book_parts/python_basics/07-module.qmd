@@ -187,34 +187,30 @@ print(os.path.exists('某个文件.txt'))
 
 ```
 
-### json 与 csv
+### json模块
 
-结构化文本常用格式。`json` 用于字典/列表等对象的序列化；`csv` 常用于表格数据交换。
+JSON格式非常类似于字典。如果要把 Python 中的字典、列表数据对象保存到本地文件，可以先转为 JSON 格式再保存；读取时则反过来。
+
+数据（字典、列表等） -> JSON 格式 -> 保存到本地文件（*.json）
+
+从本地文件（*.json）中读取JSON对象 -> 数据（字典、列表等）
 
 ```{python}
-import json, csv, io
+import json
 
-# JSON：对象 <-> 字符串
-obj = {"name": "Alice", "score": 95, "passed": True}
-s = json.dumps(obj, ensure_ascii=False)  # 转为 JSON 字符串
+# 对象 <-> JSON 字符串（便于本地文件/网络传输等场景）
+
+# Dict/List -> JSON
+obj = {"name": "Alice", "scores": [95, 88], "passed": True}
+s = json.dumps(obj, ensure_ascii=False, indent=2)  # 转为 JSON 字符串
 print(s)
-obj2 = json.loads(s)                     # 还原为 Python 对象（字典）
-print(obj2["name"], obj2["score"])
 
-# CSV：用内存缓冲区演示写入与读取
-buffer = io.StringIO()
-writer = csv.DictWriter(buffer, fieldnames=["name", "score"])
-writer.writeheader()
-writer.writerow({"name": "Alice", "score": 95})
-writer.writerow({"name": "Bob", "score": 88})
-
-buffer.seek(0)
-reader = csv.DictReader(buffer)
-rows = list(reader)
-print(rows[0]["name"], rows[1]["score"])  # Alice 88
+# JSON -> Dict/List
+obj2 = json.loads(s)  # 还原为 Python 对象（字典）
+print(obj2["name"], obj2["scores"][0])
 ```
 
-将字典写入本地 JSON 文件 → 读取 → 修改 → 覆盖写回（演示完成后清理文件，避免生成多余文件）：
+演示：将字典（或列表）写入本地 JSON 文件 → 读取 → 修改 → 重新写到本地文件：
 
 ```{python}
 import json, os
@@ -241,11 +237,6 @@ with path.open("w", encoding="utf-8") as f:
 # 再次读取验证
 print("修改后：", json.loads(path.read_text(encoding="utf-8")))
 
-# 可选：清理临时文件，避免生成多余文件
-try:
-    os.remove(path)
-except OSError:
-    pass
 ```
 
 ### 日期与时间：datetime / time / calendar
