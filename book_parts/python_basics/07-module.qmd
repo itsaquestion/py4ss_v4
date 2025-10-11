@@ -2,13 +2,13 @@
 
 
 一个`.py`文件，就是一个模块module，里面的函数、变量等等，可以被其他代码所调用。
-（一个有多个`.py`文件的文件夹，也可以是一个模块，但是这里略过）
+（一个包含多个`.py`文件的文件夹通常称为“包（package）”，下文单独说明）
 
-写任何一个程序之前，我们一般会尽量调用用别人写好的代码（别人写好的不用白不用），这些代码一般也是用模块的形式组织。包括我们后面主要用到的数据分析三件套。
+写任何一个程序之前，我们一般会尽量调用别人写好的代码（别人写好的不用白不用），这些代码一般也是用模块的形式组织。包括我们后面主要用到的数据分析三件套。
 
 ## 引入模块
 
-Python作为一个发展了很多年的流行的变成语言，自带非常多的模块。我们安装的Anaconda，也格外把很多数据分析、科学计算等等的模块打包在一起。
+Python作为一个发展了很多年的流行的编程语言，自带非常多的模块。我们安装的Anaconda，也格外把很多数据分析、科学计算等等的模块打包在一起。
 
 例如用于数学运算的`math`，这是Python自带的模块，其中有大量数学函数（顾名思义），例如开平方根`sqrt`就在其中。
 
@@ -38,15 +38,15 @@ print(math.sqrt(4)) # 调用模块内部的一个函数sqrt()
 ```{python}
 print(math.pi)
 ```
-也可以采用简称或者缩写，比如我们后面用到的Numpy，习惯上缩写成np
+也可以采用简称或者缩写，比如我们后面用到的NumPy，习惯上缩写成np
 ```{python}
 import numpy as np 
-print(np.sqrt(4)) # Numpy也有自己的开方函数！后面会讲
+print(np.sqrt(4)) # NumPy也有自己的开方函数！后面会讲
 ```
 
-### 引入到当前名字空间
+### 引入到当前命名空间
 
-这种方法让模块内部的函数或者变量名，直接出现在当前名字空间中（调用的使用不用再挂着模块的名字）。如果这个模块下的某些东西特别常用，这样可以少打一些字。
+这种方法让模块内部的函数或者变量名，直接出现在当前命名空间中（调用时不用再挂着模块的名字）。如果这个模块下的某些东西特别常用，这样可以少打一些字。
 
 ```
 from <模块名> import <项目名>
@@ -74,11 +74,11 @@ from <模块名> import *
 ```
 这样你引用模块下的所有对象，都不必通过模块名来调用。
 
-**注意：** 这种方式一般不推荐。一个模块里面可能有大量函数和子模块。除非你很明白自己在做什么，否则引入大量的你可能用不到，甚至不知道存在的东西，不是一个好习惯。
+**注意：** 这种方式一般不推荐。一个模块里面可能有大量函数和子模块。除非你很明白自己在做什么，否则引入大量你可能用不到、甚至不知道存在的名称，容易产生命名冲突或掩盖已有名称，降低可读性与可维护性。
 
 ## Python部分常用模块
 
-注意，这里只是常用模块的冰山一角。除了一些故名思意的函数比如sqrt()，一般是不用刻意记忆。
+注意，这里只是常用模块的冰山一角。除了一些顾名思义的函数比如sqrt()，一般是不用刻意记忆。
 
 重要：如何找到合适的模块和函数？
 
@@ -137,6 +137,38 @@ print(math.e)  # 输出 2.718281828459045
 
 ```
 
+### random模块
+
+用于生成随机数、抽样与打乱。设置种子以便结果可复现。
+
+```{python}
+import random
+
+random.seed(42)  # 固定种子，结果可复现
+print(random.random())        # 0~1 间随机浮点数
+print(random.randint(1, 6))   # 含端点的随机整数
+print(random.choice(['A','B','C']))
+print(random.sample(range(10), 3))  # 不放回抽样
+
+data = [1,2,3,4,5]
+random.shuffle(data)          # 就地打乱
+print(data)
+```
+
+### statistics模块
+
+用于基础统计量。注意：`stdev`/`variance` 为“样本”统计量（n-1），`pstdev`/`pvariance` 为“总体”统计量（n）。
+
+```{python}
+import statistics as stats
+
+xs = [1, 2, 2, 3, 4]
+print(stats.mean(xs))             # 均值
+print(stats.median(xs))           # 中位数
+print(round(stats.stdev(xs), 3))  # 样本标准差
+print(round(stats.pstdev(xs), 3)) # 总体标准差
+```
+
 ### os模块
 
 和操作系统交互，处理文件等等
@@ -155,7 +187,68 @@ print(os.path.exists('某个文件.txt'))
 
 ```
 
-### datetime模块
+### json 与 csv
+
+结构化文本常用格式。`json` 用于字典/列表等对象的序列化；`csv` 常用于表格数据交换。
+
+```{python}
+import json, csv, io
+
+# JSON：对象 <-> 字符串
+obj = {"name": "Alice", "score": 95, "passed": True}
+s = json.dumps(obj, ensure_ascii=False)  # 转为 JSON 字符串
+print(s)
+obj2 = json.loads(s)                     # 还原为 Python 对象（字典）
+print(obj2["name"], obj2["score"])
+
+# CSV：用内存缓冲区演示写入与读取
+buffer = io.StringIO()
+writer = csv.DictWriter(buffer, fieldnames=["name", "score"])
+writer.writeheader()
+writer.writerow({"name": "Alice", "score": 95})
+writer.writerow({"name": "Bob", "score": 88})
+
+buffer.seek(0)
+reader = csv.DictReader(buffer)
+rows = list(reader)
+print(rows[0]["name"], rows[1]["score"])  # Alice 88
+```
+
+将字典写入本地 JSON 文件 → 读取 → 修改 → 覆盖写回（演示完成后清理文件，避免生成多余文件）：
+
+```{python}
+import json, os
+from pathlib import Path
+
+path = Path("example_data.json")
+
+# 初始写入：dict -> 本地 JSON 文件
+data = {"name": "Alice", "score": 95, "passed": True}
+with path.open("w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+
+# 读取：本地 JSON 文件 -> dict
+with path.open("r", encoding="utf-8") as f:
+    obj = json.load(f)
+print("读取：", obj)
+
+# 修改并写回（覆盖写入）
+obj["score"] += 3
+obj["tags"] = ["midterm", "bonus"]
+with path.open("w", encoding="utf-8") as f:
+    json.dump(obj, f, ensure_ascii=False, indent=2)
+
+# 再次读取验证
+print("修改后：", json.loads(path.read_text(encoding="utf-8")))
+
+# 可选：清理临时文件，避免生成多余文件
+try:
+    os.remove(path)
+except OSError:
+    pass
+```
+
+### 日期与时间：datetime / time / calendar
 
 用来处理日期和时间
 
@@ -166,7 +259,7 @@ import datetime
 
 # datetime.datetime.now(): 获取当前日期和时间。
 now = datetime.datetime.now()
-print(f"当前的日期是和时间是: {now}")  # 输出当前日期和时间
+print(f"当前的日期和时间是: {now}")  # 输出当前日期和时间
 
 # datetime.date.today(): 获取当前日期。
 today = datetime.date.today()
@@ -199,6 +292,54 @@ print(f"从字符串解析出日期和时间: {parsed_date}")  # 输出从字符
 2. 日期字符串只是一个字符串，则没有这个功能。
 3. 如果要对日期字符串进行时间运算，需要解析成datetime，再运算，这个过程就是上述范例从下往上的应用。
 
+此外，常用的 `time` 与 `calendar` 模块也很有用：
+
+```{python}
+import time, calendar
+
+# 计时：用于简单性能测量
+t0 = time.perf_counter()
+time.sleep(0.1)  # 休眠 0.1 秒
+elapsed = time.perf_counter() - t0
+print(f"耗时约: {elapsed:.3f} 秒")
+
+# 时间格式化（time 模块）
+print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(0)))  # 本地时区的 1970-01-01
+
+# 月历与每月天数（calendar 模块）
+print(calendar.month(2024, 1))
+print(calendar.monthrange(2024, 2))  # (该月第一天是星期几, 当月天数)
+```
+
+更多范例：
+
+```{python}
+from datetime import date, timedelta
+import datetime, calendar
+
+# 1) 计算两个日期相差多少天
+d1 = date(2024, 1, 1)
+d2 = date(2024, 3, 15)
+print(f"从 {d1} 到 {d2} 相差 {(d2 - d1).days} 天")
+
+# 2) 今天的 N 天之后是什么日期
+N = 30
+today = date.today()
+print(f"今天是 {today} ，{N} 天后是 {today + timedelta(days=N)}")
+
+# 3) 某年每个月的第三个星期四（使用 calendar.monthcalendar）
+year = 2024
+third_thursdays = []
+for month in range(1, 13):
+    cal = calendar.monthcalendar(year, month)
+    th = calendar.THURSDAY  # 星期四的索引
+    # 若第一周就有星期四，则第三个星期四在 cal[2][th]；否则在 cal[3][th]
+    day = cal[2][th] if cal[0][th] else cal[3][th]
+    third_thursdays.append(datetime.date(year, month, day))
+
+print("第三个星期四：", [d.strftime("%Y-%m-%d") for d in third_thursdays])
+```
+
 
 ## 建立你自己的模块
 
@@ -225,11 +366,11 @@ def do_double(x):
 print(do_double(2))
 ```
 
-这2个函数，显然都可以归类为计算函数，我们把中2个函数放到一个专门的文件中，例如`my_calc.py`
+这2个函数，显然都可以归类为计算函数，我们把这2个函数放到一个专门的文件中，例如`my_calc.py`
 
 你还可以保存变量，例如`my_pi = 3.14`
 
-新建一个文件`my_calc.py`，把一下内容放进去，存盘。
+新建一个文件`my_calc.py`，把以下内容放进去，存盘。
 
 **注意**： 为了方便，这里要求把`my_calc.py`文件放在你现在正在工作的`.py`的同一个目录下。
 
@@ -240,6 +381,7 @@ print(do_double(2))
 否则：很可能会出现 `ModuleNotFoundError: No module named 'my_calc'` 的错误
 
 ```{python}
+#| eval: false
 def add(x,y):
     return x + y
 
@@ -250,10 +392,11 @@ my_pi = 3.14
 ```
 
 
-在我们后续的任务中，如果要调用这2个函数，或者你自己变量`my_pi`，就可以用`·`import`
+在我们后续的任务中，如果要调用这2个函数，或者你自己定义的变量`my_pi`，就可以用 import 导入。
 
 
 ```{python}
+#| eval: false
 import my_calc
 
 print(my_calc.add(3,2))
@@ -267,13 +410,70 @@ print(my_calc.my_pi)
 
 按逻辑把你的代码分类组织，是一个好习惯。
 
+```{python}
+#| eval: false
+import my_calc as mc
+from my_calc import add, my_pi
+print(add(3, 2), my_pi)
+```
+
+小提示：
+- 避免将你的文件命名为与标准库同名（如`math.py`、`datetime.py`），否则导入时会优先导入你的文件，导致冲突。
+- 若需要在模块内放少量自测代码，可使用：
+
+```{python}
+#| eval: false
+def add(x, y):
+    return x + y
+
+if __name__ == "__main__":
+    # 仅当直接运行本文件时执行，不会在被导入时执行
+    print(add(1, 2))
+```
+
+### 导入路径与排错
+
+Python 导入模块的搜索路径由当前工作目录和 `sys.path` 决定。可用下述方法查看：
+
+```{python}
+#| eval: false
+import sys
+print(sys.path)
+```
+
+常见 `ModuleNotFoundError` 排查：
+- 确认 `.py` 文件是否在当前工作目录或已被加入到 `sys.path` 的路径中。
+- 检查文件/文件夹命名是否与标准库或已安装第三方包冲突。
+- 确认是否在正确的环境中运行（如虚拟环境/conda 环境）。
+
 
 ## 包package
 
-（略）
+包（package）是按目录组织的一组模块。一个包通常是一个包含多个 `.py` 文件的文件夹：
 
+```
+my_pkg/
+  __init__.py
+  calc.py
+  utils.py
+```
 
+`calc.py` 示例：
 
+```{python}
+#| eval: false
+def add(x, y):
+    return x + y
+```
 
+使用方式：
 
+```{python}
+#| eval: false
+from my_pkg.calc import add
+print(add(1, 2))
+```
 
+说明：
+- `__init__.py` 用于标识“普通包”，有助于明确包的边界，并可在其中暴露常用接口。
+- Python 3.3+ 也支持“命名空间包”，可不含 `__init__.py`，多个目录可被视为同一个包的不同部分；初学阶段使用普通包更直观。
