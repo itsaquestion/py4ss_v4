@@ -19,9 +19,11 @@ book:
         - book_parts/python_basics/04-data-structures.qmd
         - book_parts/python_basics/05-control-and-loops.qmd
         - book_parts/python_basics/06-function.qmd
+        - book_parts/python_basics/07-module.qmd
+    - part: "第1部分 Python基础：可选"
+      chapters:
         - book_parts/python_basics/06.5-data-structure-2.ipynb
         - book_parts/python_basics/08-useage.qmd
-        - book_parts/python_basics/07-module.qmd
         - book_parts/python_basics/09-OO.qmd
     - part: "book_parts/stats/index.ipynb"
       chapters:
