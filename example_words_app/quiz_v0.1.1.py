@@ -1,7 +1,8 @@
 """
-M1（极简版）需求：
+M1（极简版）需求（含首字母提示）：
 - 使用 example_words_app/data/cet4_sample.json
-- 随机抽取一个词：先显示中文释义，等待输入英文；判断对错；错则显示正确答案。
+- 随机抽取一个词：先显示中文释义，再显示首字母+下划线提示（下划线数=单词长度-1）；
+  等待输入英文；判断对错；错则显示正确答案。
 - 循环进行；输入 q 退出。
 """
 
@@ -18,24 +19,33 @@ data_path = 'data/cet4_sample.json'
 with open(data_path, "r", encoding="utf-8") as f:
     pairs = json.load(f)
 
-# pairs是一个list of dict，可以检查属性
-# print(type(pairs))
-# print(type(pairs[0]))
-
 print("背单词小程序：输入英文（q 退出）")
 
 while True:
-    # 2) random 模块随机抽取一个 tuple
+    # 2) random 模块随机抽取一个词
     pair = random.choice(pairs)
     word = pair['word']
     definition = pair['definition']
 
+    # 显示中文释义
     print("\n释义：", definition)
+
+    # 新增：显示首字母 + 下划线提示（下划线数量 = 单词长度 - 1）
+    # 例如：apple -> a _ _ _ _
+    if len(word) >= 1:
+        first_letter = word[0]
+        underscores = " ".join("_" for _ in range(len(word) - 1))
+        hint = f"{first_letter} {underscores}" if underscores else first_letter
+        print("提示：", hint)
+
+    # 读取用户输入
     user = input("请输入英文单词：").strip()
     if user.lower() == "q":
         print("已退出。")
         break
+
     if user.strip() == word.strip():
         print("正确！")
     else:
         print("不对。正确答案：", word)
+
