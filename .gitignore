@@ -355,3 +355,5 @@ cython_debug/
 #.idea/
 /.quarto/
 .Rproj.user
+
+**/*.quarto_ipynb

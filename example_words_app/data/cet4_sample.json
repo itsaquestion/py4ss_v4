@@ -1,54 +1,80 @@
 [
   {
     "word": "agree",
-    "definition": "vi.同意；持相同意见"
+    "definition": "vi.同意；持相同意见",
+    "seen": 7,
+    "correct": 3
   },
   {
     "word": "allow",
-    "definition": " vt.允许，准许；任"
+    "definition": " vt.允许，准许；任",
+    "seen": 3,
+    "correct": 3
   },
   {
     "word": "appear",
-    "definition": " vi.出现；来到；似乎"
+    "definition": " vi.出现；来到；似乎",
+    "seen": 5,
+    "correct": 3
   },
   {
     "word": "believe",
-    "definition": "vt.相信；认为"
+    "definition": "vt.相信；认为",
+    "seen": 3,
+    "correct": 3
   },
   {
     "word": "borrow",
-    "definition": "vt.借，借用，借人"
+    "definition": "vt.借，借用，借人",
+    "seen": 2,
+    "correct": 2
   },
   {
     "word": "choose",
-    "definition": "vt.选择，挑选；情愿"
+    "definition": "vt.选择，挑选；情愿",
+    "seen": 3,
+    "correct": 3
   },
   {
     "word": "compare",
-    "definition": " vt.比较，对照；比作"
+    "definition": " vt.比较，对照；比作",
+    "seen": 2,
+    "correct": 2
   },
   {
     "word": "continue",
-    "definition": "vt.继续，连续；延伸"
+    "definition": "vt.继续，连续；延伸",
+    "seen": 3,
+    "correct": 3
   },
   {
     "word": "decide",
-    "definition": "vt.决定，决心；解决"
+    "definition": "vt.决定，决心；解决",
+    "seen": 3,
+    "correct": 2
   },
   {
     "word": "prefer",
-    "definition": "vt.宁可，宁愿"
+    "definition": "vt.宁可，宁愿",
+    "seen": 3,
+    "correct": 3
   },
   {
     "word": "probably",
-    "definition": "ad.或许，大概"
+    "definition": "ad.或许，大概",
+    "seen": 3,
+    "correct": 3
   },
   {
     "word": "remember",
-    "definition": "vt.记得，想起；记住"
+    "definition": "vt.记得，想起；记住",
+    "seen": 3,
+    "correct": 3
   },
   {
     "word": "through",
-    "definition": "prep.穿过ad.从头到尾"
+    "definition": "prep.穿过ad.从头到尾",
+    "seen": 3,
+    "correct": 3
   }
 ]

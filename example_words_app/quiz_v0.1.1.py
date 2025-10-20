@@ -34,8 +34,8 @@ while True:
     # 例如：apple -> a _ _ _ _
     if len(word) >= 1:
         first_letter = word[0]
-        underscores = " ".join("_" for _ in range(len(word) - 1))
-        hint = f"{first_letter} {underscores}" if underscores else first_letter
+        underscores = '_ ' * (len(word) - 1)
+        hint = f"{first_letter} {underscores}"
         print("提示：", hint)
 
     # 读取用户输入
