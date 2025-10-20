@@ -216,26 +216,28 @@ print(obj2["name"], obj2["scores"][0])
 import json, os
 from pathlib import Path
 
-path = Path("example_data.json")
+path  = "example_data.json"
 
 # 初始写入：dict -> 本地 JSON 文件
 data = {"name": "Alice", "score": 95, "passed": True}
-with path.open("w", encoding="utf-8") as f:
-    json.dump(data, f, ensure_ascii=False, indent=2)
+with open(path, "w", encoding="utf-8") as f:
+    json.dump(data,f, ensure_ascii=False, indent=2)
 
 # 读取：本地 JSON 文件 -> dict
-with path.open("r", encoding="utf-8") as f:
+with open(path, "r", encoding="utf-8") as f:
     obj = json.load(f)
 print("读取：", obj)
 
 # 修改并写回（覆盖写入）
 obj["score"] += 3
 obj["tags"] = ["midterm", "bonus"]
-with path.open("w", encoding="utf-8") as f:
+with open(path, "w", encoding="utf-8") as f:
     json.dump(obj, f, ensure_ascii=False, indent=2)
 
 # 再次读取验证
-print("修改后：", json.loads(path.read_text(encoding="utf-8")))
+with open(path, "r", encoding="utf-8") as f:
+    obj = json.load(f)
+print("读取：", obj)
 
 ```
 
