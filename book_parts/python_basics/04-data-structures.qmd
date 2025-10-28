@@ -756,68 +756,67 @@ print(list(dict.fromkeys(a)))  # ['a','p','l','e']，顺序按首次出现
 
 `{key1:value1, key2:value2, ... }`
 
-例如班级人数,一班50人，二班49人，三班30人。
+例如同学的个人信息：姓名、年龄、专业、绩点（GPA）等。
 
-这里使用`class_x`的字符串来做key，储存班级的人数。这个dict的作用是，可以通过班级的名称来获取班级的人数。
+我们使用这些信息的名称作为 key，对应的具体内容作为 value。这样就可以通过“键名”快速查到对应的信息。
 
 ```{python}
-
-class_size = {'class_1':50, 'class_2':49,'class_3':39}
-print(class_size)
-
+# 一个学生的个人信息
+student = {"name": "Alex", "age": 20, "major": "Economics", "gpa": 3.8}
+print(student)
 ```
 
-我们建立了一系列的映射，从字符串（本例中就是班级名称），到键值（本例中是班级人数的整型）
+这背后是一组“名称 → 值”的映射关系：
 
-`"class_1" -> 50`
+`"name" -> "Alex"`
 
-`"class_2" -> 49`
+`"age"  -> 20`
 
-`"class_3" -> 39`
+`"major"-> "Economics"`
 
-也可以用`dict()`函数，同上述例子，但整个写法变成了变量赋值的形式。
+`"gpa"  -> 3.8`
+
+也可以用 `dict()` 函数来创建，写法类似“按参数名赋值”：
 
 ```{python}
-class_size = dict(class_1=50,class_2=49,class_3=39)
-print(class_size)
+student = dict(name="Alex", age=20, major="Economics", gpa=3.8)
+print(student)
 ```
 
 ### 访问字典数据
 
-字典数据的访问，和List或者Tuple一样，都是用中括号`[]`，但提供的不是数据的索引index，而是key（键名）
+字典数据的访问，和List或者Tuple一样，都是用中括号`[]`，但提供的不是数据的索引index，而是key（键名）。
 
 ```{python}
-# 获取一班的人数：
-# 一班的key是"class_1"
-print(class_size['class_1'])
-
-# 当然3班也一样
-print(class_size['class_3'])
+# 访问姓名与专业
+print(student['name'])
+print(student['major'])
 ```
 
 修改其值也一样，直接赋值即可
 
 ```{python}
-class_size['class_3'] = 40
-print(class_size)
+# 修改绩点（GPA）
+student['gpa'] = 3.9
+print(student)
 
 ```
 
 实际上，添加键值的方法就是**直接赋值**
 
-例如，四班，key为class_4，人数为45，则：
+例如，新增一个联系方式（email）：
 
 ```{python}
-class_size['class_4'] = 45
-print(class_size)
+student['email'] = 'alex@example.com'
+print(student)
 ```
 
 同样，删除键值的函数是`del`，和删除一个变量一样。
 
-删除`'class_4'`。
+删除刚才新增的 `email`。
 ```{python}
-del class_size['class_4'] 
-print(class_size)
+del student['email']
+print(student)
 ```
 
 ### 获得所有的 key (*)
@@ -825,13 +824,13 @@ print(class_size)
 获得全部的key，使用`.keys()`方法。注意是复数，有个s。
 
 ```{python}
-print(class_size.keys())
+print(student.keys())
 ```
 
 注意，`.keys()`方法返回的不是一个List，所以我们一般还是转为List，便于进行其他操作。转换也是直接采用`list()`函数即可。
 
 ```{python}
-keys = list(class_size.keys())
+keys = list(student.keys())
 print(keys)
 ```
 
@@ -840,12 +839,12 @@ print(keys)
 获得全部的value，使用`.values()`方法。
 
 ```{python}
-print(class_size.values()) #同样是复数，有个s。
+print(student.values()) # 同样是复数，有个 s。
 ```
 
 同样，我们可以转换为List。
 ```{python}
-values = list(class_size.values())
+values = list(student.values())
 print(values)
 ```
 
@@ -854,48 +853,64 @@ print(values)
 和List一样，dict也可以用`len()`函数获得数据的长度
 
 ```{python}
-print(len(class_size))
+print(len(student))
 ```
 
 ### 更新与删除（常用方法） (*)
 
 ```{python}
-d = {'a':1, 'b':2}
-d.update({'b':20, 'c':3})   # 合并/更新
-print(d)
+# 以同一个示例 student 展示常用方法
+student = {"name": "Alex", "age": 20, "major": "Economics", "gpa": 3.8}
 
-val = d.pop('a')            # 删除并返回指定键
-print(val, d)
+# 合并/更新：更新已有字段（gpa），并新增两个字段（city, hobby）
+student.update({"gpa": 3.9, "city": "Shanghai", "hobby": "basketball"})
+print(student)
 
-key, val = d.popitem()      # 弹出并返回“最后插入”的一对
-print(key, val, d)
+# 删除并返回指定键对应的值
+val = student.pop('city')
+print(val, student)
 
-print(d.setdefault('x', 0)) # 若不存在则设置默认值并返回
-print(d)
+# 弹出并返回“最后插入”的一对（此处通常是 'hobby'）
+key, val = student.popitem()
+print(key, val, student)
+
+# 若键不存在则设置默认值并返回
+print(student.setdefault('email', 'alex@example.com'))
+print(student)
 ```
 
 ### 遍历字典 (*)
 
 ```{python}
-d = {'apple':3, 'banana':5}
-for k in d:                 # 遍历键（等同于 d.keys()）
+# 继续使用同一个示例 student 进行遍历演示
+student = {"name": "Alex", "age": 20, "major": "Economics", "gpa": 3.9, "email": "alex@example.com"}
+
+for k in student:                 # 遍历键（等同于 student.keys()）
     print(k)
 
-for k, v in d.items():      # 同时遍历键和值
+for k, v in student.items():      # 同时遍历键和值
     print(k, v)
 
-print('apple' in d)         # 成员测试检查 key 是否存在
+print('name' in student)          # 成员测试检查 key 是否存在
 ```
 
 ### 从序列构造与字典推导式 (*)
 
 ```{python}
-keys = ['A','B','C']
-vals = [10, 20, 30]
-print(dict(zip(keys, vals)))
+# 从两个序列构造一个学生信息字典
+fields = ['name', 'age', 'major', 'gpa']
+values = ['Alex', 20, 'Economics', 3.8]
+student = dict(zip(fields, values))
+print(student)
 
-# 推导式：构造平方表
-print({k: v*v for k, v in zip(keys, vals)})
+# 字典推导式：基于 student 构造派生信息
+# 例1：值的字符串长度（数字也先转为字符串）
+lengths = {k: len(str(v)) for k, v in student.items()}
+print(lengths)
+
+# 例2：仅保留数值型信息，并做简单变换（如 GPA 四舍五入到 1 位）
+numeric_info = {k: round(v, 1) for k, v in student.items() if isinstance(v, (int, float))}
+print(numeric_info)
 ```
 
 ### 别名与拷贝
@@ -911,12 +926,12 @@ print({k: v*v for k, v in zip(keys, vals)})
 
 ```{python} 
 #|eval: false
-class_size['class_9']
+student['nickname']
 ```
 
-key错误：即找不到'class_9'这key
+key错误：即找不到 'nickname' 这个 key
 ```
-KeyError: 'class_9'
+KeyError: 'nickname'
 ```
 
 但是，某些时候，我们想，如果key不存在，则返回一个默认值，而不要因为报错而中断程序。
@@ -924,17 +939,17 @@ KeyError: 'class_9'
 这个时候可以使用`.get()`方法：如果key存在，则返回对应的value。如果不存在，则返回我们前面说过的`None`。
 
 ```{python}
-print(class_size.get('class_1')) # 获取一个存在的key
-print(class_size.get('class_9')) # 获取一个不存在的key
+print(student.get('name'))      # 获取一个存在的 key
+print(student.get('nickname'))  # 获取一个不存在的 key
 
 ```
 
-对于可能不存在的key，我们也可以使用自己指定的值。具体到本例，班级人数不可能是0，所以我们可以考虑用`0`来表示这个key（班级名称）不存在，或者你打错字了。
+对于可能不存在的 key，我们也可以提供一个更合适的默认值。例如“没有设置昵称”时返回 `"N/A"`。
 
-`.get()`这个方法的第二个参数，则是找不到key的时候的默认值。
+`.get()` 这个方法的第二个参数，是找不到 key 时使用的默认值。
 
 ```{python}
-print(class_size.get('class_9', 0)) 
+print(student.get('nickname', 'N/A')) 
 ```
 
 ### key是否存在
@@ -942,8 +957,8 @@ print(class_size.get('class_9', 0))
 判断一个key是否存在， 也是用`in`。
 
 ```{python}
-print('class_1' in class_size) # class_1是存在的
-print('class_9' in class_size) # class_9是不存在的
+print('name' in student)      # 'name' 是存在的
+print('nickname' in student)  # 'nickname' 是不存在的
 ```
 
 
@@ -952,20 +967,20 @@ print('class_9' in class_size) # class_9是不存在的
 dict也可以视为一个类List的数据结构：其中每一个元素，是一个（键-值）对，即`(key, value)`的元组。
 
 ```{python}
-class_size = {'class_1':50, 'class_2':49,'class_3':39}
-print(class_size)
+student = {'name': 'Alex', 'age': 20, 'major': 'Economics'}
+print(student)
 ```
 
 可以使用`.items()`这个方法，获取一个dict的所有`(key, value)`对。
 
 ```{python}
-print(class_size.items())
+print(student.items())
 ```
 
 当然，我们也可以转为一个真正的List用`list()`函数
 
 ```{python}
-all_items = list(class_size.items())
+all_items = list(student.items())
 print(all_items)
 ```
 
@@ -981,7 +996,7 @@ print(all_items)
 print(all_items[0])
 ```
 
-易见，这就是一个（一班的名称, 一班的人数）组成的元组。
+易见，这就是一个（键名, 值）组成的元组，例如（'name', 'Alex'）。
 
 
 ### Dict小练习
