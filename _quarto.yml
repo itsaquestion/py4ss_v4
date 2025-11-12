@@ -55,6 +55,7 @@ book:
         - book_parts/case_study/33-technical_analysis.ipynb
         - book_parts/case_study/rolling_test.ipynb
         - book_parts/case_study/35-association_rule.ipynb
+        - book_parts/case_study/36-factor_model.ipynb
 #bibliography: references.bib
 
 format:
