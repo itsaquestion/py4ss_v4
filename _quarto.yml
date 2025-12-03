@@ -50,12 +50,15 @@ book:
     - part: "第5部分 案例（金融方向）"
       chapters:
         - book_parts/case_study/31-data_source.ipynb
-        - book_parts/case_study/32-basic_examples.ipynb
+        - book_parts/case_study/36-factor_model.ipynb
         - book_parts/case_study/34-portfolio.ipynb
+    - part: "修改中"
+      chapters:
+        - book_parts/case_study/32-basic_examples.ipynb
         - book_parts/case_study/33-technical_analysis.ipynb
         - book_parts/case_study/rolling_test.ipynb
         - book_parts/case_study/35-association_rule.ipynb
-        - book_parts/case_study/36-factor_model.ipynb
+        
 #bibliography: references.bib
 
 format:
