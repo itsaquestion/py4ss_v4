@@ -1152,6 +1152,7 @@ bond_zh_us_rate_df['中国国债收益率10年']
     Name: 中国国债收益率10年, Length: 1582, dtype: float64
 
 
+
 这里把 10 年期中国国债收益率视作本币无风险利率的近似值，只是为了示范如何从日度利率构造月度无风险收益率。实际研究中，可以根据问题选择短期国债收益率、回购利率等更合适的无风险利率代理。
 
 注意到，这个序列是“每天的年化收益率 * 100”，我们要获得月度收益率，如何做呢？
@@ -1402,6 +1403,20 @@ beta  = params[[name for name in params.index if name != 'const'][0]]
 
 print('回归线是：')
 display(Math(r"$R_{it}^e = " + f"{alpha:.3f}" + " + " + f"{beta:.3f}" + "R_{Mt}^e$"))
+
+# 绘制 CAPM：股票超额收益 vs 市场超额收益 的散点图和回归线
+capm_df = pd.concat([index_ret, stock_ret], axis=1).dropna()
+capm_df.columns = ['market_excess', 'stock_excess']
+
+plt.figure(figsize=(6, 4))
+sns.regplot(x='market_excess', y='stock_excess', data=capm_df,
+            line_kws={'color': 'red'})
+plt.axhline(0, color='grey', linewidth=0.8)
+plt.axvline(0, color='grey', linewidth=0.8)
+plt.xlabel('市场超额收益')
+plt.ylabel('股票超额收益')
+plt.title('CAPM：股票超额收益 vs 市场超额收益')
+plt.tight_layout()
 ```
 
     回归线是：
@@ -1414,7 +1429,9 @@ $\displaystyle R_{it}^e = 0.025 + 1.452R_{Mt}^e$
 ## 简单解读
 
 1. 常数项（Alpha）：控制了市场因子后（控制了大盘涨跌的“带动”），这只股票的月度超额收益估计值约为 2.5%（0.025），在 Newey–West 标准误下显著大于 0。
+
 2. 市场因子（Beta）：市场组合每增加 1 单位超额收益，这只股票平均增加约 1.45 单位超额收益，是一只对市场涨跌相对更敏感的股票。需要注意，Beta 描述的是相对大盘的系统性风险，不等同于总波动率。
+
 
 ## Fama-French 3因子模型
 
@@ -2367,6 +2384,30 @@ X.head() # 注意，多了一列const
 model = sm.OLS(y, X)
 results = model.fit(cov_type='HAC', cov_kwds={'maxlags': 4})
 print(results.summary())
+
+# 绘制 FF3：三因子（月度）收益率时间序列
+ff3_plot_df = ff3_df[['market return', 'SMB', 'HML']].rename(
+    columns={'market return': 'MKT-RF'}
+).dropna()
+
+fig, axes = plt.subplots(3, 1, figsize=(7, 6), sharex=True)
+for ax, col in zip(axes, ff3_plot_df.columns):
+    sns.lineplot(x=ff3_plot_df.index, y=ff3_plot_df[col], ax=ax)
+    ax.axhline(0, color='grey', linewidth=0.8)
+    ax.set_ylabel(col)
+axes[0].set_title('FF3 因子（月度收益率）')
+plt.tight_layout()
+
+# 绘制 FF3：因子载荷条形图
+betas = results.params[['market return', 'SMB', 'HML']].copy()
+betas.index = ['MKT-RF', 'SMB', 'HML']
+
+plt.figure(figsize=(6, 4))
+sns.barplot(x=betas.index, y=betas.values)
+plt.axhline(0, color='grey', linewidth=0.8)
+plt.ylabel('因子载荷（β）')
+plt.title('FF3 模型下的因子暴露')
+plt.tight_layout()
 ```
 
                                 OLS Regression Results                            
@@ -2455,3 +2496,6 @@ $$
 * (BR,BW)：Big + Robust / Weak 盈利组合
 * (SC,SA)：Small + Conservative / Aggressive 投资组合
 * (BC,BA)：Big + Conservative / Aggressive 投资组合
+
+
+
