@@ -1,5 +1,12 @@
 # CAPM和因子模型
 
+## 本节涉及的知识
+
+- 金融与资产定价：超额收益、无风险利率、市场组合；CAPM 模型中的 $\alpha$、$\beta$ 及其经济含义；Fama–French 3 因子（MKT-RF、SMB、HML）的构造思路与“风格画像”（大盘/小盘、价值/成长）。
+- 数据与时间序列处理：使用 akshare 获取股票、指数和国债收益率数据；利用 pandas 进行日期索引、按日期切片、日度价格转月度价格（`resample('ME').last()`）、由价格计算收益率（`pct_change()`），以及多序列按日期对齐与合并。
+- 统计与回归：用 `statsmodels` 进行 OLS 回归，选择因变量和解释变量、添加常数项，解读回归输出中的系数、t/z 统计量、p 值和 $R^2$；使用 Newey–West（HAC）稳健标准误处理时间序列中的自相关与异方差；理解拟合值与残差的含义。
+- 可视化与解读：使用 seaborn / matplotlib 绘制时间序列折线图、散点图配合回归线、直方图与核密度曲线、因子载荷条形图和相关系数热图；通过图形比较 CAPM 与 FF3 在拟合优度和 Alpha 上的差异，直观理解“收益从哪里来”。
+
 ## 因子模型简介
 
 在实务里，因子模型首先用于**业绩归因**：把一只股票、一个组合或一只基金在某一段时间的**超额收益**，分解成几部分——一部分来自**广泛而稳定地影响许多资产的共同影响因素**（如“大盘整体涨跌”“小盘风格相对大盘”“价值相对成长”等），另一部分是该资产或该管理人特有的成分（策略选择、择时或纯噪声）。  
@@ -766,11 +773,11 @@ stock_close.pct_change().tail() # 计算回报率（今天/昨天-1）
 
 
     date
-    2025-11-27   -0.004345
     2025-11-28    0.005388
     2025-12-01    0.026179
     2025-12-02   -0.007546
     2025-12-03   -0.010524
+    2025-12-04    0.019331
     Name: close, dtype: float64
 
 
@@ -797,7 +804,7 @@ stock_close_m
     2025-09-30    402.00
     2025-10-31    388.77
     2025-11-30    373.20
-    2025-12-31    376.08
+    2025-12-31    383.35
     Freq: ME, Name: close, Length: 72, dtype: float64
 
 
@@ -816,7 +823,7 @@ stock_ret_m.tail()
     2025-09-30    0.312953
     2025-10-31   -0.032910
     2025-11-30   -0.040049
-    2025-12-31    0.007717
+    2025-12-31    0.027197
     Freq: ME, Name: close, dtype: float64
 
 
@@ -1372,7 +1379,7 @@ print(results.summary())
     Model:                            OLS   Adj. R-squared:                  0.378
     Method:                 Least Squares   F-statistic:                     85.06
     Date:                Thu, 04 Dec 2025   Prob (F-statistic):           1.17e-13
-    Time:                        16:21:47   Log-Likelihood:                 63.802
+    Time:                        17:11:44   Log-Likelihood:                 63.802
     No. Observations:                  71   AIC:                            -123.6
     Df Residuals:                      69   BIC:                            -119.1
     Df Model:                           1                                         
@@ -1405,6 +1412,18 @@ beta  = params[[name for name in params.index if name != 'const'][0]]
 print('回归线是：')
 display(Math(r"$R_{it}^e = " + f"{alpha:.3f}" + " + " + f"{beta:.3f}" + "R_{Mt}^e$"))
 
+```
+
+    回归线是：
+
+
+
+$\displaystyle R_{it}^e = 0.030 + 0.978R_{Mt}^e$
+
+
+
+```python
+
 # 绘制 CAPM：股票超额收益 vs 市场超额收益 的散点图和回归线
 capm_df = pd.concat([index_ret, stock_ret], axis=1).dropna()
 capm_df.columns = ['market_excess', 'stock_excess']
@@ -1419,6 +1438,23 @@ plt.ylabel('股票超额收益')
 plt.title('CAPM：股票超额收益 vs 市场超额收益')
 plt.tight_layout()
 
+```
+
+
+    
+![svg](36-factor_model_files/36-factor_model_38_0.svg)
+    
+
+
+从图上看：
+
+1. 回归线在纵轴上并不经过原点，而是在市场超额收益为 0 时有一个正的截距（约 0.025），对应 CAPM 中的 Alpha：即使市场只是获得无风险利率，这只股票在样本期内仍有约 2.5% 的月度超额收益。
+
+2. 散点围绕回归线有明显离散，说明除了市场因子以外，还有不少无法用大盘解释的波动，这部分在 CAPM 中就体现为残差，后续引入更多因子（如 SMB、HML）可以尝试进一步解释这些残差。
+
+
+```python
+
 # CAPM：股票与市场超额收益的时间序列
 capm_ts_df = pd.concat([index_ret, stock_ret], axis=1).dropna()
 capm_ts_df.columns = ['市场超额收益', '股票超额收益']
@@ -1431,6 +1467,17 @@ plt.xlabel('日期')
 plt.title('CAPM：股票与市场超额收益（月度）')
 plt.tight_layout()
 
+```
+
+
+    
+![svg](36-factor_model_files/36-factor_model_40_0.svg)
+    
+
+
+
+```python
+
 # CAPM：残差的时间序列与分布
 capm_resid = results.resid
 
@@ -1438,6 +1485,7 @@ fig, axes = plt.subplots(2, 1, figsize=(7, 5))
 sns.lineplot(x=capm_resid.index, y=capm_resid.values, ax=axes[0])
 axes[0].axhline(0, color='grey', linewidth=0.8)
 axes[0].set_ylabel('残差')
+axes[0].set_xlabel('')
 axes[0].set_title('CAPM：残差时间序列')
 
 sns.histplot(capm_resid, kde=True, ax=axes[1])
@@ -1447,24 +1495,11 @@ axes[1].set_title('CAPM：残差分布')
 plt.tight_layout()
 ```
 
-    回归线是：
-
-
-
-$\displaystyle R_{it}^e = 0.025 + 1.452R_{Mt}^e$
-
-
 
     
-![svg](36-factor_model_files/36-factor_model_37_2.svg)
+![svg](36-factor_model_files/36-factor_model_41_0.svg)
     
 
-
-从图上看：
-
-1. 回归线在纵轴上并不经过原点，而是在市场超额收益为 0 时有一个正的截距（约 0.025），对应 CAPM 中的 Alpha：即使市场只是获得无风险利率，这只股票在样本期内仍有约 2.5% 的月度超额收益。
-
-2. 散点围绕回归线有明显离散，说明除了市场因子以外，还有不少无法用大盘解释的波动，这部分在 CAPM 中就体现为残差，后续引入更多因子（如 SMB、HML）可以尝试进一步解释这些残差。
 
 ## 简单解读
 
@@ -2434,7 +2469,7 @@ print(results.summary())
     Model:                            OLS   Adj. R-squared:                  0.532
     Method:                 Least Squares   F-statistic:                     24.86
     Date:                Thu, 04 Dec 2025   Prob (F-statistic):           6.34e-11
-    Time:                        16:23:24   Log-Likelihood:                 74.942
+    Time:                        17:11:45   Log-Likelihood:                 74.942
     No. Observations:                  71   AIC:                            -141.9
     Df Residuals:                      67   BIC:                            -132.8
     Df Model:                           3                                         
@@ -2474,54 +2509,11 @@ axes[0].set_title('FF3 因子（月度收益率）')
 plt.xlabel('')
 plt.tight_layout()
 
-# FF3 因子相关系数热图
-plt.figure(figsize=(4, 3))
-corr = ff3_plot_df.corr()
-sns.heatmap(corr, annot=True, vmin=-1, vmax=1, center=0,
-            cmap='coolwarm', fmt='.2f')
-plt.title('FF3 因子相关系数')
-plt.tight_layout()
-
-# FF3：实际超额收益 vs 模型预测值
-ff3_actual = y
-ff3_fitted = results.fittedvalues
-
-plt.figure(figsize=(6, 4))
-sns.scatterplot(x=ff3_fitted, y=ff3_actual)
-line_min = min(ff3_fitted.min(), ff3_actual.min())
-line_max = max(ff3_fitted.max(), ff3_actual.max())
-plt.plot([line_min, line_max], [line_min, line_max], color='red', linewidth=1.5)
-plt.xlabel('模型预测超额收益')
-plt.ylabel('实际超额收益')
-plt.title('FF3：实际超额收益 vs 模型预测值')
-plt.tight_layout()
-
-# CAPM vs FF3：R² 与 Alpha 对比
-compare_df = pd.DataFrame({
-    'CAPM': [capm_results.rsquared, capm_results.params['const']],
-    'FF3': [ff3_results.rsquared, ff3_results.params['const']]
-}, index=['R2', 'Alpha'])
-
-plt.figure(figsize=(6, 4))
-sns.barplot(x=compare_df.columns, y=compare_df.loc['R2'].values)
-plt.ylabel('R²')
-plt.xlabel('')
-plt.title('CAPM vs FF3：拟合优度比较')
-plt.tight_layout()
-
-plt.figure(figsize=(6, 4))
-sns.barplot(x=compare_df.columns, y=compare_df.loc['Alpha'].values)
-plt.axhline(0, color='grey', linewidth=0.8)
-plt.ylabel('Alpha（截距，月度）')
-plt.xlabel('')
-plt.title('CAPM vs FF3：Alpha 比较')
-plt.tight_layout()
-
 ```
 
 
     
-![svg](36-factor_model_files/36-factor_model_57_0.svg)
+![svg](36-factor_model_files/36-factor_model_60_0.svg)
     
 
 
@@ -2541,6 +2533,93 @@ plt.tight_layout()
 
 ```python
 
+# FF3 因子相关系数热图
+plt.figure(figsize=(4, 3))
+corr = ff3_plot_df.corr()
+sns.heatmap(corr, annot=True, vmin=-1, vmax=1, center=0,
+            cmap='coolwarm', fmt='.2f')
+plt.title('FF3 因子相关系数')
+plt.tight_layout()
+
+```
+
+
+    
+![svg](36-factor_model_files/36-factor_model_62_0.svg)
+    
+
+
+
+```python
+
+# FF3：实际超额收益 vs 模型预测值
+ff3_actual = y
+ff3_fitted = results.fittedvalues
+
+plt.figure(figsize=(6, 4))
+sns.scatterplot(x=ff3_fitted, y=ff3_actual)
+line_min = min(ff3_fitted.min(), ff3_actual.min())
+line_max = max(ff3_fitted.max(), ff3_actual.max())
+plt.plot([line_min, line_max], [line_min, line_max], color='red', linewidth=1.5)
+plt.xlabel('模型预测超额收益')
+plt.ylabel('实际超额收益')
+plt.title('FF3：实际超额收益 vs 模型预测值')
+plt.tight_layout()
+
+```
+
+
+    
+![svg](36-factor_model_files/36-factor_model_63_0.svg)
+    
+
+
+
+```python
+
+# CAPM vs FF3：R² 与 Alpha 对比
+compare_df = pd.DataFrame({
+    'CAPM': [capm_results.rsquared, capm_results.params['const']],
+    'FF3': [ff3_results.rsquared, ff3_results.params['const']]
+}, index=['R2', 'Alpha'])
+
+plt.figure(figsize=(6, 4))
+sns.barplot(x=compare_df.columns, y=compare_df.loc['R2'].values)
+plt.ylabel('R^2')
+plt.xlabel('')
+plt.title('CAPM vs FF3：拟合优度比较')
+plt.tight_layout()
+
+```
+
+
+    
+![svg](36-factor_model_files/36-factor_model_64_0.svg)
+    
+
+
+
+```python
+
+plt.figure(figsize=(6, 4))
+sns.barplot(x=compare_df.columns, y=compare_df.loc['Alpha'].values)
+plt.axhline(0, color='grey', linewidth=0.8)
+plt.ylabel('Alpha（截距，月度）')
+plt.xlabel('')
+plt.title('CAPM vs FF3：Alpha 比较')
+plt.tight_layout()
+
+```
+
+
+    
+![svg](36-factor_model_files/36-factor_model_65_0.svg)
+    
+
+
+
+```python
+
 # 绘制 FF3：因子载荷条形图
 betas = results.params[['market return', 'SMB', 'HML']].copy()
 betas.index = ['MKT-RF', 'SMB', 'HML']
@@ -2556,7 +2635,7 @@ plt.tight_layout()
 
 
     
-![svg](36-factor_model_files/36-factor_model_59_0.svg)
+![svg](36-factor_model_files/36-factor_model_66_0.svg)
     
 
 
