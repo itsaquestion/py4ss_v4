@@ -1362,6 +1362,7 @@ X.head() # 注意，多了一列const
 # 创建OLS回归模型的实例并拟合数据
 model = sm.OLS(y, X)
 results = model.fit(cov_type='HAC', cov_kwds={'maxlags': 4}) # 使用滞后4期的 Newey–West 标准误
+capm_results = results  # 保存 CAPM 回归结果，便于后面对比
 print(results.summary())
 ```
 
@@ -1371,7 +1372,7 @@ print(results.summary())
     Model:                            OLS   Adj. R-squared:                  0.378
     Method:                 Least Squares   F-statistic:                     85.06
     Date:                Thu, 04 Dec 2025   Prob (F-statistic):           1.17e-13
-    Time:                        15:52:08   Log-Likelihood:                 63.802
+    Time:                        16:21:47   Log-Likelihood:                 63.802
     No. Observations:                  71   AIC:                            -123.6
     Df Residuals:                      69   BIC:                            -119.1
     Df Model:                           1                                         
@@ -1417,6 +1418,33 @@ plt.xlabel('市场超额收益')
 plt.ylabel('股票超额收益')
 plt.title('CAPM：股票超额收益 vs 市场超额收益')
 plt.tight_layout()
+
+# CAPM：股票与市场超额收益的时间序列
+capm_ts_df = pd.concat([index_ret, stock_ret], axis=1).dropna()
+capm_ts_df.columns = ['市场超额收益', '股票超额收益']
+
+plt.figure(figsize=(7, 4))
+sns.lineplot(data=capm_ts_df)
+plt.axhline(0, color='grey', linewidth=0.8)
+plt.ylabel('超额收益')
+plt.xlabel('日期')
+plt.title('CAPM：股票与市场超额收益（月度）')
+plt.tight_layout()
+
+# CAPM：残差的时间序列与分布
+capm_resid = results.resid
+
+fig, axes = plt.subplots(2, 1, figsize=(7, 5))
+sns.lineplot(x=capm_resid.index, y=capm_resid.values, ax=axes[0])
+axes[0].axhline(0, color='grey', linewidth=0.8)
+axes[0].set_ylabel('残差')
+axes[0].set_title('CAPM：残差时间序列')
+
+sns.histplot(capm_resid, kde=True, ax=axes[1])
+axes[1].axvline(0, color='grey', linewidth=0.8)
+axes[1].set_xlabel('残差')
+axes[1].set_title('CAPM：残差分布')
+plt.tight_layout()
 ```
 
     回归线是：
@@ -1425,6 +1453,18 @@ plt.tight_layout()
 
 $\displaystyle R_{it}^e = 0.025 + 1.452R_{Mt}^e$
 
+
+
+    
+![svg](36-factor_model_files/36-factor_model_37_2.svg)
+    
+
+
+从图上看：
+
+1. 回归线在纵轴上并不经过原点，而是在市场超额收益为 0 时有一个正的截距（约 0.025），对应 CAPM 中的 Alpha：即使市场只是获得无风险利率，这只股票在样本期内仍有约 2.5% 的月度超额收益。
+
+2. 散点围绕回归线有明显离散，说明除了市场因子以外，还有不少无法用大盘解释的波动，这部分在 CAPM 中就体现为残差，后续引入更多因子（如 SMB、HML）可以尝试进一步解释这些残差。
 
 ## 简单解读
 
@@ -2383,31 +2423,9 @@ X.head() # 注意，多了一列const
 # 创建OLS回归模型的实例并拟合数据
 model = sm.OLS(y, X)
 results = model.fit(cov_type='HAC', cov_kwds={'maxlags': 4})
+ff3_results = results  # 保存 FF3 回归结果
 print(results.summary())
 
-# 绘制 FF3：三因子（月度）收益率时间序列
-ff3_plot_df = ff3_df[['market return', 'SMB', 'HML']].rename(
-    columns={'market return': 'MKT-RF'}
-).dropna()
-
-fig, axes = plt.subplots(3, 1, figsize=(7, 6), sharex=True)
-for ax, col in zip(axes, ff3_plot_df.columns):
-    sns.lineplot(x=ff3_plot_df.index, y=ff3_plot_df[col], ax=ax)
-    ax.axhline(0, color='grey', linewidth=0.8)
-    ax.set_ylabel(col)
-axes[0].set_title('FF3 因子（月度收益率）')
-plt.tight_layout()
-
-# 绘制 FF3：因子载荷条形图
-betas = results.params[['market return', 'SMB', 'HML']].copy()
-betas.index = ['MKT-RF', 'SMB', 'HML']
-
-plt.figure(figsize=(6, 4))
-sns.barplot(x=betas.index, y=betas.values)
-plt.axhline(0, color='grey', linewidth=0.8)
-plt.ylabel('因子载荷（β）')
-plt.title('FF3 模型下的因子暴露')
-plt.tight_layout()
 ```
 
                                 OLS Regression Results                            
@@ -2416,7 +2434,7 @@ plt.tight_layout()
     Model:                            OLS   Adj. R-squared:                  0.532
     Method:                 Least Squares   F-statistic:                     24.86
     Date:                Thu, 04 Dec 2025   Prob (F-statistic):           6.34e-11
-    Time:                        15:52:09   Log-Likelihood:                 74.942
+    Time:                        16:23:24   Log-Likelihood:                 74.942
     No. Observations:                  71   AIC:                            -141.9
     Df Residuals:                      67   BIC:                            -132.8
     Df Model:                           3                                         
@@ -2438,6 +2456,127 @@ plt.tight_layout()
     Notes:
     [1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 4 lags and without small sample correction
 
+
+
+```python
+
+# 绘制 FF3：三因子（月度）收益率时间序列
+ff3_plot_df = ff3_df[['market return', 'SMB', 'HML']].rename(
+    columns={'market return': 'MKT-RF'}
+).dropna()
+
+fig, axes = plt.subplots(3, 1, figsize=(7, 6), sharex=True)
+for ax, col in zip(axes, ff3_plot_df.columns):
+    sns.lineplot(x=ff3_plot_df.index, y=ff3_plot_df[col], ax=ax)
+    ax.axhline(0, color='grey', linewidth=0.8)
+    ax.set_ylabel(col)
+axes[0].set_title('FF3 因子（月度收益率）')
+plt.xlabel('')
+plt.tight_layout()
+
+# FF3 因子相关系数热图
+plt.figure(figsize=(4, 3))
+corr = ff3_plot_df.corr()
+sns.heatmap(corr, annot=True, vmin=-1, vmax=1, center=0,
+            cmap='coolwarm', fmt='.2f')
+plt.title('FF3 因子相关系数')
+plt.tight_layout()
+
+# FF3：实际超额收益 vs 模型预测值
+ff3_actual = y
+ff3_fitted = results.fittedvalues
+
+plt.figure(figsize=(6, 4))
+sns.scatterplot(x=ff3_fitted, y=ff3_actual)
+line_min = min(ff3_fitted.min(), ff3_actual.min())
+line_max = max(ff3_fitted.max(), ff3_actual.max())
+plt.plot([line_min, line_max], [line_min, line_max], color='red', linewidth=1.5)
+plt.xlabel('模型预测超额收益')
+plt.ylabel('实际超额收益')
+plt.title('FF3：实际超额收益 vs 模型预测值')
+plt.tight_layout()
+
+# CAPM vs FF3：R² 与 Alpha 对比
+compare_df = pd.DataFrame({
+    'CAPM': [capm_results.rsquared, capm_results.params['const']],
+    'FF3': [ff3_results.rsquared, ff3_results.params['const']]
+}, index=['R2', 'Alpha'])
+
+plt.figure(figsize=(6, 4))
+sns.barplot(x=compare_df.columns, y=compare_df.loc['R2'].values)
+plt.ylabel('R²')
+plt.xlabel('')
+plt.title('CAPM vs FF3：拟合优度比较')
+plt.tight_layout()
+
+plt.figure(figsize=(6, 4))
+sns.barplot(x=compare_df.columns, y=compare_df.loc['Alpha'].values)
+plt.axhline(0, color='grey', linewidth=0.8)
+plt.ylabel('Alpha（截距，月度）')
+plt.xlabel('')
+plt.title('CAPM vs FF3：Alpha 比较')
+plt.tight_layout()
+
+```
+
+
+    
+![svg](36-factor_model_files/36-factor_model_57_0.svg)
+    
+
+
+这张图我们能看出：
+
+1. 三条序列总体都围绕 0 上下波动，说明在样本期内，单月因子收益有正有负，符合“风险溢价在长期体现、短期高波动”的特征。
+2. MKT-RF（市场超额收益）幅度相对最大，偶尔出现 10%–20% 的大正或大负值，反映市场本身就是最主要的系统性风险来源。
+3. SMB 的振幅中等，多数月份在 ±5% 附近，少数月份有 10% 左右的正向冲击，表示“小盘 − 大盘”的表现差异通常不如整体市场那样剧烈。
+4. HML 同样围绕 0 波动，有些月份出现明显正、负跳动，说明“价值 − 成长”的风格差在某些阶段会非常突出，在某些阶段则很弱。
+
+这张图总体给出的信息是：
+
+- 因子本身是高波动的收益序列；
+- 各因子的波动水平不同，市场因子最大，风格因子次之；
+- 某些时间点三个因子会一起出现较大波动，这也会传导到任何对这些因子有暴露的资产上。
+
+
+```python
+
+# 绘制 FF3：因子载荷条形图
+betas = results.params[['market return', 'SMB', 'HML']].copy()
+betas.index = ['MKT-RF', 'SMB', 'HML']
+
+plt.figure(figsize=(6, 4))
+sns.barplot(x=betas.index, y=betas.values)
+plt.axhline(0, color='grey', linewidth=0.8)
+plt.ylabel('因子载荷（β）')
+plt.xlabel('')
+plt.title('FF3 模型下的因子暴露')
+plt.tight_layout()
+```
+
+
+    
+![svg](36-factor_model_files/36-factor_model_59_0.svg)
+    
+
+
+从图中我们能看出：
+
+1. MKT-RF 的柱子接近 1，说明在 FF3 模型下，这只股票对市场组合的系统性暴露大致等于“标准一只股票”，与市场同步性很高。
+2. SMB 的柱子为明显负值，说明在“SMB = 小盘 − 大盘”这个因子上，这只股票更接近大盘股风格：
+    - 当“小盘跑赢大盘”（SMB 为正）时，这只股票相对受压制；
+    - 当“大盘跑赢小盘”（SMB 为负）时，这只股票相对受益。
+3. ML 的柱子同样为明显负值，说明在“价值 − 成长”这个维度上，该股票偏向成长风格：
+    - 当价值股跑赢成长股（HML 为正）时，这只股票相对拖累；
+    - 当成长股跑赢价值股（HML 为负）时，这只股票相对受益。
+4. 三个柱子合在一起形成了这只股票的“风格画像”：
+    - 市场 Beta ≈ 1：整体跟大盘走；
+    - SMB < 0：偏大盘；
+    - HML < 0：偏成长。
+
+5. 结合前一张图的因子收益序列，我们可以进一步理解：
+    - 未来如果出现“小盘明显跑赢大盘”或“价值股明显跑赢成长股”的阶段，这只股票大概率会相对吃亏；
+    - 如果是“成长股领涨、大盘股占优”的阶段，这只股票可能表现得相对更好。
 
 ## 简单解读
 
