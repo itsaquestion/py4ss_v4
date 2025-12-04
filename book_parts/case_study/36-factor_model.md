@@ -53,7 +53,7 @@ $$
 * $HML_t$（High Minus Low）：**高账面市值比 − 低账面市值比** 的多空组合回报；$\beta_{i,HML}$ 是对“价值相对成长”差额的斜率。  
 * 直观解读：若 $\beta_{i,SMB}>0$，该资产更像“小盘风格”；若 $\beta_{i,HML}<0$，该资产更偏“成长风格”。
 
-### FF5：再加入“盈利能力”与“投资”两个维度
+### FF5：再加入“盈利能力”与“投资”
 
 **思想**：许多样本提示，**高盈利**公司往往有更高回报，而**低投资（更保守地扩张资产）**的公司在风险调整后回报更高。于是，在 FF3 的基础上加入两个因子。  
 **回归形式**：
@@ -78,7 +78,7 @@ $$
 为便于对比与评分，建议采用如下统一做法：
 
 1. **频率与口径**：使用月度总回报（含分红再投），所有序列按**月末**对齐；无风险利率与之同频。  
-2. **回归**：以 OLS 估计各模型（CAPM、FF3、FF5），并使用固定滞后的 Newey–West 标准误（如滞后 $3$）。  
+2. **回归**：以 OLS 估计各模型（CAPM、FF3、FF5），并使用固定滞后的 Newey–West 标准误（如滞后 $4$）,以处理时间序列同时出现自相关和异方差问题。  
 3. **报告与图表**：
    * 报告 $\alpha$、各 $\beta$ 与 $R^2$；比较 CAPM 与 FF3/FF5 的 $R^2$ 是否上升、$\alpha$ 是否下降。  
    * 绘制 $\beta$ 的条形对比图或滚动窗口折线，以观察风格暴露是否随时间漂移。  
@@ -940,11 +940,11 @@ csi_all_share_close.tail()
 
 
     日期
-    2025-11-26    5690.08
     2025-11-27    5690.01
     2025-11-28    5732.77
     2025-12-01    5787.18
     2025-12-02    5750.40
+    2025-12-03    5710.58
     Name: 收盘, dtype: float64
 
 
@@ -1030,8 +1030,8 @@ result_df.tail()
     </tr>
     <tr>
       <th>2025-12-31</th>
-      <td>0.003075</td>
-      <td>0.018435</td>
+      <td>-0.003871</td>
+      <td>0.007717</td>
     </tr>
   </tbody>
 </table>
@@ -1144,14 +1144,15 @@ bond_zh_us_rate_df['中国国债收益率10年']
     2020-01-07    3.1379
     2020-01-08    3.1337
                    ...  
-    2025-11-26    1.8462
     2025-11-27    1.8537
     2025-11-28    1.8412
     2025-12-01    1.8366
     2025-12-02    1.8442
-    Name: 中国国债收益率10年, Length: 1581, dtype: float64
+    2025-12-03    1.8519
+    Name: 中国国债收益率10年, Length: 1582, dtype: float64
 
 
+这里把 10 年期中国国债收益率视作本币无风险利率的近似值，只是为了示范如何从日度利率构造月度无风险收益率。实际研究中，可以根据问题选择短期国债收益率、回购利率等更合适的无风险利率代理。
 
 注意到，这个序列是“每天的年化收益率 * 100”，我们要获得月度收益率，如何做呢？
 
@@ -1198,7 +1199,7 @@ rate_m.tail()
     2025-09-30    0.001161
     2025-10-31    0.000896
     2025-11-30    0.000987
-    2025-12-31    0.000100
+    2025-12-31    0.000150
     Freq: ME, Name: 中国国债收益率10年, dtype: float64
 
 
@@ -1359,7 +1360,7 @@ X.head() # 注意，多了一列const
 ```python
 # 创建OLS回归模型的实例并拟合数据
 model = sm.OLS(y, X)
-results = model.fit()
+results = model.fit(cov_type='HAC', cov_kwds={'maxlags': 4}) # 使用滞后4期的 Newey–West 标准误
 print(results.summary())
 ```
 
@@ -1367,27 +1368,27 @@ print(results.summary())
     ==============================================================================
     Dep. Variable:           stock return   R-squared:                       0.387
     Model:                            OLS   Adj. R-squared:                  0.378
-    Method:                 Least Squares   F-statistic:                     43.57
-    Date:                Wed, 03 Dec 2025   Prob (F-statistic):           6.98e-09
-    Time:                        17:31:43   Log-Likelihood:                 63.802
+    Method:                 Least Squares   F-statistic:                     85.06
+    Date:                Thu, 04 Dec 2025   Prob (F-statistic):           1.17e-13
+    Time:                        15:52:08   Log-Likelihood:                 63.802
     No. Observations:                  71   AIC:                            -123.6
     Df Residuals:                      69   BIC:                            -119.1
     Df Model:                           1                                         
-    Covariance Type:            nonrobust                                         
+    Covariance Type:                  HAC                                         
     =================================================================================
-                        coef    std err          t      P>|t|      [0.025      0.975]
+                        coef    std err          z      P>|z|      [0.025      0.975]
     ---------------------------------------------------------------------------------
-    const             0.0252      0.012      2.124      0.037       0.002       0.049
-    market return     1.4516      0.220      6.601      0.000       1.013       1.890
+    const             0.0252      0.010      2.517      0.012       0.006       0.045
+    market return     1.4520      0.157      9.223      0.000       1.143       1.761
     ==============================================================================
-    Omnibus:                       16.945   Durbin-Watson:                   2.334
+    Omnibus:                       16.946   Durbin-Watson:                   2.334
     Prob(Omnibus):                  0.000   Jarque-Bera (JB):               23.377
     Skew:                           0.971   Prob(JB):                     8.39e-06
     Kurtosis:                       5.032   Cond. No.                         18.5
     ==============================================================================
     
     Notes:
-    [1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+    [1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 4 lags and without small sample correction
 
 
 
@@ -1399,8 +1400,12 @@ params = results.params
 alpha = params.get('const', 0.0)
 beta  = params[[name for name in params.index if name != 'const'][0]]
 
+print('回归线是：')
 display(Math(r"$R_{it}^e = " + f"{alpha:.3f}" + " + " + f"{beta:.3f}" + "R_{Mt}^e$"))
 ```
+
+    回归线是：
+
 
 
 $\displaystyle R_{it}^e = 0.025 + 1.452R_{Mt}^e$
@@ -1408,13 +1413,12 @@ $\displaystyle R_{it}^e = 0.025 + 1.452R_{Mt}^e$
 
 ## 简单解读
 
-1. 常数项（Alpha）：控制了市场因子后（控制了大盘涨跌的“带动”），这只股票依然每个月能带来3%的超额收益，并且是显著的。
-
-2. 市场因子（Beta）：市场组合每增加1单位超额收益，这只股票会增加1.45单位的超额收益。从CAPM来看，是一个高beta的股票：涨得时候涨得比大盘快，或者是“进取型”“进攻型”股票。
+1. 常数项（Alpha）：控制了市场因子后（控制了大盘涨跌的“带动”），这只股票的月度超额收益估计值约为 2.5%（0.025），在 Newey–West 标准误下显著大于 0。
+2. 市场因子（Beta）：市场组合每增加 1 单位超额收益，这只股票平均增加约 1.45 单位超额收益，是一只对市场涨跌相对更敏感的股票。需要注意，Beta 描述的是相对大盘的系统性风险，不等同于总波动率。
 
 ## Fama-French 3因子模型
 
-CAPM 大致上是在表达：如果你知道了一只股票的 beta，就能知道它相对大盘的走势。等于说一只股票的风险主要来自大盘，生下的都是不可解释的随机因素。
+CAPM 大致上是在表达：如果你知道了一只股票的 beta，就能刻画它相对大盘的期望走势。模型假定资产的期望回报完全由对市场组合的暴露决定，其余部分被视为无法通过市场因子解释的残差；现实中，这部分还可能包含尚未建模的风险因子、噪声或口径差异。
 
 实际上，FF他们发现，现实中的股票收益率，和公司规模、账面市值比高度相关。显然，只和大盘比弹性（beta）不能完全解释收益。还有2个因素也很重要：
 
@@ -1979,10 +1983,10 @@ value_growth_m_ret_df.tail()
     </tr>
     <tr>
       <th>2025-12-31</th>
-      <td>-0.006048</td>
-      <td>0.008363</td>
-      <td>0.007882</td>
-      <td>0.007325</td>
+      <td>-0.012045</td>
+      <td>0.010604</td>
+      <td>0.002679</td>
+      <td>0.003614</td>
     </tr>
   </tbody>
 </table>
@@ -2090,8 +2094,8 @@ HML = ((大盘价值 - 大盘成长) + (小盘价值 - 小盘成长))/2
 
 
 ```python
-ff3_df['SMB'] = (ff3_df['1000价值'] - ff3_df['300价值']) + (ff3_df['1000成长'] - ff3_df['300成长']) / 2
-ff3_df['HML'] = (ff3_df['300价值'] - ff3_df['300成长']) + (ff3_df['1000价值'] - ff3_df['1000成长']) / 2
+ff3_df['SMB'] = ((ff3_df['1000价值'] - ff3_df['300价值']) + (ff3_df['1000成长'] - ff3_df['300成长'])) / 2
+ff3_df['HML'] = ((ff3_df['300价值'] - ff3_df['300成长']) + (ff3_df['1000价值'] - ff3_df['1000成长'])) / 2
 ff3_df.head()
 ```
 
@@ -2149,8 +2153,8 @@ ff3_df.head()
       <td>-0.024304</td>
       <td>-0.018842</td>
       <td>-0.041301</td>
-      <td>0.057814</td>
-      <td>-0.066008</td>
+      <td>0.049316</td>
+      <td>-0.054778</td>
     </tr>
     <tr>
       <th>2020-03-31</th>
@@ -2161,8 +2165,8 @@ ff3_df.head()
       <td>-0.031758</td>
       <td>-0.057734</td>
       <td>-0.066236</td>
-      <td>0.019584</td>
-      <td>0.019380</td>
+      <td>0.002345</td>
+      <td>0.023631</td>
     </tr>
     <tr>
       <th>2020-04-30</th>
@@ -2173,8 +2177,8 @@ ff3_df.head()
       <td>0.037566</td>
       <td>0.093922</td>
       <td>0.037990</td>
-      <td>-0.024052</td>
-      <td>-0.060482</td>
+      <td>-0.023840</td>
+      <td>-0.032516</td>
     </tr>
     <tr>
       <th>2020-05-31</th>
@@ -2185,8 +2189,8 @@ ff3_df.head()
       <td>-0.007981</td>
       <td>0.019426</td>
       <td>-0.029721</td>
-      <td>0.021577</td>
-      <td>-0.062688</td>
+      <td>0.010707</td>
+      <td>-0.038114</td>
     </tr>
   </tbody>
 </table>
@@ -2196,8 +2200,8 @@ ff3_df.head()
 
 
 ```python
-ff3_df['stock_ret'] = ff3_df['宁德时代'] - ff3_df['中国国债收益率10年']
-ff3_df['index_ret'] = ff3_df['中证全A'] - ff3_df['中国国债收益率10年']
+ff3_df['stock return'] = ff3_df['宁德时代'] - ff3_df['中国国债收益率10年']
+ff3_df['market return'] = ff3_df['中证全A'] - ff3_df['中国国债收益率10年']
 
 ff3_df = ff3_df.dropna()
 ff3_df.iloc[:5,:5]
@@ -2282,8 +2286,8 @@ ff3_df.iloc[:5,:5]
 ```python
 
 # 常规回归
-y = ff3_df['stock_ret']
-X = ff3_df[['index_ret','SMB','HML']]
+y = ff3_df['stock return']
+X = ff3_df[['market return','SMB','HML']]
 X = sm.add_constant(X)
 X.head() # 注意，多了一列const
 ```
@@ -2310,7 +2314,7 @@ X.head() # 注意，多了一列const
     <tr style="text-align: right;">
       <th></th>
       <th>const</th>
-      <th>index_ret</th>
+      <th>market return</th>
       <th>SMB</th>
       <th>HML</th>
     </tr>
@@ -2320,36 +2324,36 @@ X.head() # 注意，多了一列const
       <th>2020-02-29</th>
       <td>1.0</td>
       <td>-0.000633</td>
-      <td>0.057814</td>
-      <td>-0.066008</td>
+      <td>0.049316</td>
+      <td>-0.054778</td>
     </tr>
     <tr>
       <th>2020-03-31</th>
       <td>1.0</td>
       <td>-0.066291</td>
-      <td>0.019584</td>
-      <td>0.019380</td>
+      <td>0.002345</td>
+      <td>0.023631</td>
     </tr>
     <tr>
       <th>2020-04-30</th>
       <td>1.0</td>
       <td>0.051812</td>
-      <td>-0.024052</td>
-      <td>-0.060482</td>
+      <td>-0.023840</td>
+      <td>-0.032516</td>
     </tr>
     <tr>
       <th>2020-05-31</th>
       <td>1.0</td>
       <td>0.001502</td>
-      <td>0.021577</td>
-      <td>-0.062688</td>
+      <td>0.010707</td>
+      <td>-0.038114</td>
     </tr>
     <tr>
       <th>2020-06-30</th>
       <td>1.0</td>
       <td>0.078055</td>
-      <td>0.029974</td>
-      <td>-0.141905</td>
+      <td>0.019540</td>
+      <td>-0.094160</td>
     </tr>
   </tbody>
 </table>
@@ -2361,47 +2365,47 @@ X.head() # 注意，多了一列const
 ```python
 # 创建OLS回归模型的实例并拟合数据
 model = sm.OLS(y, X)
-results = model.fit()
+results = model.fit(cov_type='HAC', cov_kwds={'maxlags': 4})
 print(results.summary())
 ```
 
                                 OLS Regression Results                            
     ==============================================================================
-    Dep. Variable:              stock_ret   R-squared:                       0.558
-    Model:                            OLS   Adj. R-squared:                  0.539
-    Method:                 Least Squares   F-statistic:                     28.24
-    Date:                Wed, 03 Dec 2025   Prob (F-statistic):           6.42e-12
-    Time:                        17:31:45   Log-Likelihood:                 75.441
-    No. Observations:                  71   AIC:                            -142.9
-    Df Residuals:                      67   BIC:                            -133.8
+    Dep. Variable:           stock return   R-squared:                       0.552
+    Model:                            OLS   Adj. R-squared:                  0.532
+    Method:                 Least Squares   F-statistic:                     24.86
+    Date:                Thu, 04 Dec 2025   Prob (F-statistic):           6.34e-11
+    Time:                        15:52:09   Log-Likelihood:                 74.942
+    No. Observations:                  71   AIC:                            -141.9
+    Df Residuals:                      67   BIC:                            -132.8
     Df Model:                           3                                         
-    Covariance Type:            nonrobust                                         
+    Covariance Type:                  HAC                                         
+    =================================================================================
+                        coef    std err          z      P>|z|      [0.025      0.975]
+    ---------------------------------------------------------------------------------
+    const             0.0298      0.010      3.034      0.002       0.011       0.049
+    market return     0.9776      0.219      4.454      0.000       0.547       1.408
+    SMB              -0.7145      0.257     -2.782      0.005      -1.218      -0.211
+    HML              -1.1018      0.255     -4.314      0.000      -1.602      -0.601
     ==============================================================================
-                     coef    std err          t      P>|t|      [0.025      0.975]
-    ------------------------------------------------------------------------------
-    const          0.0296      0.010      2.878      0.005       0.009       0.050
-    index_ret      0.9179      0.235      3.905      0.000       0.449       1.387
-    SMB           -0.4254      0.185     -2.299      0.025      -0.795      -0.056
-    HML           -0.7701      0.160     -4.815      0.000      -1.089      -0.451
-    ==============================================================================
-    Omnibus:                        5.465   Durbin-Watson:                   2.330
-    Prob(Omnibus):                  0.065   Jarque-Bera (JB):                4.930
-    Skew:                           0.639   Prob(JB):                       0.0850
-    Kurtosis:                       3.175   Cond. No.                         25.2
+    Omnibus:                        6.247   Durbin-Watson:                   2.331
+    Prob(Omnibus):                  0.044   Jarque-Bera (JB):                5.635
+    Skew:                           0.674   Prob(JB):                       0.0598
+    Kurtosis:                       3.292   Cond. No.                         28.5
     ==============================================================================
     
     Notes:
-    [1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+    [1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 4 lags and without small sample correction
 
 
 ## 简单解读
 
-1. const：常数项（Alpha），这只股票在考虑其他因素后，依然有显著的超额收益，可能来自自行业（新能源/动力电池）、技术领先、政策预期等未被三因子捕捉的东西。
-2. index_ret：市场因子（Beta），在考虑其他因素后，这只股票的Beta略小于1，这是一只波动率小于市场平均水平的股票。
-3. SMB：市值因子：小于0且显著，在考虑其他因素后，这只股票偏向大盘股风格。
-4. HML：价值因子：小于0且显著，在考虑其他因素后，这只股票偏向成长股风格。
+1. const：常数项（Alpha）。在控制了市场、规模和价值三个因子之后，这只股票的月度超额收益估计值约为 3%（0.030），在 Newey–West 标准误下显著大于 0，说明模型无法完全解释其平均超额收益，可能与自身行业特征、技术优势或其他未建模因子有关。
+2. market return：市场因子（Beta）。在考虑其他因子后，这只股票的 Beta 略小于 1，说明相对于大盘的系统性风险略低于市场平均水平；总波动还同时取决于特异性部分，因此 Beta 并不等同于“总波动率”。
+3. SMB：市值因子系数小于 0 且显著，在控制其他因子后，这只股票更接近大盘股风格。
+4. HML：价值因子系数小于 0 且显著，在控制其他因子后，这只股票更偏向成长股风格。
 
-这是一只“大盘成长股”，并且有很强的Alpha（3因子模型无法解释的超额收益，每个月多涨3%），对市场相对不敏感（Beta < 1）。
+从本例的 FF3 回归结果看，R² 约为 0.55，相比只使用市场因子的 CAPM（R² 约 0.39）有明显提升，但 Alpha 并未显著下降，反而略有上升。这说明，在使用这些指数替代 SMB、HML 的粗略构造下，该股票的平均超额收益仍然难以完全归因于这三类风格因子。
 
 
 
@@ -2451,6 +2455,3 @@ $$
 * (BR,BW)：Big + Robust / Weak 盈利组合
 * (SC,SA)：Small + Conservative / Aggressive 投资组合
 * (BC,BA)：Big + Conservative / Aggressive 投资组合
-
-
-
