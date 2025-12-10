@@ -50,6 +50,7 @@ book:
     - part: "第5部分 案例（金融方向）"
       chapters:
         - book_parts/case_study/31-data_source.ipynb
+        - book_parts/case_study/37-investment_clashflow.ipynb
         - book_parts/case_study/36-factor_model.ipynb
         - book_parts/case_study/34-portfolio.ipynb
     - part: "修改中"
