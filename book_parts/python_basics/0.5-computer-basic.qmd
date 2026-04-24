@@ -35,6 +35,7 @@ SoC（System on a Chip）会把 CPU、GPU（图形处理器）、内存控制器
 苹果用于 Mac 的“M 系列”芯片也属于 SoC。它和较老的 Intel Mac 使用不同的处理器架构，因此安装 Anaconda、VS Code 等软件时，Mac 用户需要区分 M 系列和 Intel 机型。
 
 ## 程序运行时发生了什么
+![](images/hardware_workflow_analogy_v2.png){width=100%}
 
 打个比方，你要做某项工作：
 
@@ -49,7 +50,30 @@ SoC（System on a Chip）会把 CPU、GPU（图形处理器）、内存控制器
 3. 工作完毕后，把结果放回柜子里：需要保存的结果写回硬盘。
 4. 清理桌面，留出空间给下一项工作：程序结束后释放相关内存。
 
-![](images/hardware_workflow_analogy_v2.png){width=100%}
+例如：
+
+1. 读取硬盘：打开 Word 文件、打开游戏时，电脑会把程序和相关数据从硬盘读入内存。游戏启动或读档时常见的进度条，通常就和这个过程有关。
+2. 计算和处理：编辑 Word 文件时，电脑会处理你的输入、排版和显示；游戏中角色被怪物打中后扣血，也需要程序根据规则进行计算。
+3. 保存结果：Word 文件要保存，结果才会写回硬盘，之后才能交给老师；游戏也需要存档，进度才会保留下来。网游通常会把角色状态自动保存在服务器上，不需要你手动操作，只是游戏替你完成了保存。
+4. 清理内存：关闭 Word 或退出游戏后，相关程序占用的内存会被释放出来，留给其他程序使用。
+
+:::: {.columns}
+
+::: {.column width="33%"}
+![](images/cartoon_loading_99.png){width=100%}
+:::
+
+::: {.column width="33%"}
+![](images/cartoon_hp_minus_1.png){width=100%}
+:::
+
+::: {.column width="33%"}
+![](images/cartoon_saving_notice.png){width=100%}
+:::
+
+::::
+
+
 
 实际过程还会涉及操作系统和其他硬件。这里先保留最重要的理解框架：文件长期保存在硬盘，程序运行时主要使用内存，计算由 CPU 完成。
 
