@@ -49,12 +49,26 @@ VS Code 会从一个文本编辑器，成为一个集编辑、运行、调试于
 
 <span style="color:red">**注意：** </span> VS Code 打开什么文件，就会进入什么模式。如果你的VS Code 没有进入Python代码编辑模式，最大的可能是你还没有打开一个`.py`文件。如果是这样，请先完成上一小节。
 
-![](images/选择解释器.png)
+![](images/vscode_python_fix/1_2个选择解释器_disable插件.png)
 
-如果出现了黄底色的 “选择解释器” Select Interpreter 字样，是没指定解释器。等于在问：
-写好的代码交给谁来执行？可以点击状态栏中的“选择解释器”黄色按钮，进行选择。
+如果右下角出现了<span style="color:red">两个</span>黄色的 “选择解释器” 或 “Select Interpreter” 按钮，说明 VS Code 还没有指定解释器。
+这两个按钮中，有一个来自 VS Code 新版本自动安装的 `Python Environments` 插件。
+这个插件的功能不是本课程需要掌握的内容，而且会让初学者分不清应该点哪一个。
 
-点击之后，如果一切顺利， 在VS Code界面的上方，你的解释器的路径会被自动识别出来。
+本课程统一做法：禁用 `Python Environments` 插件。
+点击左侧扩展图标，找到 `Python Environments`，点击齿轮图标，选择 `Disable`。
+
+![](images/vscode_python_fix/2_点击重启扩展按钮.png)
+
+禁用后，点击 `Restart Extensions`，让扩展重启。 如果没弹`Restart Extensions`，关闭 VS Code 再重开也可以。
+
+![](images/vscode_python_fix/3_选择解释器剩下1个.png)
+
+重启后，右下角应该只剩一个黄色的 `Select Interpreter` 按钮。点击这个按钮，选择 Python 解释器。
+
+![](images/vscode_python_fix/4_点击_在上方选择解释器.png)
+
+点击之后，如果一切顺利， VS Code 界面的上方会弹出候选解释器列表。
 本课程学生端统一使用 Anaconda 默认的 `base` 环境，因此选择带有 `base`、`Conda` 或 `anaconda3` 字样的解释器即可。
 
 例如，在 Windows 上可能是`C:\Users\你的用户名\anaconda3\python.exe`。如果你一开始修改了 Anaconda 的安装路径，比如改到D盘，则可能是 `D:\anaconda3\python.exe`。
@@ -63,15 +77,13 @@ VS Code 会从一个文本编辑器，成为一个集编辑、运行、调试于
 
 如果第一次没弹出，记得点几下图中的刷新按钮 ↻。
 
-![](images/select_interpreter.png)
-
 <span style="color:red">**注意：** </span>
 
 1. 如果你在安装 Anaconda 的时候更换了安装路径，这里可能会出现**找不到 Anaconda，进而找不到 Python 解释器**的问题，见下文“排错：VS Code 执行代码出错”部分，或者找老师。
 2. 在找不到 Anaconda 的情况下，部分同学会选择让 Windows 系统安装一个 Python，**新手不推荐**。
 3. 不要选择 `miniconda`，部分同学会错误地安装了miniconda，**新手不推荐**。
 
-<span style="color:red">**注意：** </span> 任何时候如果 VS Code 找不到解释器，优先看右下角状态栏是否有黄色的“选择解释器”或 “Select Interpreter” 按钮。有的话先点击它，再在顶部弹出的菜单中选择 Anaconda 的 `base` 解释器。
+<span style="color:red">**注意：** </span> 任何时候如果 VS Code 找不到解释器，优先看右下角状态栏是否有黄色的“选择解释器”或 “Select Interpreter” 按钮。有的话先点击它，再在顶部弹出的菜单中选择 Anaconda 的 `base` 解释器。若右下角又出现两个选择解释器按钮，先按上面的步骤禁用 `Python Environments` 插件。
 
 ## 第一段代码
 
@@ -126,6 +138,8 @@ print(c)
 你会看到输出了结果`3`。
 
 运行前请先保存文件。如果修改了代码但没有保存，运行结果可能还是旧代码的结果。
+
+如果下方终端先出现红色错误，但后面仍能看到正确结果，通常不是代码错了，而是 VS Code 使用的终端不合适。处理方法见下文“运行整个Python文件报出Conda错误”。
 
 如果程序卡住，或者不再需要当前终端，可以点击垃圾桶图标🗑，关闭这个终端。
 
@@ -262,13 +276,21 @@ conda : 无法将“conda”项识别为 cmdlet、函数、脚本文件或可运
 &:无法加载文件 c:\users\*\anaconda3\shell\condabin\conda-hook.ps1，因为在此系统上禁止运行脚本。
 ```
 
-这是因为部分同学的powershell版本有点旧，或者权限不足导致无法启动conda环境（这句话你看不懂也没关系）。我们统一改为cmd即可。
+有时，终端前面虽然报了红色错误，后面仍然能看到正确结果。
+这通常不是 Python 代码写错了，而是 VS Code 当前使用的 PowerShell 不能正常执行 conda 相关命令。
+为统一课堂环境，我们把 VS Code 的默认终端改为 cmd。
+
+![](images/vscode_python_fix/5_点击运行python文件可能报错.png)
 
 1. 点击左下角齿轮图标，选择“设置”
-2. 在搜索框中输入“terminal.integrated.defaultProfile.windows”
+2. 在搜索框中输入“terminal windows”
 3. 选择“Command Prompt”
 
-![](images/use_cmd.png)
+![](images/vscode_python_fix/6_在设置中把终端设置为cmd.png)
+
+如果下方已经打开了旧终端，可以点击垃圾桶图标关闭它，再点击右上角的运行按钮。
+
+![](images/vscode_python_fix/7_再运行即正常.png)
 
 再点击“运行 Python 文件”按钮后，应该不会再报错。
 
@@ -328,25 +350,32 @@ python -m pip install -U pyzmq <回车>
 如果上述方法仍然无效，再找老师现场处理。不要自己随意降级到很旧的 pyzmq 版本，因为旧版本可能与当前 Anaconda 自带的 Python 不兼容。
 
 
-### 找不到 Anaconda
+### VS Code 找不到 Anaconda 的解释器
 
-如果不在默认的路径上安装 Anaconda，比如转移到了 D 盘，可能在选择解释器（Select Interpreter）的时候，找不到正确的 Conda 和 Python 路径。这时候需要手动设置你的 Conda 安装路径。
+如果点击 `Select Interpreter` 后，列表中没有 Anaconda 的 `base` 解释器，不要安装新的 Python，也不要选择 Windows 自动推荐的 Python。
+这里的问题通常不是 Anaconda 没装好，而是 VS Code 没有自动识别到它。
 
-在 VS Code 界面的左下角点击“管理（齿轮图标）”→“设置”，搜索“conda”，一般有三个选项：
+先在解释器列表中多点几次右上角的刷新按钮 ↻。
+如果仍然没有，选择 `Enter interpreter path...`，手动找到 Anaconda 的 `python.exe`。
 
-（注意：随着 VS Code 更新，选项也会变多，新版本可能需要你拉滚动条才能找到。）
+常见位置如下：
+
+- 默认安装：`C:\Users\你的用户名\anaconda3\python.exe`
+- 安装到 D 盘：`D:\anaconda3\python.exe`
+
+选中这个 `python.exe` 后，右下角应该显示类似 `base`、`Conda` 或 `anaconda3` 的字样。
+之后再点击右上角运行按钮。
+
+如果手动选择 `python.exe` 后仍然找不到或运行异常，再到 VS Code 设置中搜索 `conda`：
 
 ![](images/conda_path.png){width=80%}
 
+需要时可以填写：
 
-1. `Conda Path`：指向 Conda 可执行文件。例如装在 `D:\\anaconda3\\` 下，可设置为 `D:\\anaconda3\\condabin\\conda.bat`（或 `D:\\anaconda3\\Scripts\\conda.exe`）。
-2. `Default Interpreter Path`：指向具体的 Python 解释器。例如 `D:\\anaconda3\\python.exe`，或环境 `D:\\anaconda3\\envs\\<env>\\python.exe`。
+1. `Conda Path`：指向 Conda 程序。例如安装在 `D:\anaconda3` 时，可填写 `D:\anaconda3\condabin\conda.bat`，或 `D:\anaconda3\Scripts\conda.exe`。
+2. `Default Interpreter Path`：指向 Python 解释器。例如 `D:\anaconda3\python.exe`。
 
-这时候再进行前面选择解释器的过程，应该就找到 Conda 和解释器了（选择解释器的时候多点几下刷新按钮 ↻）。
-
-
-
-
+设置后重启 VS Code，再按前面的步骤选择 Anaconda 的 `base` 解释器。
 
 
 
