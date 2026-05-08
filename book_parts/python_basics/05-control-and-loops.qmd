@@ -834,7 +834,7 @@ for name, score in zip(names, scores):
     print(name, score)
 ```
 
-## 循环 vs 向量化（数据分析实务）
+## 循环 vs 向量化 (*)
 
 在数据分析场景（NumPy/Pandas）中，优先使用“向量化运算、聚合和布尔索引”，通常比 Python 层面的 `for` 循环更简洁且更快。
 
