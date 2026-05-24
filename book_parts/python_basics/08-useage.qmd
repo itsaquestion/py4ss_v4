@@ -1,8 +1,8 @@
 # 从数据结构到简单分析流程
 
-本章不是介绍新的语法，而是把前面学过的内容放在一个小任务中使用。我们会用“学生信息管理”这个例子，把字典、列表、列表推导式、函数、条件判断和字符串输出组合起来，形成一个简单的数据处理流程。
+本章把前面学过的内容放在一个小任务中使用。我们会用“学生信息管理”这个例子，把字典、列表、列表推导式、函数、条件判断和字符串输出组合起来，形成一个简单的数据处理流程。
 
-本章仍然使用基础数据结构，而不是 Pandas。这样做的目的，是让你先看清楚数据如何被组织、如何被函数处理、如何一步一步形成新的结果。后面学习 Pandas 后，同类任务会有更方便的写法，但这里的分析思路仍然适用。
+本章使用基础 Python 数据结构处理数据。这样做的目的，是让你先看清楚数据如何被组织、如何被函数处理、如何一步一步形成新的结果。后面学习 pandas 后，同类任务会有更方便的写法，这里的分析思路仍然适用。
 
 完成本章后，你应该能够：
 
@@ -13,7 +13,7 @@
 - 把简单任务拆成若干个有输入、有输出的小步骤。
 
 ::: callout-note
-本章更适合作为综合练习。阅读时不必记忆新的函数名，重点是理解如何把已有知识组织成一个完整流程。
+本章适合作为综合练习。阅读时重点看已有知识如何组织成一个完整流程。
 :::
 
 ## 数据流：如何组织你的代码
@@ -26,127 +26,130 @@
 2. 切块
 3. 榨汁
 
-如果我们把每个过程看成一个函数，大概是这样的：
+把每个过程看成一个函数，大概是这样的：
 
-```
-削了皮的苹果 = 削皮(苹果) 
-苹果块 = 切块(削了皮的苹果) 
-苹果汁 = 榨汁(苹果块) 
-```
-
-我们换一个方式可能看得更清楚一点：
-
+```python
+削了皮的苹果 = 削皮(苹果)
+苹果块 = 切块(削了皮的苹果)
+苹果汁 = 榨汁(苹果块)
 ```
 
-苹果 ─┐
-削皮(苹果) ───────┐
-        切块(削了皮的苹果) ─────┐
-                        榨汁(苹果块) ──┐ 
-                                    苹果汁
+也可以把它理解为一个数据流：
 
+```text
+苹果 -> 削皮 -> 切块 -> 榨汁 -> 苹果汁
 ```
 
-其中每一个过程，比如削皮，可能是一个函数，也可能是多行代码组成的模块。
-我们编写分析流程的整体，以及每一个模块内部，也是呈现同样的结构。
+其中每一个过程，比如削皮，可能是一个函数，也可能是多行代码组成的模块。我们编写分析流程的整体，以及每一个模块内部，也是类似结构。
 
-如果有参数呢？比如切块的时候切成5块，用榨汁的时候用3档速度：
+处理过程也可以带参数。比如切块的时候切成5块，榨汁的时候用3档速度：
 
-可以把数据流（苹果 -> 削了皮的苹果 -> 苹果块）放在第1个参数位，处理数据的参数放在第二个参数位以后：
-
-```
-苹果 ─┐
-削皮(苹果) ───────┐
-      切块(削了皮的苹果, 5块, ... ) ─────┐
-                                  榨汁(苹果块, 3档转速, ...) ──┐ 
-                                                            苹果汁
+```python
+削了皮的苹果 = 削皮(苹果)
+苹果块 = 切块(削了皮的苹果, 5)
+苹果汁 = 榨汁(苹果块, 3)
 ```
 
 因此：
 
-1. 分析的流程一般呈现一种数据流的结构：
-每一个步骤，有上游数据的流入（参数），形成新的数据（返回值），成为下游数据流入（参数）。
-2. 如果写成函数，（**推荐但非必须**）第一个参数应该是数据，处理数据的参数可以放在第二位之后。
-如果所有的函数都呈现这种结构，你就会形成一种数据流的直觉。
-3. 每个功能模块（**尽量**）写成纯函数：从参数中接受输入（不读取全局变量，避免被意外改变），
-返回新的数据（尽量但不直接改变函数体外的事物），详见前面的函数式编程。
-
+1. 分析流程一般呈现一种数据流结构：每一个步骤，有上游数据的流入，形成新的数据，成为下游步骤的输入。
+2. 写成函数时，通常可以把数据放在第一个参数，处理数据的条件放在第二位之后。
+3. 函数的作用，是把一个较大的任务拆成若干个有输入、有输出的小步骤。
 
 ## 从数据开始
 
-例如，我们要一个程序来处理班级同学的信息。每个同学起码有这几个信息：
+例如，我们要处理班级同学的信息。每个同学起码有这几个信息：
 
 1. 学号
 2. 姓名
 3. 专业
 4. 班级号
 
-表示1个同学：
+阅读数据时，我们通常希望先看到一张表：
 
-用现在所学的信息（人的属性），一般可以表示成key:value结构，所以我们可以用字典dict来表示任何一个同学。
-（方法很多，后面会学到）
+| student_id | name  | major      | class_id |
+|-----------:|:------|:-----------|---------:|
+| 2021001    | Alex  | finance    | 1        |
+| 2021002    | Bob   | finance    | 1        |
+| 2021003    | Clare | accounting | 2        |
+| 2021004    | David | marketing  | 2        |
+| 2021005    | Eva   | finance    | 1        |
+| 2021006    | Frank | accounting | 1        |
 
-这里故意先不用 Pandas，而是用基础数据结构练习一个完整的分析流程。后面学习 Pandas 后，同类任务会有更方便的写法。
+这张表给我们的直觉是：每一行是一位学生，每一列是这位学生的一个属性。
+
+在基础 Python 中，一位同学的信息可以表示成 key-value 结构，所以我们可以用字典 `dict` 来表示一位同学。
 
 ```{python}
-student_1 = {'student_id':2021001, 'name':'Alex', 'major': 'finance', 'class_id':1}
-student_2 = {'student_id':2021002, 'name':'Bob', 'major': 'finance', 'class_id':1}
-student_3 = {'student_id':2021003, 'name':'Clare', 'major': 'accounting', 'class_id':2}
-
+student_1 = {'student_id': 2021001, 'name': 'Alex', 'major': 'finance', 'class_id': 1}
+student_2 = {'student_id': 2021002, 'name': 'Bob', 'major': 'finance', 'class_id': 1}
+student_3 = {'student_id': 2021003, 'name': 'Clare', 'major': 'accounting', 'class_id': 2}
+student_4 = {'student_id': 2021004, 'name': 'David', 'major': 'marketing', 'class_id': 2}
+student_5 = {'student_id': 2021005, 'name': 'Eva', 'major': 'finance', 'class_id': 1}
+student_6 = {'student_id': 2021006, 'name': 'Frank', 'major': 'accounting', 'class_id': 1}
 
 print(student_1['student_id'])
 print(student_2['name'])
 print(student_3['major'])
 ```
 
-表示所有同学：
-
-组织一堆同类数据：List（或者另一个Dict，如果需要一个索引如学号，见作业）。
+多位同学的信息，可以用列表 `list` 保存。也就是说，外层列表保存所有学生，内层每个字典保存一位学生的信息。
 
 ```{python}
-# List版本
-
 students_info = [
-  student_1,
-  student_2,
-  student_3
+    student_1,
+    student_2,
+    student_3,
+    student_4,
+    student_5,
+    student_6
 ]
 
 print(students_info)
 ```
 
-
 ## 添加功能
 
 ### 查找
 
-按条件查找是常见功能。
+按条件查找是常见功能。例如：在数据中找一位名叫 Alex 的同学。
 
-例如：在数据中找一位名叫Alex的同学。
-
-1. 既然students_info是一个列表，那我们就用列表推导式。
+先用普通循环写：
 
 ```{python}
+result = []
 
-result = [s for s in students_info if s['name'] == "Alex"]
+for student in students_info:
+    if student['name'] == 'Alex':
+        result.append(student)
 
 print(result)
 ```
+
+同一个筛选，也可以写成列表推导式：
+
+```{python}
+result = [student for student in students_info if student['name'] == 'Alex']
+
+print(result)
+```
+
 注意：列表推导式的结果也是一个列表，即使其中只有1个元素。看打印结果的最外层，是一对中括号。
 
-那么有多少个同学叫Alex?
+那么有多少个同学叫 Alex？
 
 ```{python}
 len(result)
 ```
 
-那我们可以获得Alex的信息，例如学号和专业
+我们也可以获得 Alex 的信息，例如学号和专业：
 
 ```{python}
 print(result[0]['student_id'])
 print(result[0]['major'])
 ```
 
-按人名查找，是一个特别常用的功能，那我们把这个功能写成一个函数：
+按姓名查找是一个常用功能，可以把这个过程写成一个函数：
 
 ```{python}
 def find_students_by_name(data, name):
@@ -154,36 +157,162 @@ def find_students_by_name(data, name):
     按姓名查找同学。
 
     参数:
-        data: 保存所有同学信息的数据List[dict]
-        name: 目标的姓名
+        data: 保存所有同学信息的数据 List[dict]
+        name: 目标姓名
     返回值:
-        return: 返回同名同学的List。如果找不到则返回[]。
+        return: 返回同名同学的列表。如果找不到则返回 []。
     """
-    result = [s for s in data if s['name'] == name]
+    result = [student for student in data if student['name'] == name]
     return result
 
-result = find_students_by_name(students_info,"Alex")
+result = find_students_by_name(students_info, 'Alex')
 print(result)
 ```
 
-为什么要把一个过程写成一个函数？
+为什么要把一个过程写成函数？
 
 1. 常用逻辑封装成函数，可以减少重复代码。
-2. 函数名、参数和返回值能说明一段代码的用途。调用函数时，读者可以先关注“这个函数做什么”，不必立即阅读函数内部的每一行代码。
+2. 函数名、参数和返回值能说明一段代码的用途。调用函数时，读者可以先关注“这个函数做什么”，再根据需要阅读函数内部的代码。
 
-### 练习：按学号查找
+按学号查找也很常见。学号通常是唯一的，因此可以返回一位学生对应的字典。这个功能会在综合练习中完成。
 
-1. 按学号查找，但学号是唯一的，因此逻辑上只能有一个数据。
-2. 因此，获得的数据之后，不返回列表，只返回代表学生的dict。
-3. 如果学号有重复，打印一个警告信息：“学号有重复！请检查！”
+### 筛选
+
+查找通常关注某一个目标。筛选通常得到一组符合条件的记录。
+
+例如，我们想找出所有金融专业的同学。
+
+先用普通循环写：
+
+```{python}
+finance_students = []
+
+for student in students_info:
+    if student['major'] == 'finance':
+        finance_students.append(student)
+
+print(finance_students)
+```
+
+同一个筛选，也可以写成列表推导式：
+
+```{python}
+finance_students = [
+    student for student in students_info
+    if student['major'] == 'finance'
+]
+
+print(finance_students)
+```
+
+按专业筛选也是一个常用功能，可以写成函数：
+
+```{python}
+def find_students_by_major(data, major):
+    '''
+    按专业查找同学。
+    '''
+    result = [
+        student for student in data
+        if student['major'] == major
+    ]
+    return result
+
+print(find_students_by_major(students_info, 'accounting'))
+```
+
+### 简单统计
+
+现在我们想统计金融专业有多少人。
+
+思路是：
+
+1. 先筛选出金融专业的同学。
+2. 再计算筛选结果的长度。
+
+```{python}
+finance_students = find_students_by_major(students_info, 'finance')
+len(finance_students)
+```
+
+计数也可以写成函数：
+
+```{python}
+def count_by_major(data, major):
+    '''
+    计算某个专业的同学人数。
+    '''
+    class_size = len(find_students_by_major(data, major))
+    return class_size
+
+print('金融专业人数:', count_by_major(students_info, 'finance'))
+print('会计专业人数:', count_by_major(students_info, 'accounting'))
+print('营销专业人数:', count_by_major(students_info, 'marketing'))
+```
+
+### 添加或修改信息
+
+现在老师拿到了 Alex 的 Python 课成绩，希望把这个分数记录到学生信息中。
+
+先找到 Alex：
+
+```{python}
+alex = find_students_by_name(students_info, 'Alex')[0]
+print(alex)
+```
+
+一位学生的信息保存在字典里。给字典的某个 key 赋值，就可以添加或修改字段：
+
+```{python}
+alex['python_score'] = 86
+print(alex)
+```
+
+`python_score` 原来不存在，这次赋值会增加一个新字段。如果这个 key 已经存在，同样的写法会修改原来的值。
+
+按学号设置分数也是一个常用功能，可以提炼成函数。这个功能会在综合练习中完成。
+
+小结：
+
+1. “一位同学”的信息可以用字典 `dict` 表示：可以用 `student_id`、`name` 等标签获取信息。
+2. “所有同学”的信息可以用列表 `list` 保存：列表中的每个元素是一位同学的字典。
+3. 常见操作通常来自具体需求，比如按姓名查找、按专业统计、按学号记录成绩。
+4. 常用操作可以写成函数，既便于重复使用，也能通过函数名说明操作意图。
+5. 添加字段和修改字段都可以通过字典赋值完成。
+
+## 综合练习
+
+本章的内容，是针对一组学生信息，构造数据结构，并添加处理数据的功能。
+
+以下练习要求你继续这个过程：在上述内容的基础上，添加新的信息和新的功能。
+
+本次练习还会用到一组 Python 课成绩。它也是已知数据：
+
+```{python}
+#| eval: false
+python_scores = [
+    {'student_id': 2021001, 'python_score': 86},
+    {'student_id': 2021002, 'python_score': 59},
+    {'student_id': 2021003, 'python_score': 92},
+    {'student_id': 2021004, 'python_score': 54},
+    {'student_id': 2021005, 'python_score': 88},
+    {'student_id': 2021006, 'python_score': 67}
+]
+```
+
+### 按学号查找
+
+问题：按学号查找某一位同学。学号通常是唯一的，因此找到时返回一位学生对应的字典，找不到时返回 `None`。
+
+知识点：循环，条件判断，函数返回值
 
 ```{python}
 #| eval: false
 def find_student_by_id(data, student_id):
-  '''
-  按学号查找同学
-  '''
-  pass # 这部分由你完成
+    '''
+    按学号查找同学。
+    '''
+    pass
 
 result = find_student_by_id(students_info, 2021002)
 print(result)
@@ -195,195 +324,401 @@ print(result)
 {'student_id': 2021002, 'name': 'Bob', 'major': 'finance', 'class_id': 1}
 ```
 
+提示：可以参考 `find_students_by_name()`，这里的返回值是一位学生对应的字典。
 
-### 简单统计
-
-统计一下，金融专业有多少人？
-
-1. 先筛选（利用上面的知识）
-2. 再算数
-```{python}
-finance_students = [s for s in students_info if s['major'] == 'finance']
-
-len(finance_students)
-
-```
-
-也可以写两个函数：同样，先查找，再统计。
+写好这个函数后，先运行下面的检查代码。确认结果正确，再继续做下一题。后面的练习也应采用同样的习惯：每完成一个函数，就立即检查。
 
 ```{python}
-def find_students_by_major(data, major):
-  '''
-  按专业查找同学
-  '''
-  result = [s for s in data if s['major'] == major]
-  return result
-
-def count_by_major(data, major):
-  '''
-  计算专业的同学人数
-  '''
-  class_size = len(find_students_by_major(data, major))
-  return class_size
-
-print('金融专业人数:', count_by_major(students_info, 'finance'))
-print('会计专业人数:', count_by_major(students_info, 'accounting'))
+#| eval: false
+print(find_student_by_id(students_info, 2021002))
+print(find_student_by_id(students_info, 2021999))
 ```
 
-小结：
+预期输出：
 
-1. “一位同学”的信息可以用字典Dict：可以用`student_id`等标签，来获取该同学信息。
-2. “所有同学”的信息可以用列表List：所有同学，可以看作一个有序的队列，自然可以采用List。大量的列表操作，便于我们进行查找、筛选、统计等等。
-3. 常用的操作可以写成函数，既便于重复使用，也能通过函数名说明操作意图。
-4. 函数名应尽量清楚。函数体的开头建议写简短说明，如函数作用、参数和返回值。
-
-
-## 综合练习
-
-本章的内容，本质上是针对一些基础的信息（三个同学的信息），构造出数据结构（List-Dict），并且添加处理数据的功能（各种函数）。
-
-以下练习，要求你**继续**这个过程：在上述内容的基础上，添加新的信息和新的功能。
-
-
-### 添加 Python 课分数
-
-
-问题：按学号`student_id`，添加同学的 Python 课分数`python_score`
-
-知识点：List 和 Dict 的赋值，循环或者列表推导式
-
-1. 写一个手动版
-2. 写一个函数版
-
-```{python}
-#| echo: false
-import pandas as pd
-pd.DataFrame(dict(student_id = [2021001,2021002,2021003],
-             name = ["Alex","Bob","Clare"],
-             python_score = [86,59,92]))
- 
+```text
+{'student_id': 2021002, 'name': 'Bob', 'major': 'finance', 'class_id': 1}
+None
 ```
-思路：
 
-1. “一个同学”的信息，是以dict的形式保存，因此我们需要给dict添新的key-value。
-2. 回忆：List和Dict都是可变对象，你可以直接对List中的Dict中的key赋值！
+### 按学号添加 Python 课分数
+
+先处理其中一位同学：给 Bob 添加 Python 课成绩。Bob 的学号是 `2021002`，成绩是 `59`。
+
+问题：写一个函数 `set_python_score(data, student_id, score)`，按学号找到学生，并给这个学生添加 `python_score`。
+
+知识点：按学号查找，字典赋值，函数调用
 
 ```{python}
 #| eval: false
 def set_python_score(data, student_id, score):
-  '''
-  设置 Python 课的分数
-  '''
-  pass # 这里由你完成
+    '''
+    按学号设置某位学生的 Python 课成绩。
+    '''
+    pass
 
-set_python_score(students_info,2021001,90)
-
+set_python_score(students_info, 2021002, 59)
+print(find_student_by_id(students_info, 2021002))
 ```
 
-完成后，`student_id` 为 `2021001` 的同学应增加一项：
+提示：先调用 `find_student_by_id()` 找到学生，再给这个学生的字典添加 `python_score`。
 
-```python
-'python_score': 90
+检查代码：
+
+```{python}
+#| eval: false
+set_python_score(students_info, 2021002, 59)
+print(find_student_by_id(students_info, 2021002)['python_score'])
 ```
-### 简单统计
 
-问题：统计 Python 课的所有同学的平均分，以及分班级的平均分。
+预期输出：
 
-知识点：循环或者列表推导式，累加，简单计算
+```text
+59
+```
 
-1. 手动版
-2. 函数版
+### 批量添加 Python 课分数
 
+上一题只处理了 Bob 一位同学。现在把 `python_scores` 中的所有分数都添加到 `students_info` 中。
+
+知识点：字典赋值，循环，函数调用
+
+```{python}
+#| eval: false
+def apply_score_updates(data, scores):
+    '''
+    批量更新 Python 课成绩。
+    '''
+    pass
+
+apply_score_updates(students_info, python_scores)
+print(find_student_by_id(students_info, 2021001))
+print(find_student_by_id(students_info, 2021006))
+```
+
+提示：对 `scores` 中的每一条记录，调用一次 `set_python_score()`。
+
+检查代码：
+
+```{python}
+#| eval: false
+apply_score_updates(students_info, python_scores)
+print(find_student_by_id(students_info, 2021003)['python_score'])
+print(find_student_by_id(students_info, 2021006)['python_score'])
+```
+
+预期输出：
+
+```text
+92
+67
+```
+
+### 统计 Python 课平均分
+
+问题：统计 Python 课所有同学的平均分，以及分班级的平均分。
+
+知识点：循环，累加，简单计算，函数调用
 
 ```{python}
 #| eval: false
 def get_avg_python_score(data):
-  '''
-  统计 Python 课的平均分
-  '''
-  pass # 这里由你完成
+    '''
+    统计 Python 课平均分。
+    '''
+    pass
 
-def get_avg_python_score_by_class(data,  class_id):
-  '''
-  按班级，统计 Python 课的平均分
-  '''
-  pass # 这里由你完成
+def find_students_by_class(data, class_id):
+    '''
+    按班级查找同学。
+    '''
+    pass
 
+def get_avg_python_score_by_class(data, class_id):
+    '''
+    按班级统计 Python 课平均分。
+    '''
+    pass
+```
+
+提示：计算平均分时，先累加所有分数，再除以人数。按班级平均分可以先筛选班级，再调用平均分函数。
+
+检查代码：
+
+```{python}
+#| eval: false
+print(round(get_avg_python_score(students_info), 2))
+print(round(get_avg_python_score_by_class(students_info, 1), 2))
+print(round(get_avg_python_score_by_class(students_info, 2), 2))
+```
+
+预期输出：
+
+```text
+74.33
+75.0
+73.0
 ```
 
 ### 由分数获得评级
 
-问题：按照分数，给同学添加一个`rank`变量。
+问题：按照分数，给同学添加一个 `rank` 变量。
 
-知识点：`if`条件判断，List 和 Dict 的赋值
+知识点：`if` 条件判断，字典赋值，循环
 
-1. 90分+，"A"
-2. 80分+，"B"
-3. 70分+，"C"
-4. 60分+，"D"
-5. 不足60分，"E"
+评级规则：
+
+1. 90分及以上，`"A"`
+2. 80分及以上，`"B"`
+3. 70分及以上，`"C"`
+4. 60分及以上，`"D"`
+5. 不足60分，`"E"`
 
 ```{python}
 #| eval: false
+def get_rank(score):
+    '''
+    根据分数返回评级。
+    '''
+    pass
+
 def set_rank(data):
-  '''
-  根据 python_score 给每位同学添加 rank
-  '''
-  pass # 这里由你完成
+    '''
+    根据 python_score 给每位同学添加 rank。
+    '''
+    pass
 ```
 
+提示：可以先写 `get_rank(86)` 这样的单个分数判断，再把它应用到每位同学。
+
+检查代码：
+
+```{python}
+#| eval: false
+set_rank(students_info)
+print(find_student_by_id(students_info, 2021003)['rank'])
+print(find_student_by_id(students_info, 2021002)['rank'])
+```
+
+预期输出：
+
+```text
+A
+E
+```
 
 ### 判断是否及格
 
-问题：按照分数，给同学添加一个`passed`变量。60分以上为及格。
+问题：按照分数，给同学添加一个 `passed` 变量。60分及以上为及格。
 
-知识点：`if`条件判断，List 和 Dict 的赋值，布尔值
-
-1. 手动版
-2. 函数版
-3. 统计及格率
+知识点：条件判断，字典赋值，布尔值，循环
 
 ```{python}
 #| eval: false
 def set_pass_status(data):
-  '''
-  根据 python_score 给每位同学添加 passed
-  '''
-  pass # 这里由你完成
+    '''
+    根据 python_score 给每位同学添加 passed。
+    '''
+    pass
 
 def get_pass_rate(data):
-  '''
-  统计及格率
-  '''
-  pass # 这里由你完成
+    '''
+    统计及格率。
+    '''
+    pass
 ```
 
-### 信息输出
+提示：`student['python_score'] >= 60` 的结果就是一个布尔值，可以直接赋给 `student['passed']`。
 
-问题：以字符串的形式，输出某一个同学的信息（通过学号）
+检查代码：
 
-知识点：循环或列表推导式，字符串操作。
+```{python}
+#| eval: false
+set_pass_status(students_info)
+print(find_student_by_id(students_info, 2021002)['passed'])
+print(round(get_pass_rate(students_info), 2))
+```
 
-1. 输出的结果类似： "学号： ???? ； 姓名：??? ； 班级  ??? ... ..."。其中，班级信息要输出"专业 班级号"的形式，如“金融 5班”
-2. 手动版
-3. 函数版
-4. 写一个函数，输出不及格的同学的信息
+预期输出：
+
+```text
+False
+0.67
+```
+
+### 输出某一位同学的信息
+
+问题：以字符串形式输出某一位同学的信息。
+
+知识点：按学号查找，字符串操作，函数返回值
+
+输出结果类似：
+
+```python
+学号: 2021001；姓名: Alex；班级: finance 1班；Python成绩: 86；评级: B
+```
 
 建议函数返回字符串，由外部决定是否打印。
 
 ```{python}
 #| eval: false
-def print_by_student_id(data, student_id):
-  '''
-  返回某位同学的信息字符串
-  '''
-  pass # 这里由你完成
-
-def print_failed(data):
-  '''
-  返回不及格同学的信息字符串
-  '''
-  pass # 这里由你完成
-
+def format_student_by_id(data, student_id):
+    '''
+    返回某位同学的信息字符串。
+    '''
+    pass
 ```
 
+提示：先用 `find_student_by_id()` 找到学生，再把字典中的字段拼接成字符串。
+
+检查代码：
+
+```{python}
+#| eval: false
+print(format_student_by_id(students_info, 2021001))
+```
+
+预期输出：
+
+```text
+学号: 2021001；姓名: Alex；班级: finance 1班；Python成绩: 86；评级: B
+```
+
+### 列出不及格同学
+
+问题：列出所有不及格同学的信息。这个名单可以用于打印通知、整理补交名单等场景。
+
+知识点：筛选，循环，函数调用，字符串拼接
+
+思路：
+
+1. 先筛选出 `passed` 为 `False` 的同学。
+2. 再对每位同学调用 `format_student_by_id()`。
+3. 把每位同学的信息整理成多行字符串。
+
+```{python}
+#| eval: false
+def list_failed_students(data):
+    '''
+    返回不及格同学的信息字符串，每位同学一行。
+    '''
+    pass
+```
+
+提示：可以先得到一个不及格同学列表，再用循环逐个生成字符串。
+
+检查代码：
+
+```{python}
+#| eval: false
+print(list_failed_students(students_info))
+```
+
+预期输出：
+
+```text
+学号: 2021002；姓名: Bob；班级: finance 1班；Python成绩: 59；评级: E
+学号: 2021004；姓名: David；班级: marketing 2班；Python成绩: 54；评级: E
+```
+
+### 找出最高分同学
+
+问题：找出 Python 课最高分同学，并输出他们的信息。最高分可能有多位同学。
+
+知识点：循环，比较，列表，函数调用
+
+思路：
+
+1. 先找出最高分是多少。
+2. 再筛选出所有等于最高分的同学。
+3. 对每位最高分同学调用 `format_student_by_id()`。
+
+这道题可以直接写过程代码，重点放在组合前面已经写好的函数。
+
+完成后，应该打印出 Clare 的信息：
+
+```text
+学号: 2021003；姓名: Clare；班级: accounting 2班；Python成绩: 92；评级: A
+```
+
+### 作业代码框架
+
+可以按照下面的结构完成本章练习。`# %%` 可以在 VS Code 中把一个 `.py` 文件分成多个代码单元，便于逐段运行和检查。
+
+```python
+# %% 已知数据
+student_1 = {'student_id': 2021001, 'name': 'Alex', 'major': 'finance', 'class_id': 1}
+student_2 = {'student_id': 2021002, 'name': 'Bob', 'major': 'finance', 'class_id': 1}
+student_3 = {'student_id': 2021003, 'name': 'Clare', 'major': 'accounting', 'class_id': 2}
+student_4 = {'student_id': 2021004, 'name': 'David', 'major': 'marketing', 'class_id': 2}
+student_5 = {'student_id': 2021005, 'name': 'Eva', 'major': 'finance', 'class_id': 1}
+student_6 = {'student_id': 2021006, 'name': 'Frank', 'major': 'accounting', 'class_id': 1}
+
+students_info = [
+    student_1,
+    student_2,
+    student_3,
+    student_4,
+    student_5,
+    student_6
+]
+
+def find_students_by_name(data, name):
+    result = [student for student in data if student['name'] == name]
+    return result
+
+def find_students_by_major(data, major):
+    result = [
+        student for student in data
+        if student['major'] == major
+    ]
+    return result
+
+def count_by_major(data, major):
+    class_size = len(find_students_by_major(data, major))
+    return class_size
+
+python_scores = [
+    {'student_id': 2021001, 'python_score': 86},
+    {'student_id': 2021002, 'python_score': 59},
+    {'student_id': 2021003, 'python_score': 92},
+    {'student_id': 2021004, 'python_score': 54},
+    {'student_id': 2021005, 'python_score': 88},
+    {'student_id': 2021006, 'python_score': 67}
+]
+
+# %% 1. 按学号查找
+# 写 find_student_by_id，然后运行检查代码
+
+
+# %% 2. 添加 Bob 的 Python 成绩
+# 写 set_python_score，然后运行检查代码
+
+
+# %% 3. 批量添加 Python 成绩
+# 写 apply_score_updates，然后运行检查代码
+
+
+# %% 4. 平均分
+# 写 get_avg_python_score、find_students_by_class、get_avg_python_score_by_class
+
+
+# %% 5. 评级
+# 写 get_rank、set_rank
+
+
+# %% 6. 及格状态
+# 写 set_pass_status、get_pass_rate
+
+
+# %% 7. 输出某一位同学的信息
+# 写 format_student_by_id
+
+
+# %% 8. 列出不及格同学
+# 写 list_failed_students
+
+
+# %% 9. 找出最高分同学
+# 直接写过程代码；最高分可能有多位同学
+```
