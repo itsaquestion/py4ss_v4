@@ -65,7 +65,7 @@ def make_clean_intro_data():
     company = (
         basic[basic["证券代码"].isin(chosen_codes)]
         .sort_values("证券代码")
-        .loc[:, ["证券代码", "公司全称", "上市市场编码", "行业名称", "省份", "城市", "公司上市日期"]]
+        .loc[:, ["证券代码", "上市市场编码", "行业名称", "省份", "城市", "公司上市日期"]]
         .copy()
     )
     names = (
@@ -82,7 +82,7 @@ def make_clean_intro_data():
     )
     company["上市日期"] = pd.to_datetime(company["上市日期"])
     company_profile = company[
-        ["证券代码", "证券简称", "公司全称", "行业名称", "省份", "城市", "上市市场", "上市日期"]
+        ["证券代码", "证券简称", "行业名称", "省份", "城市", "上市市场", "上市日期"]
     ].copy()
 
     finance_teaching.to_excel(DATA / "finance_teaching_clean.xlsx", index=False)
