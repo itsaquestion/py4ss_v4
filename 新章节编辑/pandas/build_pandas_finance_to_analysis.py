@@ -67,15 +67,15 @@ Pandas 是 Python 中处理表格数据的核心工具。它提供了类似电�
 
 **阶段 2：处理证券代码，并合并公司信息**
 
-编号列的字符串处理；`converters`；`str.zfill()`；`str.strip()`；`str.contains()`；`pd.to_datetime()`；`.dt.year`、`.dt.month`、`.dt.quarter`；`value_counts()`；`rename()`；`merge()`；`left_on` / `right_on`；合并后检查。
+编号列的字符串处理；`converters`；`str.zfill()`；`str.strip()`；`str.contains()`；`pd.to_datetime()`；`.dt.year`、`.dt.month`、`.dt.quarter`；`value_counts()`；`rename()`；`merge()`；`how`；`left_on` / `right_on`；合并后检查。
 
 **阶段 3：处理真实数据中的常见小问题**
 
-构造工作副本；检查缺失值；检查重复行；`drop_duplicates()`；清理特殊文本；`pd.to_numeric()`；`dropna()`；`fillna()`；`replace()`；`map()`。
+构造工作副本；检查缺失值；检查重复行；`drop_duplicates()`；清理特殊文本；`pd.to_numeric()`；`dropna()`；`axis`；`how`；`fillna()`；`replace()`；`map()`。
 
 **阶段 4：按行业和年份做汇总分析**
 
-`groupby()`；多指标 `agg()`；自定义聚合函数；按多列分组；分组后排序；每组取前几名；分组循环；`concat()`。
+`groupby()`；多指标 `agg()`；自定义聚合函数；`transform()`；`rank()`；按多列分组；分组后排序；每组取前几名；分组循环；`concat()`。
 
 **阶段 5：重建更适合分析的数据表**
 
@@ -258,6 +258,18 @@ finance_2020_rank[[
 ]].head(10)"""
     ),
     md(
+        """排序适合查看结果。需要把排名作为一列继续使用时，可以用 `rank()`。"""
+    ),
+    code(
+        """finance_2020_rank["收入排名"] = (
+    finance_2020_rank["营业收入_亿元"]
+    .rank(ascending=False, method="min")
+    .astype(int)
+)
+
+finance_2020_rank[["证券简称", "营业收入_亿元", "收入排名"]].head(10)"""
+    ),
+    md(
         """排序后也要看一眼尾部。前几行告诉我们谁排在前面，后几行能帮助我们理解这个排名的另一端。"""
     ),
     code(
@@ -291,7 +303,7 @@ finance_2020[["营业收入_亿元", "净利润_亿元", "资产负债率", "净
 rank_display[["证券简称", "营业收入", "净利润", "净利率"]].head()"""
     ),
     md(
-        """阶段 1 小结：我们得到了 `finance_2020_rank`。这一阶段带出了读取、查看、选行选列、`loc`、`iloc`、条件筛选、`query`、列运算、按条件赋值、排序和简单统计。
+        """阶段 1 小结：我们得到了 `finance_2020_rank`。这一阶段带出了读取、查看、选行选列、`loc`、`iloc`、条件筛选、`query`、列运算、按条件赋值、排序、排名和简单统计。
 
 完成本阶段后，请做最后“练习”中的阶段 1 练习。"""
     ),
@@ -417,6 +429,21 @@ rank_with_info[[
 ]].tail(5)"""
     ),
     md(
+        """`how` 决定合并后保留哪些行。`left` 保留左表中的行，`inner` 保留两表都能匹配的行，`outer` 保留两表行的并集。实际分析中，先确认哪一张表是主表，再选择合适的合并方式。"""
+    ),
+    code(
+        """merge_how_demo = pd.DataFrame({
+    "how": ["left", "inner", "outer"],
+    "行数": [
+        len(finance_2020_rank_code.merge(company_small, on="证券代码", how="left")),
+        len(finance_2020_rank_code.merge(company_small, on="证券代码", how="inner")),
+        len(finance_2020_rank_code.merge(company_small, on="证券代码", how="outer")),
+    ],
+})
+
+merge_how_demo"""
+    ),
+    md(
         """两个表的连接键列名不同时，可以用 `left_on` 和 `right_on`。下面做一个简短演示。"""
     ),
     code(
@@ -432,7 +459,7 @@ demo_merge = finance_2020_rank_code.merge(
 demo_merge[["证券代码", "公司代码", "行业名称"]].head()"""
     ),
     md(
-        """阶段 2 小结：我们得到了 `rank_with_info`。这一阶段带出了证券代码处理、字符串方法、日期方法、`value_counts()`、`merge()` 和合并检查。
+        """阶段 2 小结：我们得到了 `rank_with_info`。这一阶段带出了证券代码处理、字符串方法、日期方法、`value_counts()`、`merge()`、`how` 和合并检查。
 
 完成本阶段后，请做最后“练习”中的阶段 2 练习。"""
     ),
@@ -504,6 +531,20 @@ fill_missing["负债水平"] = fill_missing["负债水平"].replace({"": "未知
 fill_missing.isna().sum()"""
     ),
     md(
+        """`dropna()` 可以用参数控制删除规则。`subset` 指定检查哪些列，`axis=1` 可以按列删除，`how="all"` 表示整行或整列全部缺失时才删除。"""
+    ),
+    code(
+        """dropna_demo = pd.DataFrame({
+    "A": [1, np.nan, np.nan],
+    "B": [2, np.nan, np.nan],
+    "C": [np.nan, np.nan, np.nan],
+})
+
+display(dropna_demo)
+display(dropna_demo.dropna(how="all"))
+display(dropna_demo.dropna(axis=1, how="all"))"""
+    ),
+    md(
         """`map()` 适合把一组取值映射成另一组取值。"""
     ),
     code(
@@ -520,7 +561,7 @@ fill_missing[["证券简称", "负债水平", "负债风险"]].head()"""
 special.replace({999: np.nan, -1: 0})"""
     ),
     md(
-        """阶段 3 小结：这一阶段带出了 `isna()`、`dropna()`、`fillna()`、`duplicated()`、`drop_duplicates()`、`replace()`、`pd.to_numeric()`、`map()` 和清洗副本的做法。
+        """阶段 3 小结：这一阶段带出了 `isna()`、`dropna()`、`axis`、`how`、`fillna()`、`duplicated()`、`drop_duplicates()`、`replace()`、`pd.to_numeric()`、`map()` 和清洗副本的做法。
 
 完成本阶段后，请做最后“练习”中的阶段 3 练习。"""
     ),
@@ -593,6 +634,24 @@ analysis_df.groupby("行业名称").agg(
 ).head()"""
     ),
     md(
+        """`transform()` 可以把分组结果带回到每一行。下面计算 2020 年每家公司是否高于本行业平均营业收入。"""
+    ),
+    code(
+        """industry_compare_2020 = analysis_df[analysis_df["年份"] == 2020].copy()
+industry_compare_2020["行业平均收入_亿元"] = (
+    industry_compare_2020
+    .groupby("行业名称")["营业收入_亿元"]
+    .transform("mean")
+)
+industry_compare_2020["高于行业平均"] = (
+    industry_compare_2020["营业收入_亿元"] > industry_compare_2020["行业平均收入_亿元"]
+)
+
+industry_compare_2020[[
+    "行业名称", "证券简称", "营业收入_亿元", "行业平均收入_亿元", "高于行业平均"
+]].head(10)"""
+    ),
+    md(
         """每组取前几名的常用做法是：排序、分组、再 `head()`。"""
     ),
     code(
@@ -640,7 +699,7 @@ pd.concat([left, right], axis=1)"""
 )"""
     ),
     md(
-        """阶段 4 小结：这一阶段带出了 `groupby()`、多指标 `agg()`、自定义聚合、每组取前几名、分组循环和 `concat()`。
+        """阶段 4 小结：这一阶段带出了 `groupby()`、多指标 `agg()`、自定义聚合、`transform()`、每组取前几名、分组循环和 `concat()`。
 
 完成本阶段后，请做最后“练习”中的阶段 4 练习。"""
     ),
@@ -791,7 +850,7 @@ month_end_price"""
 
 **练习 1.2：找出收入高但净利率较低的公司**
 
-在 `finance_ex1` 中新增 `净利率 = 净利润_亿元 / 营业收入_亿元`。筛选 2020 年 `营业收入_亿元` 高于当年中位数、同时 `净利率` 低于当年中位数的公司，赋值给变量 `high_revenue_low_margin`。这个结果代表“规模不小、利润率相对偏低”的公司。显示 `证券简称`、`营业收入_亿元`、`净利润_亿元`、`净利率`，并查看前 5 行和后 5 行。
+在 `finance_ex1` 中新增 `净利率 = 净利润_亿元 / 营业收入_亿元`。筛选 2020 年 `营业收入_亿元` 高于当年中位数、同时 `净利率` 低于当年中位数的公司，赋值给变量 `high_revenue_low_margin`。这个结果代表“规模不小、利润率相对偏低”的公司。再为 2020 年公司按营业收入生成 `收入排名`。显示 `证券简称`、`营业收入_亿元`、`净利润_亿元`、`净利率`、`收入排名`，并查看前 5 行和后 5 行。
 
 **练习 1.3：给公司打上资产规模标签**
 
@@ -838,6 +897,10 @@ month_end_price"""
 **练习 4.3：计算行业内部收入差距**
 
 自定义函数 `value_range(x)`，返回 `x.max() - x.min()`。按 `行业名称` 分组，计算 2020 年各行业营业收入的均值和收入差距，赋值给变量 `industry_gap_2020`。按收入差距从高到低排序。
+
+**练习 4.4：判断公司是否高于行业平均**
+
+在 2020 年数据中，用 `groupby()` 和 `transform()` 计算每家公司所在行业的平均营业收入，生成 `行业平均收入_亿元`。再生成 `高于行业平均`，表示该公司营业收入是否高于所在行业平均值。显示 `行业名称`、`证券简称`、`营业收入_亿元`、`行业平均收入_亿元`、`高于行业平均`，并查看前 10 行。
 
 ### 阶段 5 练习：重建分析表
 

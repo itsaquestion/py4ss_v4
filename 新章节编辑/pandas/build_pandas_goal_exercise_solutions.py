@@ -66,19 +66,25 @@ low_debt_profit_2020.head()"""
     md(
         """## 练习 1.2：找出收入高但净利率较低的公司
 
-在 `finance_ex1` 中新增 `净利率 = 净利润_亿元 / 营业收入_亿元`。筛选 2020 年 `营业收入_亿元` 高于当年中位数、但 `净利率` 低于当年中位数的公司，赋值给变量 `high_revenue_low_margin`。这个结果代表“规模不小，但利润率相对偏低”的公司。显示 `证券简称`、`营业收入_亿元`、`净利润_亿元`、`净利率`，并查看前 5 行和后 5 行。"""
+在 `finance_ex1` 中新增 `净利率 = 净利润_亿元 / 营业收入_亿元`。筛选 2020 年 `营业收入_亿元` 高于当年中位数、同时 `净利率` 低于当年中位数的公司，赋值给变量 `high_revenue_low_margin`。这个结果代表“规模不小、利润率相对偏低”的公司。再为 2020 年公司按营业收入生成 `收入排名`。显示 `证券简称`、`营业收入_亿元`、`净利润_亿元`、`净利率`、`收入排名`，并查看前 5 行和后 5 行。"""
     ),
     code(
         """finance_ex1["净利率"] = finance_ex1["净利润_亿元"] / finance_ex1["营业收入_亿元"]
 
 finance_2020_ex1 = finance_ex1[finance_ex1["年份"] == 2020]
+finance_2020_ex1 = finance_2020_ex1.copy()
+finance_2020_ex1["收入排名"] = (
+    finance_2020_ex1["营业收入_亿元"]
+    .rank(ascending=False, method="min")
+    .astype(int)
+)
 revenue_median = finance_2020_ex1["营业收入_亿元"].median()
 margin_median = finance_2020_ex1["净利率"].median()
 
 high_revenue_low_margin = finance_2020_ex1.loc[
     (finance_2020_ex1["营业收入_亿元"] > revenue_median)
     & (finance_2020_ex1["净利率"] < margin_median),
-    ["证券简称", "营业收入_亿元", "净利润_亿元", "净利率"],
+    ["证券简称", "营业收入_亿元", "净利润_亿元", "净利率", "收入排名"],
 ].sort_values("营业收入_亿元", ascending=False)
 
 display(high_revenue_low_margin.head())
@@ -285,6 +291,26 @@ industry_gap_2020 = (
 )
 
 industry_gap_2020"""
+    ),
+    md(
+        """## 练习 4.4：判断公司是否高于行业平均
+
+在 2020 年数据中，用 `groupby()` 和 `transform()` 计算每家公司所在行业的平均营业收入，生成 `行业平均收入_亿元`。再生成 `高于行业平均`，表示该公司营业收入是否高于所在行业平均值。显示 `行业名称`、`证券简称`、`营业收入_亿元`、`行业平均收入_亿元`、`高于行业平均`，并查看前 10 行。"""
+    ),
+    code(
+        """industry_compare_ex4 = analysis_ex4[analysis_ex4["年份"] == 2020].copy()
+industry_compare_ex4["行业平均收入_亿元"] = (
+    industry_compare_ex4
+    .groupby("行业名称")["营业收入_亿元"]
+    .transform("mean")
+)
+industry_compare_ex4["高于行业平均"] = (
+    industry_compare_ex4["营业收入_亿元"] > industry_compare_ex4["行业平均收入_亿元"]
+)
+
+industry_compare_ex4[[
+    "行业名称", "证券简称", "营业收入_亿元", "行业平均收入_亿元", "高于行业平均"
+]].head(10)"""
     ),
     md(
         """## 练习 5.1：构造公司收入宽表
