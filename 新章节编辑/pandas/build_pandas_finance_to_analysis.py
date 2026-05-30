@@ -436,117 +436,145 @@ rank_display[["证券简称", "营业收入", "净利润", "净利率"]].head() 
 目标：把会影响计算和后续合并的常见问题先处理掉。真实数据不一定很脏，但经常会出现缺失值、重复行、特殊文本、数字被读成文本等情况。"""
     ),
     md(
-        """先重新读取带证券代码的财务表。证券代码是编号，适合作为字符串处理。"""
+        """**构造清洗样本**
+
+1. `.copy()`：复制一份工作副本。清洗时先在副本上操作，可以保留原始表。
+
+2. `.astype("object")`：把列临时转成可以混放文本和数字的类型，便于演示数字列里混入特殊文本的情况。
+
+3. `np.nan`：表示缺失值。
+
+4. `pd.concat([...], ignore_index=True)`：把表纵向拼接起来；`ignore_index=True` 会重新生成连续索引。"""
     ),
     code(
-        """def read_code(x):
-    return str(x).strip().zfill(6)
-
-finance_code = pd.read_excel(
-    "data/finance_teaching_clean.xlsx",
-    converters={"证券代码": read_code},
-)
-finance_code["净利率"] = finance_code["净利润_亿元"] / finance_code["营业收入_亿元"]
-finance_code["资产收益率"] = finance_code["净利润_亿元"] / finance_code["总资产_亿元"]
-finance_code["是否盈利"] = finance_code["净利润_亿元"] > 0
-finance_code["负债水平"] = np.where(finance_code["资产负债率"] >= 0.7, "较高", "正常")
-
-finance_code.head()"""
-    ),
-    md(
-        """为了集中演示，这里从干净财务表复制出一份练习用的小表，再人为放入几个真实数据里常见的问题。"""
-    ),
-    code(
-        """dirty = finance_code.head(12).copy()
+        """# 从原始财务表复制出一份练习用的小表，并人为放入几类常见问题。
+dirty = finance_raw.head(12).copy()  # 复制工作副本
+dirty["负债水平"] = np.where(dirty["资产负债率"] >= 0.7, "较高", "正常")  # 生成演示用标签列
 dirty[["总资产_亿元", "净利润_亿元"]] = dirty[["总资产_亿元", "净利润_亿元"]].astype("object")
 
-dirty.loc[1, "营业收入_亿元"] = np.nan
-dirty.loc[2, "净利润_亿元"] = "--"
-dirty.loc[3, "总资产_亿元"] = "15,285.79"
-dirty.loc[4, "负债水平"] = ""
-dirty = pd.concat([dirty, dirty.iloc[[0]]], ignore_index=True)
+dirty.loc[1, "营业收入_亿元"] = np.nan  # 放入缺失值
+dirty.loc[2, "净利润_亿元"] = "--"  # 数字列混入特殊文本
+dirty.loc[3, "总资产_亿元"] = "15,285.79"  # 数字列混入带逗号文本
+dirty.loc[4, "负债水平"] = ""  # 文本列出现空字符串
+dirty = pd.concat([dirty, dirty.iloc[[0]]], ignore_index=True)  # 添加一行重复记录
 
-dirty"""
+dirty.head()  # 查看带问题的小表"""
     ),
     md(
-        """检查缺失值和重复行。"""
-    ),
-    code(
-        """print("缺失值：")
-print(dirty.isna().sum())
+        """**检查缺失值和重复行**
 
-print("重复行数量：", dirty.duplicated().sum())"""
-    ),
-    md(
-        """删除重复行。"""
-    ),
-    code(
-        """dirty = dirty.drop_duplicates()
-dirty = dirty.copy()
-print("删除重复后行数：", len(dirty))"""
-    ),
-    md(
-        """把特殊文本和带逗号的数字清理成真正的数值。"""
+1. `isna()`：判断每个位置是否为缺失值。
+
+2. `sum()`：对 `True` / `False` 求和时，`True` 会按 1 计算，因此 `isna().sum()` 可以统计每列缺失值数量。
+
+3. `duplicated()`：判断每一行是否和前面的行重复。"""
     ),
     code(
-        """dirty["总资产_亿元"] = (
+        """dirty.isna().sum()  # 统计每列缺失值数量"""
+    ),
+    code(
+        """dirty.duplicated().sum()  # 统计重复行数量"""
+    ),
+    md(
+        """**删除重复行并清理特殊文本**
+
+1. `drop_duplicates()`：删除重复行。
+
+2. `.str.replace()`：使用字符串方法替换文本内容。这里把数字字符串中的逗号去掉。
+
+3. `.mask(条件, 新值)`：把满足条件的位置替换成新值。
+
+4. `pd.to_numeric(errors="coerce")`：把数据转成数值；无法转换的内容会变成缺失值。"""
+    ),
+    code(
+        """dirty = dirty.drop_duplicates().copy()  # 删除重复行，并复制为新的工作表
+len(dirty)  # 查看删除重复后的行数"""
+    ),
+    code(
+        """# 把总资产列里带逗号的文本清理成真正的数值。
+dirty["总资产_亿元"] = (
     dirty["总资产_亿元"]
-    .astype(str)
-    .str.replace(",", "", regex=False)
+    .astype(str)  # 先统一转成字符串
+    .str.replace(",", "", regex=False)  # 去掉逗号
 )
-dirty["总资产_亿元"] = pd.to_numeric(dirty["总资产_亿元"], errors="coerce")
+dirty["总资产_亿元"] = pd.to_numeric(dirty["总资产_亿元"], errors="coerce")  # 转成数值
 
-dirty["净利润_亿元"] = dirty["净利润_亿元"].mask(dirty["净利润_亿元"] == "--", np.nan)
-dirty["净利润_亿元"] = pd.to_numeric(dirty["净利润_亿元"], errors="coerce")
-
-dirty[["总资产_亿元", "营业收入_亿元", "净利润_亿元"]].head()"""
-    ),
-    md(
-        """缺失值可以删除，也可以填补。怎么处理取决于分析目的。这里演示两种常见做法。
-
-`dropna()` 会删除包含缺失值的行或列；`fillna()` 会把缺失值替换成指定数值。"""
+dirty[["证券简称", "总资产_亿元"]].head()  # 查看转换结果"""
     ),
     code(
-        """drop_missing = dirty.dropna(subset=["营业收入_亿元", "净利润_亿元"])
+        """# 把净利润列里的特殊文本清理成缺失值，再转成数值。
+dirty["净利润_亿元"] = dirty["净利润_亿元"].mask(dirty["净利润_亿元"] == "--", np.nan)  # 特殊文本替换为缺失值
+dirty["净利润_亿元"] = pd.to_numeric(dirty["净利润_亿元"], errors="coerce")  # 转成数值
 
-fill_missing = dirty.copy()
+dirty[["证券简称", "净利润_亿元"]].head()  # 查看转换结果"""
+    ),
+    md(
+        """**删除或填补缺失值**
+
+1. `dropna(subset=[...])`：只检查指定列，删除这些列中有缺失值的行。
+
+2. `fillna()`：把缺失值替换成指定数值。
+
+3. `median()`：计算中位数。用中位数填补数值列，是一种常见演示做法。
+
+4. `replace()`：替换指定取值。这里把空字符串替换成“未知”。"""
+    ),
+    code(
+        """drop_missing = dirty.dropna(subset=["营业收入_亿元", "净利润_亿元"])  # 删除关键列缺失的行
+drop_missing.head()  # 查看删除缺失后的结果"""
+    ),
+    code(
+        """# 填补缺失值，并替换文本列中的空字符串。
+fill_missing = dirty.copy()  # 复制一份用于填补缺失的表
 fill_missing["营业收入_亿元"] = fill_missing["营业收入_亿元"].fillna(
-    fill_missing["营业收入_亿元"].median()
+    fill_missing["营业收入_亿元"].median()  # 用中位数填补营业收入缺失
 )
-fill_missing["净利润_亿元"] = fill_missing["净利润_亿元"].fillna(0)
-fill_missing["负债水平"] = fill_missing["负债水平"].replace({"": "未知"})
+fill_missing["净利润_亿元"] = fill_missing["净利润_亿元"].fillna(0)  # 用 0 填补净利润缺失
+fill_missing["负债水平"] = fill_missing["负债水平"].replace({"": "未知"})  # 替换空字符串
 
-fill_missing.isna().sum()"""
+fill_missing.isna().sum()  # 检查填补后的缺失值数量"""
     ),
     md(
-        """`dropna()` 可以用参数控制删除规则。`subset` 指定检查哪些列，`axis=1` 可以按列删除，`how="all"` 表示整行或整列全部缺失时才删除。"""
+        """**控制 `dropna()` 的删除规则**
+
+1. `subset`：指定检查哪些列。
+
+2. `axis=1`：按列删除。默认 `axis=0` 是按行删除。
+
+3. `how="all"`：整行或整列全部缺失时才删除。"""
     ),
     code(
-        """dropna_demo = pd.DataFrame({
+        """# 构造一张小表，演示 dropna() 的参数。
+dropna_demo = pd.DataFrame({
     "A": [1, np.nan, np.nan],
     "B": [2, np.nan, np.nan],
     "C": [np.nan, np.nan, np.nan],
 })
 
-display(dropna_demo)
-display(dropna_demo.dropna(how="all"))
-display(dropna_demo.dropna(axis=1, how="all"))"""
-    ),
-    md(
-        """`map()` 适合把一组取值映射成另一组取值。常见写法是先准备一个字典，再把原来的取值替换成新的标签。"""
+dropna_demo  # 查看演示表"""
     ),
     code(
-        """debt_map = {"正常": "低风险", "较高": "需关注", "未知": "待确认"}
-fill_missing["负债风险"] = fill_missing["负债水平"].map(debt_map)
+        """dropna_demo.dropna(how="all")  # 删除全部缺失的行"""
+    ),
+    code(
+        """dropna_demo.dropna(axis=1, how="all")  # 删除全部缺失的列"""
+    ),
+    md(
+        """**映射和替换**
 
-fill_missing[["证券简称", "负债水平", "负债风险"]].head()"""
-    ),
-    md(
-        """`replace()` 适合替换特殊值。现实数据里常见 `999`、`-1`、`--` 等特殊编码。和 `map()` 相比，`replace()` 更常用于把少数异常取值替换掉。"""
+1. `map()`：把一组取值映射成另一组取值。常见写法是先准备一个字典，再把原来的取值替换成新的标签。
+
+2. `replace()`：替换特殊值。和 `map()` 相比，`replace()` 更常用于把少数异常取值替换掉。"""
     ),
     code(
-        """special = pd.Series([1, 2, 999, -1, 5], name="原始值")
-special.replace({999: np.nan, -1: 0})"""
+        """debt_map = {"正常": "低风险", "较高": "需关注", "未知": "待确认"}  # 定义映射规则
+fill_missing["负债风险"] = fill_missing["负债水平"].map(debt_map)  # 根据负债水平生成风险标签
+
+fill_missing[["证券简称", "负债水平", "负债风险"]].head()  # 查看映射结果"""
+    ),
+    code(
+        """special = pd.Series([1, 2, 999, -1, 5], name="原始值")  # 构造包含特殊编码的 Series
+special.replace({999: np.nan, -1: 0})  # 替换特殊值"""
     ),
     md(
         """### 副本、视图和链式赋值
@@ -557,7 +585,7 @@ special.replace({999: np.nan, -1: 0})"""
 df.loc[条件, 列名] = 新值
 ```
 
-筛选出一部分数据再修改时，显式使用 `.copy()` 生成工作副本。这样更容易判断后续操作影响的是哪一张表。连续使用 `df[条件]["列"] = 新值` 这类链式赋值，pandas 往往会给出 warning。"""
+筛选出一部分数据再修改时，显式使用 `.copy()` 生成工作副本。这样更容易判断后续操作影响的是哪一张表。连续使用 `df[条件]["列"] = 新值` 这类链式赋值，pandas 往往会给出 warning，也可能没有改到原表。"""
     ),
     md(
         """阶段 4 小结：这一阶段带出了 `isna()`、`dropna()`、`axis`、`how`、`fillna()`、`duplicated()`、`drop_duplicates()`、`replace()`、`pd.to_numeric()`、`map()`、工作副本和链式赋值 warning。
