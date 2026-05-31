@@ -37,7 +37,9 @@ cells = [
     md(
         """# Pandas：从公司财务表到可分析数据
 
-Pandas 是 Python 中处理表格数据的核心工具。它提供了类似电子表格的数据结构，又可以用代码完成重复、精确、可追踪的数据整理和计算。在经管数据分析中，上市公司财务表、问卷数据、交易数据、地区统计数据等，通常都可以先整理成 pandas 的 `DataFrame`，再继续做统计分析、建模或可视化。
+Pandas 是 Python 中处理表格数据的核心工具。经管数据常见的形态是一行一条记录、一列一个变量，例如上市公司年度数据、问卷数据、交易数据和地区统计数据。把这些数据读成 pandas 的 `DataFrame` 后，可以继续完成查看、筛选、变量生成、清洗、合并、分组统计、重塑和时间顺序计算。
+
+学习 pandas 时，函数本身通常不难，关键是每一步都要确认数据是否符合预期。读入后看一眼，筛选后看一眼，生成新列后再看一眼。这样做可以及时发现列选错、类型不对、缺失值异常、重复记录等问题。
 """
     ),
     md(
@@ -48,22 +50,22 @@ Pandas 是 Python 中处理表格数据的核心工具。它提供了类似电�
     md(
         """**数据存放约定**
 
-本课程约定：数据文件都放在工作目录下的 `data` 文件夹中。工作目录可以理解为当前项目或当前 notebook 所在的主要目录。读取数据时，可以用相对路径引用文件，例如 `data/finance_teaching_clean.xlsx`。"""
+本课程约定：数据文件都放在工作目录下的 `data` 文件夹中。工作目录可以理解为当前项目或当前 notebook 所在的主要目录。读取数据时，可以用相对路径引用文件，例如 `data/company_annual_operations_clean.xlsx`。"""
     ),
     md(
         """**本章使用的数据**
 
-本章使用两张教学表：
+本章主要使用两张教学表：
 
-- `data/finance_teaching_clean.xlsx`：公司年度财务数据。
-- `data/company_profile_teaching_clean.xlsx`：公司基本信息。"""
+- `data/company_annual_operations_clean.xlsx`：干净的公司年度经营数据。一行是一家公司某一年的记录，包含公司名称、日期、行业、地区、资产、收入、利润、员工数等变量，用于练习单表操作。
+- `data/financial_indicators_dirty.xlsx`：待清洗的公司年度财务指标数据。它和第一张表同样以公司和年份为核心，但故意保留了一些常见问题，用于练习清洗，并在清洗后与经营表合并。"""
     ),
     md(
         """## 本章知识点安排
 
 **阶段 1：数据读取与初步查看**
 
-读入财务表，查看前几行、后几行、行列数、列名、数据类型和描述统计。先知道表里有什么，再决定后面怎么处理。
+读入公司年度经营表，查看前几行、后几行、行列数、列名、数据类型和描述统计。先知道表里有什么，再决定后面怎么处理。
 
 **阶段 2：行列选择与条件筛选**
 
@@ -71,15 +73,15 @@ Pandas 是 Python 中处理表格数据的核心工具。它提供了类似电�
 
 **阶段 3：变量生成与数据修改**
 
-用已有列生成新列，做列运算，覆盖已有列，用 `np.where()`、`pd.cut()` 和带筛选的 `.loc` 赋值，排序、排名，并做简单统计。
+用已有列生成新列，做列运算，覆盖已有列，用日期列生成年度和上市年限，用 `np.where()`、`pd.cut()` 和带筛选的 `.loc` 赋值，排序、排名，并做简单统计。
 
 **阶段 4：常见数据问题处理**
 
-建立工作副本，检查缺失值和重复值，处理特殊文本，转换数据类型，使用 `dropna()`、`fillna()`、`replace()`、`map()`，并理解链式赋值 warning。
+读入待清洗的财务指标表，检查缺失值和重复值，处理证券代码、日期、特殊文本和数值类型，使用 `dropna()`、`fillna()`，并理解链式赋值 warning。
 
-**阶段 5：多表合并与背景信息补充**
+**阶段 5：表的追加与合并**
 
-处理作为编号的证券代码，使用字符串方法和日期方法，使用 `concat()` 追加同结构表，整理公司信息表，用 `merge()` 合并，并检查合并结果。
+使用 `concat()` 追加同结构表，用 `merge()` 按连接键合并经营表和财务指标表，并检查合并结果。
 
 **阶段 6：分组汇总与组内比较**
 
@@ -89,9 +91,9 @@ Pandas 是 Python 中处理表格数据的核心工具。它提供了类似电�
 
 理解长表和宽表，使用 `pivot_table()`、`set_index()`、`reset_index()`，构造 `Series` / `DataFrame`，并导出结果。
 
-**阶段 8：时间序列数据入门**
+**阶段 8：公司年度面板中的时间顺序**
 
-让 pandas 识别时间顺序，使用日期索引、日期切片、`shift()`、`diff()`、`pct_change()`、`cumprod()` 和 `resample()`。"""
+让 pandas 识别公司内部的时间顺序，使用排序、日期索引、日期切片、`shift()`、`diff()`、`pct_change()` 和 `cumprod()` 观察年度变化。"""
     ),
     md(
         """**开始前：DataFrame 和 Series**
@@ -118,7 +120,7 @@ index + Series + Series + ... -> DataFrame
     md(
         """## 阶段 1：数据读取与初步查看
 
-拿到一张新表时，先不要急着计算。第一步是确认数据是否读对了：表有多大、有哪些列、每列大致是什么类型、数值范围是否看起来合理。本阶段先读入年度财务表，并建立对这张表的整体认识。"""
+拿到一张新表时，先不要急着计算。第一步是确认数据是否读对了：表有多大、有哪些列、每列大致是什么类型、数值范围是否看起来合理。本阶段先读入公司年度经营表，并建立对这张表的整体认识。"""
     ),
     md(
         """**读取数据，并看表的样子**
@@ -132,13 +134,13 @@ index + Series + Series + ... -> DataFrame
 import numpy as np  # 数值和缺失值处理
 
 pd.set_option("display.max_columns", 30)  # 最多显示 30 列
-pd.set_option("display.float_format", "{:.4f}".format)  # 小数显示为 4 位
+pd.set_option("display.float_format", "{:.2f}".format)  # 小数显示为 2 位
 
-finance_raw = pd.read_excel("data/finance_teaching_clean.xlsx")  # 读取 Excel
-finance_raw.head()  # 查看前 5 行"""
+annual_raw = pd.read_excel("data/company_annual_operations_clean.xlsx")  # 读取 Excel
+annual_raw.head()  # 查看前 5 行"""
     ),
     code(
-        """finance_raw.tail()  # 查看后 5 行"""
+        """annual_raw.tail()  # 查看后 5 行"""
     ),
     md(
         """**查看表的结构和数值概况**
@@ -149,22 +151,35 @@ finance_raw.head()  # 查看前 5 行"""
 
 3. `dtypes` / `info()`：查看数据类型；`info()` 还会显示每列的非缺失值数量。
 
-4. `describe()`：查看数值列的样本数、均值、标准差、最小值、四分位数和最大值。"""
+4. `describe()`：查看数值列的样本数、均值、标准差、最小值、四分位数和最大值。编号和日期通常不放进描述统计。"""
     ),
     code(
-        """finance_raw.shape  # 查看行数和列数"""
+        """annual_raw.shape  # 查看行数和列数"""
     ),
     code(
-        """finance_raw.columns.tolist()  # 查看列名列表"""
+        """annual_raw.columns.tolist()  # 查看列名列表"""
     ),
     code(
-        """finance_raw.dtypes  # 查看每列数据类型"""
+        """annual_raw.dtypes  # 查看每列数据类型"""
     ),
     code(
-        """finance_raw.info()  # 查看表结构摘要"""
+        """annual_raw.info()  # 查看表结构摘要"""
     ),
     code(
-        """finance_raw.describe()  # 查看数值列描述统计"""
+        """business_cols = [
+    "总资产_亿元",
+    "总负债_亿元",
+    "营业收入_亿元",
+    "营业成本_亿元",
+    "销售费用_亿元",
+    "净利润_亿元",
+    "经营现金流_亿元",
+    "资产负债率",
+    "营业毛利率",
+    "员工数目",
+]  # 只保留适合做描述统计的经营数值列
+
+annual_raw[business_cols].describe()  # 查看经营数值列描述统计"""
     ),
     md(
         """**建立工作副本**
@@ -173,11 +188,11 @@ finance_raw.head()  # 查看前 5 行"""
 
 1. `drop(columns=[...])`：删除指定列。很多 pandas 操作会返回一张新表，原表通常不会自动改变。
 
-2. `.copy()`：复制出工作副本。这里先暂时放下 `证券代码`，集中处理财务指标。"""
+2. `.copy()`：复制出工作副本。这里先暂时放下 `证券代码`，集中观察公司经营变量。"""
     ),
     code(
-        """finance = finance_raw.drop(columns=["证券代码"]).copy()  # 删除暂不用的列并复制副本
-finance.head()  # 查看工作副本"""
+        """annual = annual_raw.drop(columns=["证券代码"]).copy()  # 删除暂不用的列并复制副本
+annual.head()  # 查看工作副本"""
     ),
     md(
         """阶段 1 小结：拿到表格后，先用 `head()`、`tail()`、`shape`、`columns`、`dtypes`、`info()` 和 `describe()` 看结构、类型和大致分布。
@@ -187,9 +202,9 @@ finance.head()  # 查看工作副本"""
     md(
         """## 阶段 2：行列选择与条件筛选
 
-多数情况下，我们要处理的数据只是现有数据的一部分，所以需要先按分析要求把数据切出来。比如在这张财务表中，如果想观察 2020 年盈利、收入数据完整、负债率相对不高的公司，就要先筛选出这些公司，再只保留后面要比较的财务列。
+多数情况下，我们要处理的数据只是现有数据的一部分，所以需要先按分析要求把数据切出来。比如在这张公司年度经营表中，如果想观察 2020 年制造业中盈利、收入数据完整、负债率相对不高的公司，就要先筛选出这些公司，再只保留后面要比较的经营列。
 
-范例：选出 2020 年、净利润为正、营业收入不缺失、资产负债率低于 0.7 的公司，作为下一步观察的名单。"""
+范例：选出 2020 年、行业名称包含“制造”、净利润为正、营业收入不缺失、资产负债率低于 0.7 的公司年度记录，作为下一步观察的名单。"""
     ),
     md(
         """**DataFrame 和 Series 的结构**
@@ -211,26 +226,26 @@ finance.head()  # 查看工作副本"""
 
 1. `df["列名"]`：用列名选择单列，返回 `Series`。`Series` 可以理解为一列数据。
 
-2. `df[[列名列表]]`：用列名的 list 选择多列，返回 `DataFrame`。这里可以用上前面学过的 list 写法，例如 `["证券简称", "年份"]`。
+2. `df[[列名列表]]`：用列名的 list 选择多列，返回 `DataFrame`。这里可以用上前面学过的 list 写法，例如 `["股票简称", "行业名称"]`。
 
 3. `type()`：查看对象类型。这里用它区分 `Series` 和 `DataFrame`。"""
     ),
     code(
-        """one_col = finance["营业收入_亿元"]  # 用列名选择单列
+        """one_col = annual["营业收入_亿元"]  # 用列名选择单列
 one_col.head()  # 查看单列数据"""
     ),
     code(
         """type(one_col)  # 查看单列对象类型"""
     ),
     code(
-        """some_cols = finance[["证券简称", "年份", "营业收入_亿元"]]  # 用列名 list 选择多列
+        """some_cols = annual[["股票简称", "行业名称", "营业收入_亿元"]]  # 用列名 list 选择多列
 some_cols.head()  # 查看多列数据"""
     ),
     code(
         """type(some_cols)  # 查看多列对象类型"""
     ),
     code(
-        """finance[["证券简称", "年份", "营业收入_亿元", "净利润_亿元"]].head()  # 查看多列结果"""
+        """annual[["股票简称", "统计截止日期", "行业名称", "营业收入_亿元", "净利润_亿元"]].head()  # 查看多列结果"""
     ),
     md(
         """**按位置和标签选择**
@@ -244,17 +259,17 @@ some_cols.head()  # 查看多列数据"""
 4. `.loc` 标签切片：按标签切片时包含结束点，这和 Python 列表切片不同。"""
     ),
     code(
-        """finance.iloc[:5, :4]  # 前 5 行、前 4 列"""
+        """annual.iloc[:5, :4]  # 前 5 行、前 4 列"""
     ),
     code(
-        """# 查看 2020 年公司的几个关键财务列。
-finance.loc[
-    finance["年份"] == 2020,  # 行位置：筛选 2020 年
-    ["证券简称", "营业收入_亿元", "净利润_亿元", "资产负债率"],  # 列位置：保留指定列
+        """# 查看 2020 年公司的几个关键经营列。
+annual.loc[
+    annual["统计截止日期"].dt.year == 2020,  # 行位置：筛选 2020 年
+    ["股票简称", "行业名称", "营业收入_亿元", "净利润_亿元", "资产负债率"],  # 列位置：保留指定列
 ].head()  # 查看前 5 行"""
     ),
     code(
-        """finance.loc[0:3, "证券简称":"营业收入_亿元"]  # 标签切片包含结束点"""
+        """annual.loc[0:3, "股票简称":"行业名称"]  # 标签切片包含结束点"""
     ),
     md(
         """**条件筛选**
@@ -265,16 +280,21 @@ finance.loc[
 
 3. `.notna()`：判断是否不是缺失值。筛选时常用来保留关键列有值的行。
 
-4. `len()`：查看结果有多少行。筛选后通常要看一下行数和前后几行。"""
+4. `.str.contains("关键词", na=False)`：判断文本列是否包含关键词；`na=False` 表示缺失值按“不包含”处理。
+
+5. `.dt.year`：从日期列中取出年份。日期筛选中经常用到。
+
+6. `len()`：查看结果有多少行。筛选后通常要看一下行数和前后几行。"""
     ),
     code(
-        """# 筛选出 2020 年、盈利、收入不缺失且负债率较低的公司。
-good_2020 = finance.loc[
-    (finance["年份"] == 2020)  # 条件 1：2020 年
-    & (finance["净利润_亿元"] > 0)  # 条件 2：净利润为正
-    & (finance["营业收入_亿元"].notna())  # 条件 3：营业收入不是缺失值
-    & (finance["资产负债率"] < 0.7),  # 条件 4：资产负债率小于 0.7
-    ["证券简称", "营业收入_亿元", "净利润_亿元", "资产负债率"],  # 保留指定列
+        """# 筛选出 2020 年、制造业、盈利、收入不缺失且负债率较低的记录。
+good_2020 = annual.loc[
+    (annual["统计截止日期"].dt.year == 2020)  # 条件 1：2020 年
+    & (annual["行业名称"].str.contains("制造", na=False))  # 条件 2：行业名称包含“制造”
+    & (annual["净利润_亿元"] > 0)  # 条件 3：净利润为正
+    & (annual["营业收入_亿元"].notna())  # 条件 4：营业收入不是缺失值
+    & (annual["资产负债率"] < 0.7),  # 条件 5：资产负债率小于 0.7
+    ["股票简称", "行业名称", "所属省份", "营业收入_亿元", "净利润_亿元", "资产负债率"],  # 保留指定列
 ]
 
 good_2020.head()  # 查看筛选结果"""
@@ -293,7 +313,7 @@ good_2020.head()  # 查看筛选结果"""
 2. `and` / `or` / `not`：在 `query()` 字符串里可以表示“并且”“或者”“取反”。"""
     ),
     code(
-        """finance.query("年份 == 2020 and 净利润_亿元 > 0").head()  # 用 query 筛选"""
+        """annual.query("净利润_亿元 > 0 and 资产负债率 < 0.7").head()  # 用 query 筛选"""
     ),
     md(
         """阶段 2 小结：想从表中取出一部分数据，可以按列名选列，用 `iloc` 按位置选，用 `loc` 按标签或条件选；条件较短时，`query()` 也很方便。筛选之后用 `head()`、`tail()` 和行数看一眼结果。
@@ -303,9 +323,9 @@ good_2020.head()  # 查看筛选结果"""
     md(
         """## 阶段 3：变量生成与数据修改
 
-选出需要的数据后，很多分析还要把原始字段转换成更接近问题的变量。比如营业收入和净利润可以说明规模和利润，但要比较盈利能力，还需要计算净利率；要观察财务风险，也可以把资产负债率转换成负债水平标签。
+选出需要的数据后，很多分析还要把原始字段转换成更接近问题的变量。比如收入、成本和利润可以说明经营规模和结果，但要比较盈利能力，还需要计算净利率；要比较人员效率，可以计算人均营业收入；要观察上市时间，也可以从日期中提取年份并计算上市年限。
 
-范例：在原始财务指标基础上生成净利率、资产收益率、资产规模、负债水平等新变量，并整理出 2020 年公司表现排名。"""
+范例：在原始公司年度经营数据基础上生成年份、净利率、人均营业收入、上市年限、资产规模、负债水平等新变量，并整理出 2020 年公司经营表现排名。"""
     ),
     md(
         """**用已有列生成新列**
@@ -314,22 +334,32 @@ good_2020.head()  # 查看筛选结果"""
 
 2. `列运算`：表达式可以来自一列，也可以来自多列共同计算。例如净利率可以由净利润除以营业收入得到。
 
-3. `比较运算`：例如 `df["净利润_亿元"] > 0` 会得到一列 `True` / `False`，可以直接作为新列。
+3. `日期属性`：日期列可以用 `.dt.year` 取出年份，再继续计算。
 
-4. `pd.cut()`：把连续数值分成几个区间，常用于生成“高、中、低”这类分组变量。"""
+4. `比较运算`：例如 `df["净利润_亿元"] > 0` 会得到一列 `True` / `False`，可以直接作为新列。
+
+5. `pd.cut()`：把连续数值分成几个区间，常用于生成“高、中、低”这类分组变量。"""
     ),
     code(
-        """# 从原始财务列生成几个更适合比较的新变量。
-finance["净利率"] = finance["净利润_亿元"] / finance["营业收入_亿元"]  # 用两列计算新列
-finance["资产收益率"] = finance["净利润_亿元"] / finance["总资产_亿元"]  # 用两列计算新列
-finance["是否盈利"] = finance["净利润_亿元"] > 0  # 比较结果生成布尔列
-finance["资产规模"] = pd.cut(
-    finance["总资产_亿元"],  # 要分箱的连续变量
+        """# 先从日期列生成年度变量。
+annual["年份"] = annual["统计截止日期"].dt.year  # 从日期提取年份
+annual["上市年份"] = annual["首次上市日期"].dt.year  # 从日期提取上市年份
+annual["上市年限"] = annual["年份"] - annual["上市年份"]  # 计算上市年限
+
+annual[["股票简称", "统计截止日期", "年份", "首次上市日期", "上市年份", "上市年限"]].head()  # 查看日期变量"""
+    ),
+    code(
+        """# 再根据经营数据生成比较指标和分组标签。
+annual["净利率"] = annual["净利润_亿元"] / annual["营业收入_亿元"]  # 用两列计算新列
+annual["人均营业收入_万元"] = annual["营业收入_亿元"] * 10000 / annual["员工数目"]  # 用两列计算人均指标
+annual["是否盈利"] = annual["净利润_亿元"] > 0  # 比较结果生成布尔列
+annual["资产规模"] = pd.cut(
+    annual["总资产_亿元"],  # 要分箱的连续变量
     bins=[0, 100, 1000, np.inf],  # 分箱边界
     labels=["小", "中", "大"],  # 每个区间的标签
 )
 
-finance[["证券简称", "年份", "净利率", "资产收益率", "是否盈利", "资产规模"]].head()  # 查看新列"""
+annual[["股票简称", "年份", "营业收入_亿元", "净利润_亿元", "净利率", "人均营业收入_万元", "资产规模"]].head()  # 查看经营变量"""
     ),
     md(
         """**按条件修改数据**
@@ -344,19 +374,22 @@ finance[["证券简称", "年份", "净利率", "资产收益率", "是否盈利
     ),
     code(
         """# 根据资产负债率生成负债水平标签。
-finance["负债水平"] = np.where(
-    finance["资产负债率"] >= 0.7,  # 条件
+annual["负债水平"] = np.where(
+    annual["资产负债率"] >= 0.7,  # 条件
     "较高",  # 条件成立时的值
     "正常",  # 条件不成立时的值
 )
 
-finance[["证券简称", "年份", "资产负债率", "负债水平"]].head()  # 查看条件生成结果"""
+annual[["股票简称", "年份", "资产负债率", "负债水平"]].head()  # 查看条件生成结果"""
     ),
     code(
-        """# 用 .loc 把高负债公司标记为重点关注。
-finance["重点关注"] = False  # 先给整列一个默认值
-finance.loc[finance["资产负债率"] >= 0.7, "重点关注"] = True  # 按条件局部修改
-finance[["证券简称", "年份", "资产负债率", "重点关注"]].head()  # 查看局部修改结果"""
+        """# 用 .loc 把高负债且亏损的记录标记为重点关注。
+annual["重点关注"] = False  # 先给整列一个默认值
+annual.loc[
+    (annual["资产负债率"] >= 0.7) & (annual["净利润_亿元"] < 0),  # 高负债且亏损
+    "重点关注",
+] = True  # 按条件局部修改
+annual[["股票简称", "年份", "资产负债率", "净利润_亿元", "重点关注"]].head()  # 查看局部修改结果"""
     ),
     md(
         """**排序和排名**
@@ -368,30 +401,30 @@ finance[["证券简称", "年份", "资产负债率", "重点关注"]].head()  #
 3. `.astype(int)`：把结果转换为整数类型。排名本身常常希望显示为整数。"""
     ),
     code(
-        """# 得到 2020 年公司表现排名表。
-finance_2020_rank = (
-    finance[finance["年份"] == 2020]  # 筛选 2020 年
+        """# 得到 2020 年公司经营表现排名表。
+annual_2020_rank = (
+    annual.loc[annual["年份"] == 2020].copy()  # 筛选 2020 年并复制
     .sort_values(["营业收入_亿元", "净利率"], ascending=[False, False])  # 按收入和净利率降序
 )
 
-finance_2020_rank[[
-    "证券简称", "营业收入_亿元", "净利润_亿元", "净利率", "资产收益率", "资产负债率", "负债水平"
+annual_2020_rank[[
+    "股票简称", "行业名称", "营业收入_亿元", "净利润_亿元", "净利率", "资产负债率", "负债水平"
 ]].head(10)  # 查看排名靠前的公司"""
     ),
     code(
         """# 把营业收入排名保存成一列，便于后续继续使用。
-finance_2020_rank["收入排名"] = (
-    finance_2020_rank["营业收入_亿元"]
+annual_2020_rank["收入排名"] = (
+    annual_2020_rank["营业收入_亿元"]
     .rank(ascending=False, method="min")  # 按营业收入从大到小排名
     .astype(int)  # 转成整数
 )
 
-finance_2020_rank[["证券简称", "营业收入_亿元", "收入排名"]].head(10)  # 查看排名列"""
+annual_2020_rank[["股票简称", "营业收入_亿元", "收入排名"]].head(10)  # 查看排名列"""
     ),
     code(
         """# 查看排名尾部，理解结果的另一端。
-finance_2020_rank[[
-    "证券简称", "营业收入_亿元", "净利润_亿元", "净利率", "资产负债率"
+annual_2020_rank[[
+    "股票简称", "营业收入_亿元", "净利润_亿元", "净利率", "资产负债率"
 ]].tail(5)  # 查看排名尾部"""
     ),
     md(
@@ -406,179 +439,196 @@ finance_2020_rank[[
 4. `rename(columns={...})`：重命名列。常用于把结果表整理成更适合展示的样子。"""
     ),
     code(
-        """# 计算 2020 年样本中的公司数量。
-finance_2020 = finance[finance["年份"] == 2020]  # 取出 2020 年样本
-finance_2020["证券简称"].nunique()  # 计算公司数量"""
+        """annual_2020 = annual[annual["年份"] == 2020]  # 取出 2020 年样本
+annual_2020["股票简称"].nunique()  # 计算公司数量"""
     ),
     code(
-        """finance_2020["营业收入_亿元"].mean()  # 计算营业收入平均值"""
+        """annual_2020["营业收入_亿元"].mean()  # 计算营业收入平均值"""
     ),
     code(
-        """finance_2020["营业收入_亿元"].max()  # 计算营业收入最大值"""
+        """annual_2020["营业收入_亿元"].max()  # 计算营业收入最大值"""
     ),
     code(
-        """finance_2020[["营业收入_亿元", "净利润_亿元", "资产负债率", "净利率"]].describe()  # 查看多列描述统计"""
+        """annual_2020[["营业收入_亿元", "净利润_亿元", "资产负债率", "净利率", "人均营业收入_万元"]].describe()  # 查看多列描述统计"""
     ),
     code(
-        """rank_display = finance_2020_rank.rename(
+        """rank_display = annual_2020_rank.rename(
     columns={
         "营业收入_亿元": "营业收入",  # 改短列名
         "净利润_亿元": "净利润",  # 改短列名
     }
 )
 
-rank_display[["证券简称", "营业收入", "净利润", "净利率"]].head()  # 查看展示表"""
+rank_display[["股票简称", "行业名称", "营业收入", "净利润", "净利率"]].head()  # 查看展示表"""
     ),
     md(
-        """阶段 3 小结：我们得到了 `finance_2020_rank`。这一阶段带出了列运算、新增列、按条件赋值、`np.where()`、`pd.cut()`、排序、排名和简单统计。
+        """阶段 3 小结：我们得到了 `annual_2020_rank`。这一阶段带出了日期列提取、列运算、新增列、按条件赋值、`np.where()`、`pd.cut()`、排序、排名和简单统计。
 
 **练习**：完成最后的阶段 3 练习。"""
     ),
     md(
         """## 阶段 4：常见数据问题处理
 
-真实数据进入统计和合并前，通常要先检查会影响结果的问题。比如收入缺失会影响均值，重复记录会影响计数，数字列里混入 `--` 或带逗号的文本会影响计算，空字符串也可能让分类结果看起来正常但实际不完整。
+真实数据进入统计和合并前，通常要先检查会影响结果的问题。比如证券代码被读成数字会丢掉前导 0，日期列里混入非法日期会影响年份提取，财务指标里出现 `--`、百分号、逗号或“缺失”会影响计算。
 
-范例：用一张带问题的小表，找出并处理缺失值、重复行、特殊文本、数字被读成文本、空字符串和标签映射。"""
+范例：读入一张待清洗的公司年度财务指标表，把证券代码、日期、收益率、每股收益和利润指标整理成可计算、可合并的格式。"""
     ),
     md(
-        """**构造清洗样本**
+        """**读入脏数据，并先看一眼**
 
-1. `.copy()`：复制一份工作副本。清洗时先在副本上操作，可以保留原始表。
+1. `converters={"证券代码": str}`：读取 Excel 时把证券代码直接读成字符串。证券代码是编号，不适合作为普通数值处理。
 
-2. `.astype("object")`：把列临时转成可以混放文本和数字的类型，便于演示数字列里混入特殊文本的情况。
+2. `head()` / `tail()`：清洗前先看几行，观察问题大致出现在哪里。
 
-3. `np.nan`：表示缺失值。"""
+3. `dtypes`：查看每列类型。数字列如果显示为 `object`，常常说明里面混入了文本。"""
     ),
     code(
-        """# 从原始财务表复制出一份练习用的小表，并人为放入几类常见问题。
-dirty = finance_raw.head(12).copy()  # 复制工作副本
-dirty["负债水平"] = np.where(dirty["资产负债率"] >= 0.7, "较高", "正常")  # 生成演示用标签列
-dirty[["总资产_亿元", "净利润_亿元"]] = dirty[["总资产_亿元", "净利润_亿元"]].astype("object")
+        """# 读入待清洗的财务指标表，先保留证券代码的文本形态。
+indicators_raw = pd.read_excel(
+    "data/financial_indicators_dirty.xlsx",
+    converters={"证券代码": str},  # 证券代码按字符串读取
+)
 
-dirty.loc[1, "营业收入_亿元"] = np.nan  # 放入缺失值
-dirty.loc[2, "净利润_亿元"] = "--"  # 数字列混入特殊文本
-dirty.loc[3, "总资产_亿元"] = "15,285.79"  # 数字列混入带逗号文本
-dirty.loc[4, "负债水平"] = ""  # 文本列出现空字符串
-dirty.loc[len(dirty)] = dirty.loc[0]  # 复制第 1 行，制造一行重复记录
-
-dirty.head()  # 查看带问题的小表"""
+indicators_raw.head()  # 查看脏数据前几行"""
+    ),
+    code(
+        """indicators_raw.tail()  # 查看脏数据末尾"""
+    ),
+    code(
+        """indicators_raw.dtypes  # 查看每列数据类型"""
     ),
     md(
-        """**检查缺失值和重复行**
+        """**检查缺失值和重复记录**
 
 1. `isna()`：判断每个位置是否为缺失值。
 
 2. `sum()`：对 `True` / `False` 求和时，`True` 会按 1 计算，因此 `isna().sum()` 可以统计每列缺失值数量。
 
-3. `duplicated()`：判断每一行是否和前面的行重复。"""
+3. `duplicated(subset=[...])`：按指定列检查重复。公司年度数据通常要检查“公司 + 日期”是否重复。"""
     ),
     code(
-        """dirty.isna().sum()  # 统计每列缺失值数量"""
+        """indicators_raw.isna().sum()  # 统计每列缺失值数量"""
     ),
     code(
-        """dirty.duplicated().sum()  # 统计重复行数量"""
+        """indicators_raw.duplicated(subset=["证券代码", "统计截止日期"]).sum()  # 检查公司日期是否重复"""
     ),
     md(
-        """**删除重复行并清理特殊文本**
+        """**清理编号和日期**
 
-1. `drop_duplicates()`：删除重复行。
+1. `.str.strip()`：去掉文本两端空格。
 
-2. `.str.replace()`：使用字符串方法替换文本内容。这里把数字字符串中的逗号去掉。
+2. `.str.zfill(6)`：把证券代码补齐到 6 位。
 
-3. `.mask(条件, 新值)`：把满足条件的位置替换成新值。
+3. `pd.to_datetime(errors="coerce")`：把日期列转换成日期类型；无法识别的日期会变成缺失值。
 
-4. `pd.to_numeric(errors="coerce")`：把数据转成数值；无法转换的内容会变成缺失值。"""
+4. `.dt.year`：从日期列中提取年份。"""
     ),
     code(
-        """dirty = dirty.drop_duplicates().copy()  # 删除重复行，并复制为新的工作表
-len(dirty)  # 查看删除重复后的行数"""
+        """# 先整理公司编号和公司简称。
+indicators = indicators_raw.copy()  # 复制工作副本
+indicators["证券代码"] = indicators["证券代码"].str.strip().str.zfill(6)  # 去空格并补齐 6 位
+indicators["股票简称"] = indicators["股票简称"].str.strip()  # 去掉简称两端空格
+
+indicators[["证券代码", "股票简称", "统计截止日期"]].head(8)  # 查看编号和简称"""
     ),
     code(
-        """# 把总资产列里带逗号的文本清理成真正的数值。
-dirty["总资产_亿元"] = (
-    dirty["总资产_亿元"]
-    .astype(str)  # 先统一转成字符串
-    .str.replace(",", "", regex=False)  # 去掉逗号
+        """# 再把统计截止日期转换成日期，并提取年份。
+indicators["统计截止日期"] = pd.to_datetime(indicators["统计截止日期"], errors="coerce")  # 转换日期
+indicators["年份"] = indicators["统计截止日期"].dt.year  # 提取年份
+
+indicators[["证券代码", "股票简称", "统计截止日期", "年份"]].head(8)  # 查看日期处理结果"""
+    ),
+    code(
+        """indicators["统计截止日期"].isna().sum()  # 检查无法识别的日期数量"""
+    ),
+    md(
+        """**清理数值列中的特殊文本**
+
+1. `.astype("string")`：先把混杂列统一看作文本，便于使用字符串方法清理。
+
+2. `.str.replace()`：去掉逗号、百分号等字符。
+
+3. `.replace({...})`：把 `--`、`缺失`、空字符串等特殊编码替换成缺失值。
+
+4. `pd.to_numeric(errors="coerce")`：把清理后的文本转成数值；仍无法转换的内容会变成缺失值。"""
+    ),
+    code(
+        """# 先示范清理一列：加权平均净资产收益率。
+roe_before = indicators["加权平均净资产收益率"].copy()  # 保存清理前结果
+indicators["加权平均净资产收益率"] = pd.to_numeric(
+    indicators["加权平均净资产收益率"]
+    .astype("string")  # 统一转成字符串
+    .str.strip()  # 去掉两端空格
+    .str.replace("%", "", regex=False),  # 去掉百分号
+    errors="coerce",  # 无法转换的内容变成缺失值
 )
-dirty["总资产_亿元"] = pd.to_numeric(dirty["总资产_亿元"], errors="coerce")  # 转成数值
 
-dirty[["证券简称", "总资产_亿元"]].head()  # 查看转换结果"""
+pd.DataFrame({
+    "证券代码": indicators["证券代码"],
+    "股票简称": indicators["股票简称"],
+    "清理前": roe_before,
+    "清理后": indicators["加权平均净资产收益率"],
+}).head(8)  # 对比清理前后"""
     ),
     code(
-        """# 把净利润列里的特殊文本清理成缺失值，再转成数值。
-dirty["净利润_亿元"] = dirty["净利润_亿元"].mask(dirty["净利润_亿元"] == "--", np.nan)  # 特殊文本替换为缺失值
-dirty["净利润_亿元"] = pd.to_numeric(dirty["净利润_亿元"], errors="coerce")  # 转成数值
+        """# 再用同样规则批量清理其他数值列。
+def clean_number(s):
+    return pd.to_numeric(
+        s.astype("string")  # 统一转成字符串
+        .str.strip()  # 去掉两端空格
+        .str.replace(",", "", regex=False)  # 去掉千分位逗号
+        .str.replace("%", "", regex=False)  # 去掉百分号
+        .replace({"--": pd.NA, "缺失": pd.NA, "": pd.NA}),  # 特殊文本改成缺失
+        errors="coerce",  # 无法转换的内容变成缺失值
+    )
 
-dirty[["证券简称", "净利润_亿元"]].head()  # 查看转换结果"""
+number_cols = [
+    "加权平均净资产收益率",
+    "扣非净资产收益率",
+    "基本每股收益",
+    "非经常性损益_亿元",
+    "扣非净利润_亿元",
+]
+
+for col in number_cols[1:]:
+    indicators[col] = clean_number(indicators[col])  # 批量清理其余数值列
+
+indicators[["证券代码", "股票简称", "统计截止日期"] + number_cols].head(8)  # 查看数值转换结果"""
+    ),
+    code(
+        """indicators[number_cols].dtypes  # 检查清理后的数值类型"""
     ),
     md(
-        """**删除或填补缺失值**
+        """**删除重复记录和关键缺失**
 
-1. `dropna(subset=[...])`：只检查指定列，删除这些列中有缺失值的行。
+1. `drop_duplicates(subset=[...])`：按指定列删除重复记录。
 
-2. `fillna()`：把缺失值替换成指定数值。
+2. `dropna(subset=[...])`：只检查关键列，删除这些列中有缺失值的行。
 
-3. `median()`：计算中位数。用中位数填补数值列，是一种常见演示做法。
-
-4. `replace()`：替换指定取值。这里把空字符串替换成“未知”。"""
+3. `fillna()`：用指定值填补缺失值。是否填补要看变量含义；这里用每股收益的中位数做演示。"""
     ),
     code(
-        """drop_missing = dirty.dropna(subset=["营业收入_亿元", "净利润_亿元"])  # 删除关键列缺失的行
-drop_missing.head()  # 查看删除缺失后的结果"""
-    ),
-    code(
-        """# 填补缺失值，并替换文本列中的空字符串。
-fill_missing = dirty.copy()  # 复制一份用于填补缺失的表
-fill_missing["营业收入_亿元"] = fill_missing["营业收入_亿元"].fillna(
-    fill_missing["营业收入_亿元"].median()  # 用中位数填补营业收入缺失
+        """# 删除重复记录和关键连接键缺失的记录。
+indicators_clean = (
+    indicators
+    .drop_duplicates(subset=["证券代码", "统计截止日期"])  # 删除重复的公司日期记录
+    .dropna(subset=["证券代码", "统计截止日期"])  # 删除连接键缺失的记录
+    .copy()
 )
-fill_missing["净利润_亿元"] = fill_missing["净利润_亿元"].fillna(0)  # 用 0 填补净利润缺失
-fill_missing["负债水平"] = fill_missing["负债水平"].replace({"": "未知"})  # 替换空字符串
 
-fill_missing.isna().sum()  # 检查填补后的缺失值数量"""
-    ),
-    md(
-        """**控制 `dropna()` 的删除规则**
-
-1. `subset`：指定检查哪些列。
-
-2. `axis=1`：按列删除。默认 `axis=0` 是按行删除。
-
-3. `how="all"`：整行或整列全部缺失时才删除。"""
+len(indicators_clean)  # 查看清理后的行数"""
     ),
     code(
-        """# 构造一张小表，演示 dropna() 的参数。
-dropna_demo = pd.DataFrame({
-    "A": [1, np.nan, np.nan],
-    "B": [2, np.nan, np.nan],
-    "C": [np.nan, np.nan, np.nan],
-})
+        """# 对少量指标缺失做填补，并生成一个便于观察的标签。
+indicators_clean["基本每股收益"] = indicators_clean["基本每股收益"].fillna(
+    indicators_clean["基本每股收益"].median()  # 用中位数填补
+)
+indicators_clean["扣非盈利"] = indicators_clean["扣非净利润_亿元"] > 0  # 生成布尔标签
 
-dropna_demo  # 查看演示表"""
+indicators_clean[["证券代码", "股票简称", "统计截止日期", "基本每股收益", "扣非净利润_亿元", "扣非盈利"]].head()  # 查看清理结果"""
     ),
     code(
-        """dropna_demo.dropna(how="all")  # 删除全部缺失的行"""
-    ),
-    code(
-        """dropna_demo.dropna(axis=1, how="all")  # 删除全部缺失的列"""
-    ),
-    md(
-        """**映射和替换**
-
-1. `map()`：把一组取值映射成另一组取值。常见写法是先准备一个字典，再把原来的取值替换成新的标签。
-
-2. `replace()`：替换特殊值。和 `map()` 相比，`replace()` 更常用于把少数异常取值替换掉。"""
-    ),
-    code(
-        """debt_map = {"正常": "低风险", "较高": "需关注", "未知": "待确认"}  # 定义映射规则
-fill_missing["负债风险"] = fill_missing["负债水平"].map(debt_map)  # 根据负债水平生成风险标签
-
-fill_missing[["证券简称", "负债水平", "负债风险"]].head()  # 查看映射结果"""
-    ),
-    code(
-        """special = pd.Series([1, 2, 999, -1, 5], name="原始值")  # 构造包含特殊编码的 Series
-special.replace({999: np.nan, -1: 0})  # 替换特殊值"""
+        """indicators_clean.isna().sum()  # 检查清理后的缺失值"""
     ),
     md(
         """### 副本、视图和链式赋值
@@ -592,45 +642,16 @@ df.loc[条件, 列名] = 新值
 筛选出一部分数据再修改时，显式使用 `.copy()` 生成工作副本。这样更容易判断后续操作影响的是哪一张表。连续使用 `df[条件]["列"] = 新值` 这类链式赋值，pandas 往往会给出 warning，也可能没有改到原表。"""
     ),
     md(
-        """阶段 4 小结：这一阶段带出了 `isna()`、`dropna()`、`axis`、`how`、`fillna()`、`duplicated()`、`drop_duplicates()`、`replace()`、`pd.to_numeric()`、`map()`、工作副本和链式赋值 warning。
+        """阶段 4 小结：我们得到了 `indicators_clean`。这一阶段带出了 `converters`、`isna()`、`duplicated()`、`drop_duplicates()`、`str.strip()`、`zfill()`、`pd.to_datetime()`、`pd.to_numeric()`、`replace()`、`dropna()`、`fillna()`、工作副本和链式赋值 warning。
 
 **练习**：完成最后的阶段 4 练习。"""
     ),
     md(
-        """## 阶段 5：多表合并与背景信息补充
+        """## 阶段 5：表的追加与合并
 
-很多问题需要把不同表的信息放在一起看。财务表可以说明公司表现，公司信息表可以补充行业、地区和上市时间；两张表都包含证券代码，就可以用它把同一家公司对应起来。
+很多分析表不是一次拿到的，而是由多张表拼出来的。同一结构的数据可以上下追加；不同信息的数据需要按连接键合并。这里用公司年度经营表和清洗后的财务指标表，说明 `concat()` 和 `merge()` 的基本用法。
 
-范例：把 2020 年公司表现排名和公司信息表合并，让排名结果带上行业、省份、城市、上市日期等背景信息。"""
-    ),
-    md(
-        """**读取连接键，并处理编号列**
-
-1. `连接键`：两张表中用来匹配记录的列。这里用 `证券代码` 把财务表和公司信息表连起来。
-
-2. `converters={...}`：读取 Excel 时指定某些列的转换规则。
-
-3. `str(x).strip().zfill(6)`：把代码转成字符串，去掉两端空格，并补齐到 6 位。证券代码是编号，不适合作为普通数值处理。"""
-    ),
-    code(
-        """# 读取两张表，并把证券代码处理成 6 位字符串。
-def read_code(x):
-    return str(x).strip().zfill(6)  # 转字符串、去空格、补齐 6 位
-
-finance_code = pd.read_excel(
-    "data/finance_teaching_clean.xlsx",
-    converters={"证券代码": read_code},  # 读取时处理证券代码
-)
-
-company = pd.read_excel(
-    "data/company_profile_teaching_clean.xlsx",
-    converters={"证券代码": read_code},  # 读取时处理证券代码
-)
-
-finance_code.head()  # 查看财务表"""
-    ),
-    code(
-        """company.head()  # 查看公司信息表"""
+范例：先把 2018-2019 年和 2020 年的经营记录纵向追加，再把清洗后的财务指标合并进去，得到后续分析使用的 `analysis_df`。"""
     ),
     md(
         """**纵向追加同结构表**
@@ -642,268 +663,220 @@ finance_code.head()  # 查看财务表"""
 3. `concat()` 和 `merge()` 解决的问题不同：`concat()` 是把记录追加到一起，`merge()` 是按连接键把不同信息匹配到同一行。"""
     ),
     code(
-        """# 把两个年度的财务记录纵向追加到一起。
-finance_2019 = finance_code.loc[finance_code["年份"] == 2019].copy()  # 取出 2019 年记录
-finance_2020_for_concat = finance_code.loc[finance_code["年份"] == 2020].copy()  # 取出 2020 年记录
+        """# 重新读入带证券代码的经营表，读完先看面板核心列和关键经营列。
+def read_code(x):
+    return str(x).strip().zfill(6)  # 转字符串、去空格、补齐 6 位
 
-finance_two_years = pd.concat(
-    [finance_2019, finance_2020_for_concat],  # 要追加的表
+annual_for_merge = pd.read_excel(
+    "data/company_annual_operations_clean.xlsx",
+    converters={"证券代码": read_code},  # 证券代码按字符串读取
+)
+annual_for_merge = annual_for_merge.rename(columns={"股票简称": "证券简称"})  # 后续阶段沿用证券简称
+
+annual_for_merge[["证券代码", "证券简称", "统计截止日期", "营业收入_亿元", "净利润_亿元", "资产负债率"]].head()  # 查看经营表"""
+    ),
+    code(
+        """# 补充后面分组和合并需要的变量。
+annual_for_merge["年份"] = annual_for_merge["统计截止日期"].dt.year  # 提取年份
+annual_for_merge["上市年份"] = annual_for_merge["首次上市日期"].dt.year  # 提取上市年份
+annual_for_merge["上市年限"] = annual_for_merge["年份"] - annual_for_merge["上市年份"]  # 计算上市年限
+annual_for_merge["净利率"] = annual_for_merge["净利润_亿元"] / annual_for_merge["营业收入_亿元"]  # 计算净利率
+annual_for_merge["负债水平"] = np.where(annual_for_merge["资产负债率"] >= 0.7, "较高", "正常")  # 生成负债水平
+
+annual_for_merge[["证券代码", "证券简称", "年份", "上市年限", "净利率", "负债水平"]].head()  # 查看新增变量"""
+    ),
+    code(
+        """# 把两个时间段的经营记录纵向追加到一起。
+annual_2018_2019 = annual_for_merge.loc[annual_for_merge["年份"].isin([2018, 2019])].copy()  # 2018-2019 年
+annual_2020_part = annual_for_merge.loc[annual_for_merge["年份"] == 2020].copy()  # 2020 年
+
+annual_panel = pd.concat(
+    [annual_2018_2019, annual_2020_part],  # 要追加的表
     ignore_index=True,  # 重新生成连续索引
 )
 
-finance_two_years[["证券代码", "证券简称", "年份", "营业收入_亿元"]].head()  # 查看追加结果"""
+annual_panel[["证券代码", "证券简称", "年份", "营业收入_亿元"]].head()  # 查看追加结果"""
     ),
     code(
-        """finance_two_years["年份"].value_counts().sort_index()  # 检查追加后的年度记录数"""
+        """annual_panel["年份"].value_counts().sort_index()  # 检查追加后的年度记录数"""
     ),
     md(
-        """**处理文本列和日期列**
-
-1. `.str.strip()`：去掉文本两端空格。
-
-2. `pd.to_datetime()`：把日期列转换成 pandas 能识别的日期类型。
-
-3. `.dt.year` / `.dt.month` / `.dt.quarter`：从日期列中提取年份、月份、季度。
-
-4. `.str.contains("关键词", na=False)`：判断文本是否包含关键词；`na=False` 表示缺失值按“不包含”处理。
-
-5. `value_counts()`：统计每个取值出现的次数。"""
-    ),
-    code(
-        """# 整理公司信息表中的文本列和日期列。
-company = company.copy()  # 复制工作副本
-company["证券简称"] = company["证券简称"].str.strip()  # 去掉简称两端空格
-company["行业名称"] = company["行业名称"].str.strip()  # 去掉行业名称两端空格
-company["上市日期"] = pd.to_datetime(company["上市日期"])  # 转换为日期类型
-company["上市年份"] = company["上市日期"].dt.year  # 提取上市年份
-company["是否ST"] = company["证券简称"].str.contains("ST", na=False)  # 判断简称是否包含 ST
-
-company.head()  # 查看处理后的公司信息表"""
-    ),
-    code(
-        """company["行业名称"].value_counts()  # 统计各行业公司数量"""
-    ),
-    code(
-        """# 筛选行业名称中包含“制造”的公司。
-manufacturing = company.loc[
-    company["行业名称"].str.contains("制造", na=False),  # 文本包含“制造”
-    ["证券代码", "证券简称", "行业名称", "省份"],  # 保留指定列
-]
-
-manufacturing.head()  # 查看制造业相关公司"""
-    ),
-    code(
-        """len(manufacturing)  # 统计制造业相关公司数量"""
-    ),
-    code(
-        """manufacturing.tail()  # 查看筛选结果尾部"""
-    ),
-    code(
-        """# 筛选简称中包含 ST 的公司。
-st_companies = company.loc[
-    company["证券简称"].str.contains("ST", na=False),  # 文本包含 ST
-    ["证券代码", "证券简称", "行业名称", "上市年份"],  # 保留指定列
-]
-
-st_companies  # 查看 ST 公司"""
-    ),
-    code(
-        """# 提取上市月份和季度，并筛选较早上市的公司。
-company["上市月份"] = company["上市日期"].dt.month  # 提取月份
-company["上市季度"] = company["上市日期"].dt.quarter  # 提取季度
-
-old_listed = company.loc[
-    company["上市年份"] < 2000,  # 筛选 2000 年以前上市
-    ["证券代码", "证券简称", "行业名称", "上市日期", "上市年份", "上市月份", "上市季度"],  # 保留指定列
-].sort_values("上市日期")  # 按上市日期排序
-
-old_listed.head()  # 查看较早上市公司"""
-    ),
-    code(
-        """old_listed.tail()  # 查看较早上市公司尾部"""
-    ),
-    md(
-        """**准备合并用的两张表**
-
-1. 左表：财务表。这里保留 2020 年公司表现排名。
-
-2. 右表：公司信息表。合并前只保留后面分析需要的背景列。
-
-3. 合并前先整理左右表，可以减少合并后的无关列。"""
-    ),
-    code(
-        """# 重新在带证券代码的财务表中生成前面用到的财务指标。
-finance_code["净利率"] = finance_code["净利润_亿元"] / finance_code["营业收入_亿元"]  # 生成净利率
-finance_code["资产收益率"] = finance_code["净利润_亿元"] / finance_code["总资产_亿元"]  # 生成资产收益率
-finance_code["是否盈利"] = finance_code["净利润_亿元"] > 0  # 生成盈利标记
-finance_code["负债水平"] = np.where(finance_code["资产负债率"] >= 0.7, "较高", "正常")  # 生成负债水平
-
-finance_2020_rank_code = (
-    finance_code[finance_code["年份"] == 2020]  # 筛选 2020 年
-    .sort_values("营业收入_亿元", ascending=False)  # 按营业收入降序
-)
-
-finance_2020_rank_code.head()  # 查看左表"""
-    ),
-    code(
-        """company_small = company[
-    ["证券代码", "行业名称", "省份", "城市", "上市市场", "上市日期", "上市年份", "是否ST"]  # 保留需要的背景列
-]
-
-company_small.head()  # 查看右表"""
-    ),
-    md(
-        """**合并并检查结果**
+        """**按连接键合并表**
 
 1. `merge()`：按共同字段合并两张表。
 
-2. `on="共同列名"`：指定用哪一列匹配。
+2. `on=[...]`：指定一列或多列作为连接键。公司年度数据通常需要同时使用公司代码和日期。
 
 3. `how="left"`：保留左表所有行，把右表能匹配的信息接上来。
 
 4. 合并后检查：通常检查合并前后行数、关键列缺失数量，并看几行结果。"""
     ),
     code(
-        """rank_with_info = finance_2020_rank_code.merge(
-    company_small,
-    on="证券代码",  # 按证券代码匹配
-    how="left",  # 保留左表所有行
+        """# 把清洗后的财务指标合并到经营表。
+indicator_cols = [
+    "证券代码",
+    "统计截止日期",
+    "加权平均净资产收益率",
+    "扣非净资产收益率",
+    "基本每股收益",
+    "非经常性损益_亿元",
+    "扣非净利润_亿元",
+    "扣非盈利",
+]
+
+analysis_df = annual_panel.merge(
+    indicators_clean[indicator_cols],
+    on=["证券代码", "统计截止日期"],  # 按公司和日期匹配
+    how="left",  # 保留经营表所有行
 )
 
-rank_with_info[[
-    "证券代码", "证券简称", "行业名称", "省份", "营业收入_亿元", "净利率", "上市年份"
-]].head(10)  # 查看合并结果"""
+analysis_df[["证券代码", "证券简称", "年份", "营业收入_亿元", "基本每股收益", "扣非净利润_亿元"]].head(10)  # 查看合并结果"""
     ),
     code(
-        """len(finance_2020_rank_code)  # 合并前行数"""
+        """len(annual_panel)  # 合并前行数"""
     ),
     code(
-        """len(rank_with_info)  # 合并后行数"""
+        """len(analysis_df)  # 合并后行数"""
     ),
     code(
-        """rank_with_info["行业名称"].isna().sum()  # 检查行业名称缺失数量"""
-    ),
-    code(
-        """rank_with_info[[
-    "证券代码", "证券简称", "行业名称", "省份", "营业收入_亿元", "净利率", "上市年份"
-]].tail(5)  # 查看合并结果尾部"""
+        """analysis_df["基本每股收益"].isna().sum()  # 检查右表指标缺失数量"""
     ),
     md(
-        """**合并方式和不同列名的连接键**
+        """**不同合并方式的行数**
 
 1. `how="left"`：保留左表中的行。
 
 2. `how="inner"`：只保留两表都能匹配的行。
 
-3. `how="outer"`：保留两表行的并集。
-
-4. `left_on` / `right_on`：两张表的连接键列名不同时，分别指定左表和右表的连接键。"""
+3. `how="outer"`：保留两表行的并集。"""
     ),
     code(
         """# 比较不同 how 参数得到的行数。
 merge_how_demo = pd.DataFrame({
     "how": ["left", "inner", "outer"],
     "行数": [
-        len(finance_2020_rank_code.merge(company_small, on="证券代码", how="left")),  # left 合并行数
-        len(finance_2020_rank_code.merge(company_small, on="证券代码", how="inner")),  # inner 合并行数
-        len(finance_2020_rank_code.merge(company_small, on="证券代码", how="outer")),  # outer 合并行数
+        len(annual_panel.merge(indicators_clean[indicator_cols], on=["证券代码", "统计截止日期"], how="left")),  # left 合并行数
+        len(annual_panel.merge(indicators_clean[indicator_cols], on=["证券代码", "统计截止日期"], how="inner")),  # inner 合并行数
+        len(annual_panel.merge(indicators_clean[indicator_cols], on=["证券代码", "统计截止日期"], how="outer")),  # outer 合并行数
     ],
 })
 
 merge_how_demo  # 查看不同合并方式的行数"""
     ),
-    code(
-        """# 演示左右表连接键列名不同时的合并。
-company_key_demo = company_small.rename(columns={"证券代码": "公司代码"})  # 改右表连接键列名
-
-demo_merge = finance_2020_rank_code.merge(
-    company_key_demo,
-    left_on="证券代码",  # 左表连接键
-    right_on="公司代码",  # 右表连接键
-    how="left",  # 保留左表所有行
-)
-
-demo_merge[["证券代码", "公司代码", "行业名称"]].head()  # 查看不同列名连接键"""
-    ),
     md(
-        """阶段 5 小结：我们得到了 `rank_with_info`。这一阶段带出了证券代码处理、`concat()`、字符串方法、日期方法、`value_counts()`、`merge()`、`how` 和合并检查。
+        """阶段 5 小结：我们得到了 `analysis_df`。这一阶段带出了 `concat()`、`ignore_index`、`merge()`、多列连接键、`how` 和合并检查。
 
 **练习**：完成最后的阶段 5 练习。"""
     ),
     md(
         """## 阶段 6：分组汇总与组内比较
 
-目标：从公司层面的明细表，上升到行业和年份层面的比较。"""
+公司年度明细表是一家公司一年一行。很多经管问题关心的不是单家公司，而是行业、年份或组内位置。比如，2020 年哪些行业的收入规模更大，不同行业每年的平均净利率如何，某家公司是否高于本行业平均水平。
+
+范例：从 `analysis_df` 出发，按行业和年份汇总经营指标，并在行业内部比较公司的营业收入。"""
     ),
     code(
-        """analysis_df = finance_code.merge(company_small, on="证券代码", how="left")
-analysis_df.head()"""
+        """analysis_df[[
+    "证券代码", "证券简称", "年份", "行业名称", "营业收入_亿元", "净利率", "资产负债率", "基本每股收益"
+]].head()  # 查看合并后的明细表"""
     ),
     md(
-        """`groupby()` 用于“先分组，再计算”。常见写法是：
+        """**按一个分组列汇总**
 
-```python
-df.groupby("分组列").agg(新列名=("被计算列", "统计方法"))
-```
+1. `groupby("分组列")`：按照某一列把数据分组。
 
-下面先做一个普通的行业汇总。"""
+2. `.agg(新列名=("被计算列", "统计方法"))`：对每组计算统计量，并给结果列命名。
+
+3. `nunique()`：计算不重复数量。这里用来统计每个行业有多少家公司。
+
+4. `sort_values()`：按汇总结果排序，便于先看最重要的组。"""
     ),
     code(
-        """industry_2020 = (
-    analysis_df[analysis_df["年份"] == 2020]
-    .groupby("行业名称")
+        """# 先取出 2020 年公司明细，后面围绕这一年做行业比较。
+analysis_2020 = analysis_df.loc[analysis_df["年份"] == 2020].copy()  # 筛选 2020 年
+
+analysis_2020[["证券代码", "证券简称", "行业名称", "营业收入_亿元", "净利率", "资产负债率"]].head()  # 查看 2020 年明细"""
+    ),
+    code(
+        """# 按行业汇总 2020 年经营表现。
+industry_2020 = (
+    analysis_2020
+    .groupby("行业名称")  # 按行业分组
     .agg(
-        公司数=("证券简称", "nunique"),
-        平均营业收入_亿元=("营业收入_亿元", "mean"),
-        营业收入合计_亿元=("营业收入_亿元", "sum"),
-        平均净利率=("净利率", "mean"),
-        平均资产负债率=("资产负债率", "mean"),
+        公司数=("证券简称", "nunique"),  # 每个行业公司数量
+        平均营业收入_亿元=("营业收入_亿元", "mean"),  # 行业平均收入
+        营业收入合计_亿元=("营业收入_亿元", "sum"),  # 行业收入合计
+        平均净利率=("净利率", "mean"),  # 行业平均净利率
+        平均资产负债率=("资产负债率", "mean"),  # 行业平均资产负债率
     )
-    .sort_values("营业收入合计_亿元", ascending=False)
+    .sort_values("营业收入合计_亿元", ascending=False)  # 按收入合计降序
 )
 
-industry_2020"""
+industry_2020  # 查看行业汇总结果"""
     ),
     md(
-        """也可以同时按行业和年份分组。多个分组列放在列表中，例如 `groupby(["行业名称", "年份"])`。"""
+        """**按多个分组列汇总**
+
+1. `groupby(["列1", "列2"])`：同时按多个列分组。这里用行业和年份，得到行业-年份层面的结果。
+
+2. `reset_index()`：把分组结果中的索引还原成普通列，便于继续筛选、排序或保存。"""
     ),
     code(
-        """industry_year = (
+        """# 同时按行业和年份汇总，观察行业指标随年份变化。
+industry_year = (
     analysis_df
-    .groupby(["行业名称", "年份"])
+    .groupby(["行业名称", "年份"])  # 按行业和年份分组
     .agg(
         公司数=("证券简称", "nunique"),
         平均营业收入_亿元=("营业收入_亿元", "mean"),
         平均净利率=("净利率", "mean"),
     )
-    .reset_index()
+    .reset_index()  # 把行业和年份恢复成普通列
 )
 
-industry_year.head(12)"""
+industry_year.head(12)  # 查看行业-年份汇总"""
     ),
     md(
-        """`agg()` 可以同时计算多个统计量，也可以使用自定义函数。自定义函数接收一列数据，返回一个统计结果。"""
+        """**自定义聚合函数**
+
+1. 自定义函数可以放进 `agg()`。函数接收一列数据，返回一个统计结果。
+
+2. 对分组后的结果继续 `sort_values()`，可以直接找到差异较大的组。"""
     ),
     code(
         """def value_range(x):
-    return x.max() - x.min()
+    return x.max() - x.min()  # 最大值减最小值
 
-analysis_df.groupby("行业名称").agg(
-    收入均值=("营业收入_亿元", "mean"),
-    收入差距=("营业收入_亿元", value_range),
-).head()"""
-    ),
-    md(
-        """`transform()` 可以把分组结果带回到每一行。`agg()` 通常得到每组一行，`transform()` 得到和原表等长的一列，因此适合做组内比较。
-
-下面计算 2020 年每家公司是否高于本行业平均营业收入。"""
+value_range(analysis_2020["营业收入_亿元"])  # 先用一列数据试一下函数"""
     ),
     code(
-        """industry_compare_2020 = analysis_df[analysis_df["年份"] == 2020].copy()
+        """# 计算 2020 年各行业收入均值和行业内收入差距。
+industry_gap_2020 = (
+    analysis_2020
+    .groupby("行业名称")
+    .agg(
+        收入均值=("营业收入_亿元", "mean"),
+        收入差距=("营业收入_亿元", value_range),
+    )
+    .sort_values("收入差距", ascending=False)
+)
+
+industry_gap_2020.head()  # 查看收入差距较大的行业"""
+    ),
+    md(
+        """**把分组结果带回明细表**
+
+1. `transform()`：把每组的计算结果放回每一行。`agg()` 通常得到每组一行，`transform()` 得到和原表等长的一列。
+
+2. 组内比较常用 `transform()`。例如先计算行业平均收入，再判断每家公司是否高于本行业平均水平。"""
+    ),
+    code(
+        """# 计算每家公司所在行业的平均收入，并判断是否高于行业平均。
+industry_compare_2020 = analysis_2020.copy()  # 复制 2020 年明细表
 industry_compare_2020["行业平均收入_亿元"] = (
     industry_compare_2020
     .groupby("行业名称")["营业收入_亿元"]
-    .transform("mean")
+    .transform("mean")  # 把行业平均值带回每一行
 )
 industry_compare_2020["高于行业平均"] = (
     industry_compare_2020["营业收入_亿元"] > industry_compare_2020["行业平均收入_亿元"]
@@ -911,193 +884,269 @@ industry_compare_2020["高于行业平均"] = (
 
 industry_compare_2020[[
     "行业名称", "证券简称", "营业收入_亿元", "行业平均收入_亿元", "高于行业平均"
-]].head(10)"""
+]].head(10)  # 查看组内比较结果"""
     ),
     md(
-        """每组取前几名的常用做法是：排序、分组、再 `head()`。"""
+        """**每组取前几名**
+
+1. 常用步骤是先排序，再 `groupby()`，最后 `head(n)`。
+
+2. 排序时先按分组列排，再按组内比较指标排，可以让结果更容易检查。"""
     ),
     code(
-        """top2_by_industry = (
-    analysis_df[analysis_df["年份"] == 2020]
-    .sort_values(["行业名称", "营业收入_亿元"], ascending=[True, False])
+        """# 每个行业取营业收入最高的 2 家公司。
+top2_by_industry = (
+    analysis_2020
+    .sort_values(["行业名称", "营业收入_亿元"], ascending=[True, False])  # 先行业，再收入降序
     .groupby("行业名称")
-    .head(2)
+    .head(2)  # 每组取前 2 行
 )
 
-top2_by_industry[["行业名称", "证券简称", "营业收入_亿元"]].head(14)"""
+top2_by_industry[["行业名称", "证券代码", "证券简称", "营业收入_亿元", "净利率"]].head(14)  # 查看每组前 2 名"""
     ),
     md(
-        """分组循环适合处理每组内部较复杂的逻辑。循环得到的结果可以复用前面学过的 `concat()` 合并回来。"""
+        """**分组循环**
+
+1. `for 组名, 小表 in df.groupby("分组列")`：逐组取出数据。组内逻辑比较复杂时，循环比一行链式写法更容易读。
+
+2. 循环得到多个小表后，可以用前面学过的 `pd.concat()` 追加回来。"""
     ),
     code(
-        """top_list = []
+        """# 用分组循环找出每个行业收入最高的 1 家公司。
+top_list = []
 
-for industry, group in analysis_df[analysis_df["年份"] == 2020].groupby("行业名称"):
-    top_company = group.sort_values("营业收入_亿元", ascending=False).head(1)
+for industry, group in analysis_2020.groupby("行业名称"):
+    top_company = group.sort_values("营业收入_亿元", ascending=False).head(1)  # 本行业收入最高公司
     top_list.append(top_company)
 
-industry_top_company = pd.concat(top_list)[
+industry_top_company = pd.concat(top_list, ignore_index=True)[
     ["行业名称", "证券代码", "证券简称", "营业收入_亿元", "净利率"]
 ].sort_values("营业收入_亿元", ascending=False)
 
-industry_top_company"""
+industry_top_company  # 查看每个行业收入最高的公司"""
     ),
     md(
-        """`concat()` 横向拼接时，会按索引对齐。和按当前显示顺序直接粘贴相比，按索引对齐更适合保留行标签的含义。"""
-    ),
-    code(
-        """left = pd.Series(["A", "B", "C"], index=[1, 2, 3], name="name")
-right = pd.Series([90, 80, 70], index=[3, 2, 1], name="score")
-
-pd.concat([left, right], axis=1)"""
-    ),
-    md(
-        """按当前行顺序拼接时，可以先重置索引。"""
-    ),
-    code(
-        """pd.concat(
-    [left.reset_index(drop=True), right.reset_index(drop=True)],
-    axis=1,
-)"""
-    ),
-    md(
-        """阶段 6 小结：这一阶段带出了 `groupby()`、多指标 `agg()`、自定义聚合、`transform()`、每组取前几名和分组循环。
+        """阶段 6 小结：这一阶段带出了 `groupby()`、多指标 `agg()`、自定义聚合、`transform()`、每组取前几名、分组循环和在循环结果中复用 `concat()`。
 
 **练习**：完成最后的阶段 6 练习。"""
     ),
     md(
         """## 阶段 7：数据重塑与结果表构造
 
-目标：把明细表改造成更适合回答问题的表。分析时可以根据问题重新组织数据形状。"""
+明细表适合记录原始观测，但不一定适合直接回答问题。比如，如果想比较每家公司 2018 年到 2020 年的营业收入变化，把年份展开成列会更直观；如果要把结果发给别人，也需要整理成一张结构清楚的结果表。
+
+范例：把公司年度营业收入从长表整理成宽表，计算 2018-2020 年收入增长率，并构造一张公司层面的结果表。"""
     ),
     md(
-        """`pivot_table()` 可以把长表整理成宽表。基本思路是指定：哪些列作为行索引，哪一列展开成新列，哪一列作为单元格里的值。
+        """**长表和宽表**
 
-下面把公司年度营业收入整理成宽表，每家公司一行，每一年一列。"""
+1. 长表：同一个变量的不同年份放在多行里。当前 `analysis_df` 就是长表，一家公司一年一行。
+
+2. 宽表：同一个变量的不同年份展开成多列。比较跨年变化时，宽表更方便。
+
+3. `pivot_table()`：把长表整理成宽表。需要指定行索引、展开成列的变量，以及单元格里的数值。"""
     ),
     code(
-        """revenue_wide = analysis_df.pivot_table(
-    index=["证券代码", "证券简称", "行业名称"],
-    columns="年份",
-    values="营业收入_亿元",
+        """# 先看用于重塑的明细列。
+analysis_df[["证券代码", "证券简称", "行业名称", "年份", "营业收入_亿元", "资产负债率"]].head(9)  # 查看长表"""
+    ),
+    code(
+        """# 把公司年度营业收入整理成宽表。
+revenue_wide = analysis_df.pivot_table(
+    index=["证券代码", "证券简称", "行业名称"],  # 每家公司一行
+    columns="年份",  # 年份展开成列
+    values="营业收入_亿元",  # 单元格里放营业收入
 )
 
-revenue_wide.head()"""
+revenue_wide.head()  # 查看宽表"""
+    ),
+    md(
+        """**在宽表上继续计算**
+
+1. 宽表生成后，不同年份已经是不同列，可以直接做列运算。
+
+2. `reset_index()`：把索引还原成普通列。结果表通常更适合把公司代码、简称、行业作为普通列展示。"""
     ),
     code(
-        """revenue_wide["收入增长率_2018_2020"] = revenue_wide[2020] / revenue_wide[2018] - 1
+        """# 在宽表上计算 2018 到 2020 年营业收入增长率。
+revenue_wide["收入增长率_2018_2020"] = revenue_wide[2020] / revenue_wide[2018] - 1  # 跨年增长率
 
+revenue_wide[[2018, 2019, 2020, "收入增长率_2018_2020"]].head()  # 查看新增列"""
+    ),
+    code(
+        """# 把索引还原成普通列，并按增长率排序。
 company_summary = (
     revenue_wide
-    .reset_index()
-    .sort_values("收入增长率_2018_2020", ascending=False)
+    .reset_index()  # 公司代码、简称、行业回到普通列
+    .sort_values("收入增长率_2018_2020", ascending=False)  # 按增长率降序
 )
 
-company_summary.head(10)"""
+company_summary[["证券代码", "证券简称", "行业名称", 2018, 2020, "收入增长率_2018_2020"]].head(10)  # 查看结果表"""
     ),
     md(
-        """`set_index()` 和 `reset_index()` 常用于在“普通列”和“索引”之间切换。索引用来标识行；需要把索引重新当作普通变量使用时，可以 `reset_index()`。"""
+        """**索引和普通列之间切换**
+
+1. `set_index("列名")`：把普通列设为索引。需要按某个标识查找行时很方便。
+
+2. `reset_index()`：把索引还原成普通列。保存或继续合并前经常会这样做。"""
     ),
     code(
-        """indexed = company_summary.set_index("证券代码")
-indexed.head()"""
+        """indexed = company_summary.set_index("证券代码")  # 把证券代码设为索引
+indexed[["证券简称", "行业名称", 2018, 2020, "收入增长率_2018_2020"]].head()  # 查看索引表"""
     ),
     code(
-        """indexed.reset_index().head()"""
+        """indexed.reset_index()[["证券代码", "证券简称", "行业名称", 2018, 2020, "收入增长率_2018_2020"]].head()  # 索引还原成普通列"""
     ),
     md(
-        """也可以自己构造小的 `Series` 和 `DataFrame`，理解 pandas 对象如何组成表格。"""
+        """**构造小表**
+
+1. `pd.Series()`：构造一列带索引的数据。
+
+2. `pd.DataFrame({...})`：用字典构造表。字典的键会成为列名，值会成为列数据。
+
+构造小表常用于临时整理规则、演示结果或手工输入少量信息。"""
     ),
     code(
-        """s = pd.Series([10, 20, 30], index=["A", "B", "C"], name="得分")
-demo_df = pd.DataFrame({
+        """s = pd.Series([10, 20, 30], index=["A", "B", "C"], name="得分")  # 构造 Series
+s  # 查看 Series"""
+    ),
+    code(
+        """demo_df = pd.DataFrame({
     "公司": ["甲", "乙", "丙"],
     "收入": [100, 120, 80],
-})
+})  # 构造 DataFrame
 
-print(s)
-demo_df"""
+demo_df  # 查看小表"""
     ),
     md(
-        """保存结果。Excel 适合给人看，CSV 更通用。默认情况下，pandas 会把索引也保存成文件中的一列。普通表格通常使用 `index=False`。索引本身有意义时，可以先用 `reset_index()` 把它变成普通列，再保存。"""
+        """**保存结果**
+
+1. `to_excel("路径", index=False)`：保存为 Excel。适合给人直接打开查看。
+
+2. `to_csv("路径", index=False)`：保存为 CSV。格式简单，通用性强。
+
+3. `index=False`：不把索引写入文件。普通结果表通常使用这个参数。"""
     ),
     code(
-        """finance_2020_rank_code.to_excel("data/finance_2020_rank_full.xlsx", index=False)
-industry_2020.to_excel("data/industry_2020_full_summary.xlsx")
-company_summary.to_excel("data/company_full_summary.xlsx", index=False)
-company_summary.to_csv("data/company_full_summary.csv", index=False)
+        """# 保存前先看要输出的公司结果表。
+company_summary[["证券代码", "证券简称", "行业名称", 2018, 2020, "收入增长率_2018_2020"]].head()  # 查看保存对象"""
+    ),
+    code(
+        """# 保存几个阶段成果。
+analysis_df[analysis_df["年份"] == 2020].to_excel("data/finance_2020_rank_full.xlsx", index=False)  # 保存 2020 年明细
+industry_2020.to_excel("data/industry_2020_full_summary.xlsx")  # 保存行业汇总
+company_summary.to_excel("data/company_full_summary.xlsx", index=False)  # 保存公司结果表
+company_summary.to_csv("data/company_full_summary.csv", index=False)  # 保存 CSV 版本
 
 print("已保存阶段成果")"""
     ),
     code(
-        """pd.read_csv("data/company_full_summary.csv").head()"""
+        """pd.read_csv("data/company_full_summary.csv").head()  # 读回 CSV 检查"""
     ),
     md(
-        """阶段 7 小结：这一阶段带出了 `pivot_table()`、`set_index()`、`reset_index()`、构造 `Series` / `DataFrame`，以及保存 Excel 和 CSV。
+        """阶段 7 小结：这一阶段带出了长表和宽表、`pivot_table()`、列运算、`set_index()`、`reset_index()`、构造 `Series` / `DataFrame`，以及保存 Excel 和 CSV。
 
 **练习**：完成最后的阶段 7 练习。"""
     ),
     md(
-        """## 阶段 8：时间序列数据入门
+        """## 阶段 8：公司年度面板中的时间顺序
 
-目标：理解带日期的数据如何切片、滞后、差分、计算增长率和重采样。这里构造一份日度价格数据。"""
-    ),
-    code(
-        """dates = pd.date_range("2020-01-01", "2020-03-31", freq="B")
-rng = np.random.default_rng(42)
+本章的公司经营表已经是一张年度面板：同一家公司在不同年份有多行记录。处理这类数据时，关键是先确认时间顺序，再在公司内部计算上一年、本年变化和增长率。
 
-returns = pd.DataFrame(
-    {
-        "平安银行": rng.normal(0.0005, 0.015, len(dates)),
-        "万科A": rng.normal(0.0003, 0.018, len(dates)),
-    },
-    index=dates,
-)
-
-prices = 100 * (1 + returns).cumprod()
-prices.head()"""
+范例：选出一家公司的年度经营记录，计算上一年营业收入、收入增加额和收入增长率；再把同样的计算扩展到所有公司。"""
     ),
     md(
-        """日期作为索引后，可以直接按日期字符串切片。`prices.loc["2020-02"]` 表示取出 2020 年 2 月的数据；`prices.loc["2020-02-10":"2020-02-20"]` 表示取出一个日期区间。"""
-    ),
-    code(
-        """prices.loc["2020-02"].head()"""
-    ),
-    code(
-        """prices.loc["2020-02-10":"2020-02-20"]"""
-    ),
-    md(
-        """`shift()` 做滞后，`diff()` 做差分，`pct_change()` 计算百分比变化。"""
-    ),
-    code(
-        """ts = prices["平安银行"].to_frame("price")
-ts["lag_price"] = ts["price"].shift(1)
-ts["diff"] = ts["price"].diff()
-ts["return"] = ts["price"].pct_change()
+        """**先确认时间顺序**
 
-ts.head()"""
-    ),
-    md(
-        """如果已经有收益率，也可以用 `cumprod()` 还原价格路径。"""
-    ),
-    code(
-        """rebuilt_price = 100 * (1 + ts["return"].fillna(0)).cumprod()
-rebuilt_price.head()"""
-    ),
-    md(
-        """`resample()` 可以把高频数据汇总到较低频率。它要求索引是日期时间类型。常见写法是 `df.resample("ME").last()`，表示按月分组并取每个月最后一个观测。"""
-    ),
-    code(
-        """month_end_price = prices.resample("ME").last()
-month_return = month_end_price.pct_change()
+1. `sort_values()`：按公司和日期排序。时间序列计算通常要先排序。
 
-month_end_price"""
+2. 同一家公司跨年比较时，先单独取出一家公司看清楚，确认结果符合直觉，再推广到全部公司。"""
     ),
     code(
-        """month_return"""
+        """# 先按公司和统计截止日期排序，确认面板数据的时间顺序。
+panel_ts = analysis_df.sort_values(["证券代码", "统计截止日期"]).copy()  # 按公司和时间排序
+
+panel_ts[["证券代码", "证券简称", "统计截止日期", "年份", "营业收入_亿元", "净利润_亿元"]].head(9)  # 查看排序后的面板"""
+    ),
+    code(
+        """# 取出一家公司，先观察单个公司的时间序列。
+company_ts = panel_ts.loc[panel_ts["证券简称"] == "万科A"].copy()  # 筛选万科A
+company_ts[["证券代码", "证券简称", "统计截止日期", "年份", "营业收入_亿元", "净利润_亿元"]]  # 查看公司年度记录"""
     ),
     md(
-        """阶段 8 小结：这一阶段带出了 `date_range()`、日期索引、按日期切片、`shift()`、`diff()`、`pct_change()`、`cumprod()` 和 `resample()`。
+        """**滞后、差分和增长率**
+
+1. `shift(1)`：把数据向后移动一期，得到上一年的值。
+
+2. `diff()`：计算本年和上一年的差。
+
+3. `pct_change()`：计算本年相对上一年的增长率。"""
+    ),
+    code(
+        """# 对单家公司计算上一年收入、收入增加额和收入增长率。
+company_ts["上一年营业收入_亿元"] = company_ts["营业收入_亿元"].shift(1)  # 上一年收入
+company_ts["收入增加额_亿元"] = company_ts["营业收入_亿元"].diff()  # 本年收入减上一年收入
+company_ts["收入增长率"] = company_ts["营业收入_亿元"].pct_change()  # 收入增长率
+
+company_ts[["证券简称", "年份", "营业收入_亿元", "上一年营业收入_亿元", "收入增加额_亿元", "收入增长率"]]  # 查看计算结果"""
+    ),
+    md(
+        """**用增长率构造累计指数**
+
+1. `(1 + 增长率)`：把增长率转换成增长倍数。
+
+2. `cumprod()`：累计连乘。可以用增长率构造一个从 100 开始的收入指数。
+
+3. `fillna(0)`：第一年的增长率缺失，这里把它当作 0，让指数从 100 开始。"""
+    ),
+    code(
+        """# 用收入增长率构造收入指数。
+company_ts["收入指数"] = 100 * (1 + company_ts["收入增长率"].fillna(0)).cumprod()  # 从 100 开始累计
+
+company_ts[["证券简称", "年份", "营业收入_亿元", "收入增长率", "收入指数"]]  # 查看收入指数"""
+    ),
+    md(
+        """**在每家公司内部计算时间变化**
+
+1. `groupby("证券代码")`：先按公司分组。
+
+2. 分组后使用 `shift()`、`diff()`、`pct_change()`，表示在每家公司内部计算上一年、增加额和增长率。
+
+3. 计算后要抽几家公司看一眼，确认不会把不同公司的年份接在一起。"""
+    ),
+    code(
+        """# 在每家公司内部计算收入变化。
+panel_ts["上一年营业收入_亿元"] = panel_ts.groupby("证券代码")["营业收入_亿元"].shift(1)  # 公司内部上一年收入
+panel_ts["收入增加额_亿元"] = panel_ts.groupby("证券代码")["营业收入_亿元"].diff()  # 公司内部收入增加额
+panel_ts["收入增长率"] = panel_ts.groupby("证券代码")["营业收入_亿元"].pct_change()  # 公司内部收入增长率
+
+panel_ts[["证券代码", "证券简称", "年份", "营业收入_亿元", "上一年营业收入_亿元", "收入增加额_亿元", "收入增长率"]].head(12)  # 查看组内计算结果"""
+    ),
+    code(
+        """# 筛选 2020 年收入增长率较高的公司。
+high_growth_2020 = panel_ts.loc[
+    panel_ts["年份"] == 2020,
+    ["证券代码", "证券简称", "行业名称", "营业收入_亿元", "上一年营业收入_亿元", "收入增长率"],
+].sort_values("收入增长率", ascending=False)
+
+high_growth_2020.head(10)  # 查看 2020 年增长率靠前的公司"""
+    ),
+    md(
+        """**日期索引和日期切片**
+
+1. `set_index("日期列")`：把日期列设为索引。
+
+2. 日期索引可以用字符串切片。例如年度数据可以用 `loc["2020"]` 取出 2020 年记录。
+
+3. 本章数据是年度数据，不适合重点演示 `resample()`。遇到日度交易数据或月度宏观数据时，再用 `resample()` 改变频率。"""
+    ),
+    code(
+        """# 把日期设为索引，演示按年份切片。
+panel_by_date = panel_ts.set_index("统计截止日期").sort_index()  # 日期索引
+panel_by_date.loc["2020", ["证券代码", "证券简称", "行业名称", "营业收入_亿元", "收入增长率"]].head()  # 取出 2020 年记录"""
+    ),
+    md(
+        """阶段 8 小结：这一阶段带出了按时间排序、公司内部 `shift()`、`diff()`、`pct_change()`、用 `cumprod()` 构造累计指数、日期索引和日期切片。
 
 **练习**：完成最后的阶段 8 练习。"""
     ),
