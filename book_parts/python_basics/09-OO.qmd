@@ -1,4 +1,4 @@
-# 面向对象初步
+# （旧版）面向对象初步 {.unnumbered}
 
 :::{.callout-note}
 1. 需要讲基本概念
@@ -710,6 +710,5 @@ x = grade_2021.find_student_by_id(2021009)
 print(x)
 
 ```
-
 
 

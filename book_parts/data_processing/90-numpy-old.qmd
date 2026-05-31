@@ -1,4 +1,4 @@
-# （旧版）NumPy：高性能向量运算 
+# （旧版）NumPy：高性能向量运算 {.unnumbered}
 
 :::{.callout-note}
 1. 需要讲前6节
