@@ -25,6 +25,15 @@ book:
         - book_parts/python_basics/06.5-data-structure-2.ipynb
         - book_parts/python_basics/08-useage.qmd
         - book_parts/python_basics/09-OO.qmd
+    - part: "book_parts/data_processing/index.qmd"
+      chapters:
+        - book_parts/data_processing/11-pandas.ipynb
+        - book_parts/data_processing/12.1-seaborn.ipynb
+        - book_parts/data_processing/90-numpy-old.qmd
+        - book_parts/data_processing/91-pandas-old.ipynb
+        - book_parts/data_processing/92-plot-old.ipynb
+
+#        - 13-big-game.qmd
     - part: "book_parts/stats/index.ipynb"
       chapters:
         - book_parts/stats/01-parameter-estimation.ipynb
@@ -35,15 +44,6 @@ book:
         - book_parts/stats/06-classification.ipynb
         - book_parts/stats/statistical_theory.qmd
         - book_parts/stats/99-numpy-pandas-primer-old.ipynb
-    - part: "book_parts/data_processing/index.qmd"
-      chapters:
-        - book_parts/data_processing/11-pandas.ipynb
-        - book_parts/data_processing/12.1-seaborn.ipynb
-        - book_parts/data_processing/90-numpy-old.qmd
-        - book_parts/data_processing/91-pandas-old.ipynb
-        - book_parts/data_processing/92-plot-old.ipynb
-
-#        - 13-big-game.qmd
     - part: "第4部分 工具"
       chapters:
         # - book_parts/tools/20-ml.ipynb
