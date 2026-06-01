@@ -32,6 +32,7 @@ book:
         - book_parts/data_processing/90-numpy-old.qmd
         - book_parts/data_processing/91-pandas-old.ipynb
         - book_parts/data_processing/92-plot-old.ipynb
+        - book_parts/data_processing/93-seaborn-old.ipynb
 
 #        - 13-big-game.qmd
     - part: "book_parts/stats/index.ipynb"
