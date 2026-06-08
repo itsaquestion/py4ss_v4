@@ -9,6 +9,13 @@
 - `_quarto.yml`：quarto项目配置文件，定义了章节结构。
 - `book_parts/`：存放各章节内容的目录。
 
+## 常用脚本
+
+- `preview.sh`：复制 `plotly.js` 到 `_book/`，然后执行 `quarto preview`，用于本地预览讲义。
+- `render.sh`：执行 `quarto render --to html`，用于生成 HTML 版本。
+- `sync.sh`：调整 `_book/` 中文件权限，复制 `plotly.js`，并通过 `rsync` 同步到服务器。
+- `cps.sh "提交信息"`：复制 `plotly.js`，执行 `git add .`、`git commit`、`git push`，最后调用 `sync.sh`。使用前应确认工作区中没有不应提交的改动。
+
 ## 编辑要求
 
 - 默认情况下，不要直接修改内容。你应先列出修改或者编辑的建议，寻求用户的确认。
